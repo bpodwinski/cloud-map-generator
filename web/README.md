@@ -104,6 +104,10 @@ on one worker, the same in both modes; it is what the GPU cannot shorten. A synt
   with no third-party request). The engine's files carry a build stamp (`?v=`), so a release never mixes with a cached one.
 * 16384 and 32768 are offered but were not run in the browser. Their estimates are the 8192 time scaled by the texels, not
   measured.
+* **The page's thread only runs the interface.** The finished bands of a banded map go from their unit straight to the
+  sink worker over a `MessageChannel` (each worker has a port to it), never through the page; a unit's call returns once
+  the sink has written its band, so at most one band per unit is in flight, and a band is at most about 16 MB of rows. The
+  page only hands out band numbers and the small vectors of the barriers: during an 8192 run its longest stall is 2 ms.
 * **Files on disk.** The 16-bit master and the R8 of a banded map are streamed, band by band, to the origin private file
   system (`navigator.storage.getDirectory()`, no permission asked, a share of the disk), through synchronous access handles
   in the sink worker: the master appended, the R8 rows written at their place counted from the south, then read back in

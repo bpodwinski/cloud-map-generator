@@ -46,6 +46,9 @@ pub fn is_large(width: usize, requested: ComputeMode) -> bool {
     width >= LARGE_FROM_WIDTH || requested == ComputeMode::Hybrid
 }
 
+/// The largest band, bytes, posted from a unit to the sink.
+const BAND_POST_BYTES: usize = 16 << 20;
+
 /// Rows per band: the server's height for the mode, lowered so that every unit of the run (`units`: the workers and the
 /// GPU that take bands) gets at least two bands to share, and aligned to what the slices need.
 pub fn band_rows_for(width: usize, used: Used, units: usize) -> usize {
@@ -53,7 +56,10 @@ pub fn band_rows_for(width: usize, used: Used, units: usize) -> usize {
     let budget = if used == Used::Hybrid { BAND_TEXELS / 4 } else { BAND_TEXELS };
     let server = auto_band_rows(width, height, budget);
     let shared = height.div_ceil(2 * units.max(1));
-    aligned_band_rows(width, height, server.min(shared).max(1))
+    // A band's rows cross from its unit to the sink (coverage, type, high share: 12 bytes a texel) and wait there for the
+    // bands north of it: at most about 16 MB a band, so a 32768-wide run never holds more than a few hundred MB in flight.
+    let posted = (BAND_POST_BYTES / (12 * width)).max(1);
+    aligned_band_rows(width, height, server.min(shared).min(posted).max(1))
 }
 
 /// The bands of a map of `width` cut in bands of `band_rows` rows.
@@ -597,6 +603,9 @@ mod tests {
         assert_eq!(band_count(8192, band_rows_for(8192, Used::Hybrid, 16)), 32);
         assert!(band_count(1024, band_rows_for(1024, Used::Hybrid, 16)) >= 16);
         assert!(band_rows_for(8192, Used::Gpu, 1) % 4 == 0, "a multiple of width / 2048 for the slices");
+        // A 32768-wide band stays near 16 MB of rows, aligned to the 16 rows a slice row needs.
+        let rows = band_rows_for(32768, Used::Cpu, 15);
+        assert!(rows % 16 == 0 && rows * 32768 * 12 <= 16 << 20, "{rows}");
         assert!(is_large(8192, ComputeMode::Auto) && is_large(512, ComputeMode::Hybrid) && !is_large(4096, ComputeMode::Gpu));
     }
 }

@@ -1452,9 +1452,14 @@ function buildPresets() {
     + state.defaults.presets.map((p) => `<option value="${esc(p.key)}">${esc(p.label)}</option>`).join('');
 }
 
+// A width as a short label: 512, then 1K, 2K ... 32K (K = 1024 px), so the seven fit in the panel.
+function widthLabel(w) {
+  return w >= 1024 && w % 1024 === 0 ? `${w / 1024}K` : String(w);
+}
+
 function buildWidths() {
   els.widths.innerHTML = state.defaults.widths.map((w) =>
-    `<button type="button" role="radio" data-width="${w}" class="btn btn-sm join-item flex-1">${w}</button>`).join('');
+    `<button type="button" role="radio" data-width="${w}" class="btn btn-sm join-item min-w-0 flex-1 px-0 tabular-nums" title="${w} px" aria-label="${w} px">${widthLabel(w)}</button>`).join('');
 }
 
 // One selected look for every segmented choice: the inverted base color (dark on light,

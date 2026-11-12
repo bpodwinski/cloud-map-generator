@@ -154,17 +154,32 @@ const ops = {
     await diskDrop();
     disk = await diskOpen(dir, id);
     wasm.large_sink_begin(!!disk);
+    sinkNext = 0;
+    sinkWaiting.clear();
     return { disk: !!disk };
   },
-  large_sink_band: ({ band, data }) => {
-    wasm.large_sink_band(band, data);
-    if (disk) {
-      const master = wasm.large_sink_take_master();
-      disk.master.h.write(master, { at: disk.masterAt });
-      disk.masterAt += master.length;
-      const at = wasm.large_sink_r8_offset();
-      disk.r8.h.write(wasm.large_sink_take_r8(), { at });
+  // A unit's pass C: the band goes straight to the sink worker over this worker's port (never through the page's thread),
+  // and the call returns once the sink has written it, so no unit runs more than one band ahead of the files.
+  large_pass_c_send: ({ band }) => toSink(band, wasm.large_pass_c(band)),
+  async large_gpu_pass_c_send({ band }) {
+    return toSink(band, await wasm.large_gpu_pass_c(band));
+  },
+  // The page links the workers once: every unit gets a port to the sink, the sink the other end of each.
+  connect({ port, role }) {
+    if (role === 'self') {
+      sinkPort = null;
+      return true;
     }
+    if (role === 'sink') {
+      port.onmessage = (e) => sinkReceive(e.data, (msg) => port.postMessage(msg));
+      return true;
+    }
+    sinkPort = port;
+    port.onmessage = (e) => {
+      const p = acks.get(e.data.reply);
+      acks.delete(e.data.reply);
+      if (p) (e.data.error ? p.reject(new Error(e.data.error)) : p.resolve(true));
+    };
     return true;
   },
   async large_finish(a) {
@@ -184,6 +199,54 @@ const ops = {
   finalize: (a) => finished(wasm.finalize_maps(a.request, a.caps, a.id, a.coverage, a.kind, a.high_share, a.used, a.devices, a.note ?? undefined, a.engine_seconds, a.elapsed_before)),
   run_whole: (a) => finished(wasm.run_whole(a.request, a.caps, a.id, a.note ?? undefined, a.elapsed_before))
 };
+
+// ---------------------------------------------------------------------------------------------------------
+// Pass C between the workers: units post their bands to the sink, which writes them north to south as they complete.
+
+let sinkPort = null; // a unit's port to the sink; null in the sink itself
+let nextAck = 1;
+const acks = new Map();
+let sinkNext = 0;
+const sinkWaiting = new Map();
+
+function toSink(band, data) {
+  return new Promise((resolve, reject) => {
+    if (!sinkPort) {
+      sinkReceive({ band, data }, (msg) => (msg.error ? reject(new Error(msg.error)) : resolve(true)));
+      return;
+    }
+    const reply = nextAck++;
+    acks.set(reply, { resolve, reject });
+    sinkPort.postMessage({ band, data, reply }, [data.buffer]);
+  });
+}
+
+// The sink: a band waits until every band north of it is written; each unit hears back when its own band is.
+function sinkReceive({ band, data, reply }, respond) {
+  sinkWaiting.set(band, { data, reply, respond });
+  while (sinkWaiting.has(sinkNext)) {
+    const w = sinkWaiting.get(sinkNext);
+    sinkWaiting.delete(sinkNext);
+    try {
+      writeBand(sinkNext, w.data);
+      w.respond({ reply: w.reply });
+    } catch (err) {
+      w.respond({ reply: w.reply, error: (err && err.message) || String(err) });
+    }
+    sinkNext++;
+  }
+}
+
+function writeBand(band, data) {
+  wasm.large_sink_band(band, data);
+  if (disk) {
+    const master = wasm.large_sink_take_master();
+    disk.master.h.write(master, { at: disk.masterAt });
+    disk.masterAt += master.length;
+    const at = wasm.large_sink_r8_offset();
+    disk.r8.h.write(wasm.large_sink_take_r8(), { at });
+  }
+}
 
 // ---------------------------------------------------------------------------------------------------------
 // The two big files of a banded map on disk: the origin private file system (no permission asked, a share of the disk),

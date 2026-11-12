@@ -138,6 +138,20 @@
       } catch {}
     }
 
+    // A port from every worker to the sink (the last worker): the finished bands of a banded map go there directly, so the
+    // page's thread, which keeps the interface alive, never carries the map (at 32768 wide, 6 GB of rows).
+    async connectSink() {
+      const sink = this.finalizer;
+      const links = [this.pool.call(sink, 'connect', { role: 'self' })];
+      for (let i = 0; i < this.pool.size; i++) {
+        if (i === sink) continue;
+        const ch = new MessageChannel();
+        links.push(this.pool.call(i, 'connect', { port: ch.port1, role: 'unit' }, [ch.port1]));
+        links.push(this.pool.call(sink, 'connect', { port: ch.port2, role: 'sink' }, [ch.port2]));
+      }
+      await Promise.all(links);
+    }
+
     async start() {
       this.diskSession();
       const threads = Math.max(1, navigator.hardwareConcurrency || 4);
@@ -156,6 +170,7 @@
       // The last worker does the CPU-side stages after the maps (encodings, metrics against Earth): it computes Earth's
       // reference measures now, in the background, while the page is being read. With one worker the first map pays.
       this.finalizer = size - 1;
+      await this.connectSink();
       const gpu = await this.probeGpu();
       // Earth's reference measures (about two seconds in WebAssembly), ahead of the first map.
       if (size > 1) this.pool.call(this.finalizer, 'warm').catch(() => {});
@@ -415,21 +430,10 @@
       const sensitivity = concat(Float64Array, sens);
       await Promise.all(open.map((i) => pool.call(i, 'large_set_thresholds', { thr_raw: thrRaw, sensitivity })));
 
-      // Pass C: the bands reach the sink in order, whatever order they are made in.
+      // Pass C: each unit posts its band straight to the sink, which writes the bands north to south; a unit's call returns
+      // once its band is written, so the rows never pile up anywhere.
       await pool.call(sink, 'large_sink_begin', { dir: this.diskDir, id });
-      const ready = new Map();
-      let toSink = 0;
-      let chain = Promise.resolve();
-      await pass('pass_c', (b, data) => {
-        ready.set(b, data);
-        while (ready.has(toSink)) {
-          const band = toSink++;
-          const rows = ready.get(band);
-          ready.delete(band);
-          chain = chain.then(() => pool.call(sink, 'large_sink_band', { band, data: rows }, [rows.buffer]));
-        }
-      });
-      await chain;
+      await pass('pass_c_send', () => {});
       const engineSeconds = since() - t0;
 
       // What each kind of device did: its share of the rows of the three passes, and how long it worked.
