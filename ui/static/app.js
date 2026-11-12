@@ -29,6 +29,19 @@ const DEFAULT_FORM = {
 const COMPUTE_ICONS = { auto: 'wand-sparkles', cpu: 'cpu', gpu: 'zap', hybrid: 'layers' };
 const GLOBE_HOME = { lon: 0, lat: 15 };
 const SPHERE_BG = [34, 46, 64];
+// The globe's ground under the clouds, by preset key (the page's presets and the service's): a hint of the body,
+// kept dark enough that white cloud still reads on it. A custom body or a key not listed keeps SPHERE_BG.
+const GROUND_BY_PRESET = {
+  earth: [22, 50, 86],
+  'earth-retrograde': [22, 50, 86],
+  fast: [22, 50, 86],
+  'fast-rotator': [22, 50, 86],
+  'slow-rotator': [22, 50, 86],
+  'super-earth': [24, 62, 78],
+  mars: [142, 60, 32],
+  titan: [160, 90, 26],
+  venus: [172, 146, 88],
+};
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -82,6 +95,7 @@ const state = {
   running: false,
   startedAt: 0,
   result: null,
+  resultPreset: '', // the preset key the result was made with (the globe's ground colour)
   product: null,
   stageError: null,
   emptyAction: 'earth',
@@ -535,6 +549,7 @@ async function generate() {
     const data = await api('/api/generate', request);
     releaseProducts();
     state.result = data;
+    state.resultPreset = state.form.preset;
     state.stageError = null;
     if (state.tab === 'earth') state.tab = 'coverage';
     const where = computeUsedText(data.compute);
@@ -819,6 +834,13 @@ function onMapMove(e) {
 
 let globeImage = null;
 
+// The ground of the body on show: the Earth tab is Earth's; a run keeps the preset it was made with, so editing
+// the form afterwards does not repaint a map of another body.
+function globeGround() {
+  const key = state.tab === 'earth' ? 'earth' : state.result ? state.resultPreset : state.form.preset;
+  return GROUND_BY_PRESET[key] || SPHERE_BG;
+}
+
 function globeGeometry(canvas, quality) {
   const rect = canvas.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -854,7 +876,7 @@ function drawGlobe(quality) {
   const x1 = Math.min(W, Math.ceil(cx + R + 2));
   const y0 = Math.max(0, Math.floor(cy - R - 2));
   const y1 = Math.min(H, Math.ceil(cy + R + 2));
-  const [bgR, bgG, bgB] = SPHERE_BG;
+  const [bgR, bgG, bgB] = globeGround();
   const TWO_PI = 2 * Math.PI;
   const mode = kind === 'coverage' ? 0 : kind === 'type' ? 1 : kind === 'high_share' ? 2 : 3;
 
