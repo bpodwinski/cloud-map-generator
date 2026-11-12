@@ -211,6 +211,23 @@ are solved to, not from these knobs; Earth's own pole rows are the satellite's s
 targets. Not done: a separate cirrus layer and fronts that join one low to the next need a new term in `compose` and in its WGSL kernel and a new
 flow plan (and new golden cases).
 
+### Route 1 of an AI pass: statistical calibration (2026-11-12)
+
+The option `match_earth` (a whole-map step, up to 4096 wide) now runs `matching::refine_to_earth`: the Heeger-Bergen match of `match.py`, then the
+finest two band-pass layers scaled by `refine_gains` (damped by 20 % and 10 % at 2048 wide, sharpened by 20 % and 10 % at 4096, where the match
+alone over-steepens the spectrum), then a last per-zone histogram match, then the polar average. Mean of seeds, `compute: cpu`:
+
+| map | mean | zonal RMSE | hist L1 | coherence | slope | big objects % | median km2 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Earth | 0.404 | 0 | 0 | 0.487 | -2.90 | 80.3 | 308 |
+| `realistic`, 2048 | 0.366 | 0.092 | 0.128 | 0.496 | -2.65 | 83.9 | 298 |
+| + `match_earth` (port of `match.py`), 2048 | 0.406 | 0.072 | 0.027 | 0.459 | -2.68 | 87.3 | 308 |
+| + `match_earth` (`refine_to_earth`), 2048 | 0.408 | 0.072 | 0.023 | 0.483 | -2.87 | 88.2 | 318 |
+| + `match_earth` (`refine_to_earth`), 4096 | 0.408 | 0.072 | 0.035 | 0.489 | -2.97 | 85.6 | 270-308 |
+
+Left: cloud in big objects (88 % against 80 %), and the option stays off by default (it sets the mean to Earth's, not to the body's own target).
+It is not offered for banded maps (8192 and up, CPU + GPU): the quantile tables need the whole map.
+
 ## Tuning record (sheets v1-v8, `output/cloudgen/`)
 
 | Version | Change | Result |

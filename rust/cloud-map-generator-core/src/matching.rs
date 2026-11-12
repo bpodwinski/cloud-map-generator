@@ -232,6 +232,63 @@ pub fn match_to_earth<C: Float, E: Float>(
     (0..h * w).map(|k| s * fin[k] + one_minus_s * out[k]).collect()
 }
 
+/// Gains of the finest scales of [`refine_to_earth`]: the band-pass layers of `sigma = 1` and `2` Earth texels (about 20 and 40 km), for
+/// a map as wide as Earth's reference (2048) and for one twice as wide (4096; beyond, the 4096 values hold).
+///
+/// At 2048 wide Earth's spectrum falls faster over 40 to 400 km than the generator's (slope -2.90 against -2.65): the grain at those
+/// scales is damped by 20 % and 10 %. At 4096 the quantile match of the layers itself steepens the spectrum (the generated layers hold
+/// scales Earth's 2048-wide map cannot, and are squeezed to its amplitudes: slope -3.14 matched alone), so the same layers are
+/// sharpened by 20 % and 10 %. Chosen by sweeps (seeds 1 to 4 at 2048, 5 and 6 at 4096): slope -2.87 and -2.97, coherence 0.483 and
+/// 0.489 (Earth 0.487), histogram L1 0.022 and 0.035; stronger gains overshoot the slope and the coherence.
+pub const REFINE_GAINS_2048: [f32; 2] = [0.8, 0.9];
+/// See [`REFINE_GAINS_2048`].
+pub const REFINE_GAINS_4096: [f32; 2] = [1.2, 1.1];
+
+/// The gains of [`refine_to_earth`] for a generated map `ratio` times as wide as Earth's reference: [`REFINE_GAINS_2048`] up to 1,
+/// [`REFINE_GAINS_4096`] from 2, in between linear in the log of the width.
+pub fn refine_gains(ratio: f64) -> [f32; 2] {
+    let t = ratio.log2().clamp(0.0, 1.0) as f32;
+    [0, 1].map(|k| REFINE_GAINS_2048[k] + t * (REFINE_GAINS_4096[k] - REFINE_GAINS_2048[k]))
+}
+
+/// [`match_to_earth`], then the spectral tilt Earth's statistics ask for: the finest band-pass layers of the matched map are scaled by
+/// [`refine_gains`] (a linear step, which sets the spectrum; the quantile match sets the marginals but not the slope), and the map is
+/// matched to Earth's histograms once more, per latitude zone, because the tilt moved them. Not a port of `match.py`: the product
+/// option `match_earth` runs this. The map must be whole (a quantile table per zone needs every row).
+#[allow(clippy::too_many_arguments)]
+pub fn refine_to_earth<C: Float, E: Float>(
+    cov: &[C],
+    h: usize,
+    w: usize,
+    earth: &[E],
+    he: usize,
+    we: usize,
+    hadley_deg: f64,
+    levels: usize,
+    strength: f64,
+) -> Vec<f32> {
+    let matched = match_to_earth(cov, h, w, earth, he, we, hadley_deg, levels, strength);
+    let ratio = w as f64 / we as f64;
+    let gains = refine_gains(ratio);
+    let sigmas: Vec<f64> = (0..gains.len()).map(|k| 2.0_f64.powi(k as i32) * ratio).collect();
+    let (layers, mut out) = band_layers(&matched, h, w, &sigmas);
+    for (layer, &gain) in layers.iter().zip(&gains) {
+        for (o, &v) in out.iter_mut().zip(layer) {
+            *o += gain * v;
+        }
+    }
+    for v in out.iter_mut() {
+        // Clamp like `match_to_earth` (NaN stays NaN).
+        if *v < 0.0 {
+            *v = 0.0;
+        } else if *v > 1.0 {
+            *v = 1.0;
+        }
+    }
+    // No layer: the map as a whole, matched, clipped and matched again.
+    match_to_earth(&out, h, w, earth, he, we, hadley_deg, 0, 1.0)
+}
+
 /// numpy and scipy primitives shared by `metrics` and `matching`, ported with their exact semantics (summation
 /// order, dtype of every step, boundary modes). Generic and independent of the cloud model: later modules import
 /// them from here (`cloud_map_generator_core::matching::ndimage`).
@@ -1182,6 +1239,33 @@ mod tests {
         let (_, lat) = grid_lonlat(4, 2);
         let img = vec![0.5_f32; 8];
         let _ = match_by_zone(&img, 2, 4, &img, 2, 4, &lat, 30.0, &[-1, -1]);
+    }
+
+    #[test]
+    fn refine_gains_follow_the_width_between_the_two_fits() {
+        assert_eq!(refine_gains(0.25), REFINE_GAINS_2048);
+        assert_eq!(refine_gains(1.0), REFINE_GAINS_2048);
+        assert_eq!(refine_gains(2.0), REFINE_GAINS_4096);
+        assert_eq!(refine_gains(4.0), REFINE_GAINS_4096);
+        let mid = refine_gains(2.0_f64.sqrt());
+        assert!((mid[0] - 1.0).abs() < 1e-6 && (mid[1] - 1.0).abs() < 1e-6, "{mid:?}");
+    }
+
+    #[test]
+    fn refine_damps_the_finest_scale_and_stays_in_range() {
+        let (h, w, he, we) = (32, 64, 64, 128);
+        // A smooth Earth, a noisy generated map: the refined one has less energy in the finest layer than the matched one.
+        let earth: Vec<f32> = (0..he * we).map(|k| 0.5 + 0.4 * ((k % we) as f32 / 9.0).sin() * ((k / we) as f32 / 7.0).cos()).collect();
+        let cov: Vec<f32> = (0..h * w).map(|k| (((k as u64).wrapping_mul(2654435761) >> 9) % 1000) as f32 / 1000.0).collect();
+        let fine = |m: &[f32]| -> f64 {
+            let (layers, _) = band_layers(m, h, w, &[1.0 * w as f64 / we as f64]);
+            layers[0].iter().map(|&v| (v as f64).powi(2)).sum::<f64>()
+        };
+        let matched = match_to_earth(&cov, h, w, &earth, he, we, 30.0, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        let refined = refine_to_earth(&cov, h, w, &earth, he, we, 30.0, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        assert_eq!(refined.len(), h * w);
+        assert!(refined.iter().all(|&v| v.is_finite() && (0.0..=1.0).contains(&v)));
+        assert!(fine(&refined) < fine(&matched) * 1.05, "{} vs {}", fine(&refined), fine(&matched));
     }
 
     #[test]

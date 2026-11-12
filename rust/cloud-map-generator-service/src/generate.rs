@@ -23,7 +23,7 @@ use crate::synthetic::synthetic_surface;
 use cloud_map_generator_core::climate::{target_zonal_coverage, BodyInputs};
 use cloud_map_generator_core::export::{box_downsample, encode_map, encode_products, Plane, ProductExtras};
 use cloud_map_generator_core::generate::{py_round, GenOutput, GenParams};
-use cloud_map_generator_core::matching::{match_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
+use cloud_map_generator_core::matching::{refine_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
 use cloud_map_generator_core::metrics::{compare, measure, zonal_profile, Comparison, Measure, DEFAULT_BAND_DEG};
 use cloud_map_generator_core::sphere::grid_lonlat;
 use std::borrow::Cow;
@@ -456,7 +456,11 @@ pub fn run_generation(rt: &Runtime, reference: &Reference, job: &Job, progress: 
     }
     if opt.match_earth {
         run.stage(0.80, "matching Earth's statistics")?;
-        cov = match_to_earth(&cov, height, width, &reference.data, reference.h, reference.w, output.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        cov = refine_to_earth(&cov, height, width, &reference.data, reference.h, reference.w, output.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        if params.polar_smooth {
+            // The match stretched the rows near the poles to Earth's tables: average them again.
+            cloud_map_generator_core::polar::polar_filter(&mut cov, 0, height, width, height);
+        }
         meta.push("matched_to", J::s(REFERENCE));
     }
     meta.push(

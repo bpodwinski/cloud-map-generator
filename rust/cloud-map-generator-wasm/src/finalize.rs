@@ -8,7 +8,7 @@ use cloud_map_generator_core::export::{encode_map, encode_products, Plane, Produ
 use cloud_map_generator_core::climate::hadley_edge_deg;
 use cloud_map_generator_core::flow::{build_flow, Flow, VortexKind};
 use cloud_map_generator_core::generate::{fine_ladder, isotropic_flow, py_round, Extras, FlowMeta, GenMeta, GenOutput, GenParams, VortexMeta, ORIENTATION};
-use cloud_map_generator_core::matching::{match_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
+use cloud_map_generator_core::matching::{refine_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
 use cloud_map_generator_core::products::wind_map;
 use cloud_map_generator_service::engine::{ComputeUse, MapOptions, SurfaceChoice};
 use cloud_map_generator_service::generate::{compute_json, metric_table, measure_map, round5, REF_W};
@@ -212,7 +212,11 @@ pub fn finish(run: Run<'_>, mut output: GenOutput) -> Result<Finished, String> {
     let mut cov = output.coverage.clone();
     let mut meta = gen_meta(body, &params, &output.meta, run.engine_seconds);
     if options.match_earth {
-        cov = match_to_earth(&cov, height, width, &reference.data, reference.h, reference.w, output.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        cov = refine_to_earth(&cov, height, width, &reference.data, reference.h, reference.w, output.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        if params.polar_smooth {
+            // The match stretched the rows near the poles to Earth's tables: average them again.
+            cloud_map_generator_core::polar::polar_filter(&mut cov, 0, height, width, height);
+        }
         meta.push("matched_to", J::s(REFERENCE));
     }
     meta.push(

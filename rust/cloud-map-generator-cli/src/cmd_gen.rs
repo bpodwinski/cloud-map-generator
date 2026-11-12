@@ -18,7 +18,7 @@ use clap::Args;
 use cloud_map_generator_core::climate::{hadley_edge_deg, is_bakeable, map_width_for_texel, MAP_MAX_WIDTH};
 use cloud_map_generator_core::export::{encode_map, encode_products, Image8, Plane, ProductExtras};
 use cloud_map_generator_core::generate::{generate, GenParams};
-use cloud_map_generator_core::matching::{match_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
+use cloud_map_generator_core::matching::{refine_to_earth, DEFAULT_LEVELS, DEFAULT_STRENGTH};
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
@@ -206,11 +206,25 @@ pub fn run(a: GenArgs, project: &Project) -> Result<()> {
     let mut meta = gen_meta(&body, &params, &gen.meta, seconds);
     meta.push("body_name", J::s(a.body.name()));
 
+    // The poles are one point each: the rows near them are averaged along longitude (`polar_smooth`), as every engine of the service does.
+    let mut gen = gen;
+    if params.polar_smooth {
+        cloud_map_generator_core::polar::polar_filter(&mut gen.coverage, 0, h, w, h);
+        if let Some(e) = gen.extras.as_mut() {
+            cloud_map_generator_core::polar::polar_filter(&mut e.kind, 0, h, w, h);
+            cloud_map_generator_core::polar::polar_filter(&mut e.high_share, 0, h, w, h);
+        }
+    }
+
     let mut cov = gen.coverage;
     if a.match_earth {
         let reference = project.reference();
         let earth = load_map(&reference)?;
-        cov = match_to_earth(&cov, h, w, &earth.data, earth.h, earth.w, gen.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        cov = refine_to_earth(&cov, h, w, &earth.data, earth.h, earth.w, gen.meta.hadley_edge_deg, DEFAULT_LEVELS, DEFAULT_STRENGTH);
+        if params.polar_smooth {
+            // The match stretched the rows near the poles to Earth's tables: average them again.
+            cloud_map_generator_core::polar::polar_filter(&mut cov, 0, h, w, h);
+        }
         meta.push("matched_to", J::s(crate::project::REFERENCE));
     }
     debug_assert_eq!(hadley_edge_deg(&body), gen.meta.hadley_edge_deg);
