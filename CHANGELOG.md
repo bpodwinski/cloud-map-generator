@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.4.0...v0.5.0) (2026-11-12)
+
+
+### Features
+
+* implement banded engine for large maps in WASM ([b24a26e](https://github.com/bpodwinski/cloud-map-generator/commit/b24a26ee2bff6270b4f779c2c90d5b55ac224058))
+* implement disk-based storage for banded map files in WebAssembly ([e160b01](https://github.com/bpodwinski/cloud-map-generator/commit/e160b010c7dae7bce86951b56f1518c2e90d946d))
+
 ## [0.4.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.3.0...v0.4.0) (2026-11-12)
 
 
