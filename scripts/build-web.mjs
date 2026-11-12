@@ -12,6 +12,7 @@
 // `cloud-map-generator serve` shows and the page the site shows cannot drift apart; pkg/ is the engine.
 
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,17 +23,29 @@ const web = join(root, 'web');
 const run = (cmd, args, opts = {}) => execFileSync(cmd, args, { stdio: 'inherit', ...opts });
 const out = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8' }).trim();
 
+// A stamp of this build (the hash of the module and the page script), put on the URLs of the engine, its worker and
+// its module (?v=...): GitHub Pages lets browsers cache every file for 10 minutes, and a glue of one release with the
+// module of another fails to instantiate.
+function buildStamp() {
+  const h = createHash('sha256');
+  for (const f of [join(web, 'pkg/cloud_map_generator_wasm_bg.wasm'), join(web, 'pkg/cloud_map_generator_wasm.js'), join(web, 'engine.js'), join(web, 'worker.js'), join(root, 'ui/static/app.js')]) {
+    if (existsSync(f)) h.update(readFileSync(f));
+  }
+  return h.digest('hex').slice(0, 12);
+}
+
 function buildPage() {
+  const stamp = buildStamp();
   copyFileSync(join(root, 'ui/static/app.js'), join(web, 'app.js'));
   let html = readFileSync(join(root, 'ui/static/index.html'), 'utf8');
   // Relative paths, so the site works under https://<user>.github.io/<repo>/ as well as at a root.
   const module = '<script type="module" src="/static/app.js"></script>';
   if (!html.includes(module)) throw new Error('ui/static/index.html no longer loads /static/app.js: update scripts/build-web.mjs');
-  html = html.replace(module, '<script type="module" src="./app.js"></script>');
+  html = html.replace(module, `<script type="module" src="./app.js?v=${stamp}"></script>`);
   // The engine adapter must be in place before the page's first call to /api/defaults.
   const head = '</head>';
   if (!html.includes(head)) throw new Error('ui/static/index.html has no </head>: update scripts/build-web.mjs');
-  html = html.replace(head, `  <script src="./engine.js"></script>\n${head}`);
+  html = html.replace(head, `  <script src="./engine.js?v=${stamp}"></script>\n${head}`);
   const docsLink = '<a id="apiDocs" href="docs"';
   if (!html.includes(docsLink)) throw new Error('ui/static/index.html changed its API link: update scripts/build-web.mjs');
   html = html.replace(docsLink, '<a id="apiDocs" href="docs.html"');
@@ -42,9 +55,9 @@ function buildPage() {
   copyFileSync(join(root, 'ui/static/openapi.json'), join(web, 'openapi.json'));
   let docs = readFileSync(join(root, 'ui/static/docs.html'), 'utf8');
   if (!docs.includes(head)) throw new Error('ui/static/docs.html has no </head>: update scripts/build-web.mjs');
-  docs = docs.replace(head, `  <script src="./engine.js"></script>\n${head}`);
+  docs = docs.replace(head, `  <script src="./engine.js?v=${stamp}"></script>\n${head}`);
   writeFileSync(join(web, 'docs.html'), docs);
-  console.log('page: web/index.html, web/app.js, web/docs.html, web/openapi.json');
+  console.log(`page: web/index.html, web/app.js, web/docs.html, web/openapi.json (build ${stamp})`);
 }
 
 function crateVersion(name) {

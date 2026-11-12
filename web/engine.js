@@ -21,6 +21,9 @@
   'use strict';
 
   const BASE = new URL('.', document.currentScript.src);
+  // The build stamp of this script's URL (?v=..., scripts/build-web.mjs): on the worker and the module too, so one visit
+  // never mixes files of two releases from the browser cache.
+  const STAMP = new URL(document.currentScript.src).search;
   const KEEP = 8;
   const MAX_WORKERS = 16;
   const realFetch = window.fetch.bind(window);
@@ -55,7 +58,7 @@
       this.nextId = 1;
       this.pending = new Map();
       this.workers = Array.from({ length: size }, (_, i) => {
-        const w = new Worker(new URL('worker.js', BASE), { type: 'module', name: `cloud-map-generator-${i}` });
+        const w = new Worker(new URL(`worker.js${STAMP}`, BASE), { type: 'module', name: `cloud-map-generator-${i}` });
         w.onmessage = (e) => this.settle(e.data);
         w.onerror = (e) => this.crash(w, e.message || 'a worker failed to start');
         return w;
@@ -112,7 +115,7 @@
       const threads = Math.max(1, navigator.hardwareConcurrency || 4);
       // The page's own thread keeps the interface alive: one hardware thread less for the workers (at least one).
       const size = Math.max(1, Math.min(threads - 1, MAX_WORKERS));
-      const wasmUrl = new URL('pkg/cloud_map_generator_wasm_bg.wasm', BASE);
+      const wasmUrl = new URL(`pkg/cloud_map_generator_wasm_bg.wasm${STAMP}`, BASE);
       let module;
       try {
         module = await WebAssembly.compileStreaming(realFetch(wasmUrl));

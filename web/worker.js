@@ -8,7 +8,11 @@
 // opened with between the passes (band_open, band_prepare, band_solve, band_compose), so only moments, thresholds and
 // finished rows cross between workers.
 
-import * as wasm from './pkg/cloud_map_generator_wasm.js';
+// The glue of the same build as the module the adapter compiled: the build stamp of this worker's URL (?v=..., set by
+// scripts/build-web.mjs) goes on the import too, so a glue cached from an older release never meets a newer module (the
+// names of their imports differ, and instantiating fails with "function import requires a callable").
+const glue = import(new URL(`./pkg/cloud_map_generator_wasm.js${new URL(import.meta.url).search}`, import.meta.url).href);
+let wasm = null;
 
 let job = null;
 
@@ -119,6 +123,7 @@ function finished(done) {
 self.onmessage = async (event) => {
   const { id, op, args } = event.data;
   try {
+    if (!wasm) wasm = await glue;
     const out = await ops[op](args || {});
     if (out && typeof out === 'object' && 'transfer' in out && 'result' in out) {
       self.postMessage({ id, ok: true, result: out.result }, out.transfer);
