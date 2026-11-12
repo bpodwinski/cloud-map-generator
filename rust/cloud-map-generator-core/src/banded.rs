@@ -296,7 +296,7 @@ impl<'a> Banded<'a> {
             let sw = params.structure_width.min(width);
             assert!(sw >= 2, "structure_width must be at least 2, got {}", params.structure_width);
             let coarse = crate::sphere::grid_dirs::<f64>(sw, sw / 2);
-            let back_c = flow.backtrace_default(&coarse);
+            let back_c = flow.backtrace(&coarse, params.backtrace_time, params.backtrace_steps());
             if sw == width {
                 back_same_grid = Some(back_c);
             } else {

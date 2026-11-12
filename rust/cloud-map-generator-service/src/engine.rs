@@ -181,7 +181,7 @@ pub struct GenerateRequest {
 impl GenerateRequest {
     /// The generator's knobs for this request (`gen.py`'s `GenParams(isotropic=..., allow_any_regime=...)`).
     pub fn params(&self) -> GenParams {
-        GenParams { isotropic: self.options.isotropic, allow_any_regime: self.options.experiment, ..GenParams::default() }
+        GenParams { isotropic: self.options.isotropic, allow_any_regime: self.options.experiment, ..GenParams::realistic() }
     }
 }
 

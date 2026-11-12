@@ -80,7 +80,7 @@ impl GpuBandState {
         let gpu_flow = GpuFlow::new(pipe.gpu, &banded.plans().flow);
         let coarse_back = (!params.isotropic).then(|| {
             let points: Vec<[f32; 3]> = grid_dirs::<f64>(sw, sw / 2).iter().map(|v| [v[0] as f32, v[1] as f32, v[2] as f32]).collect();
-            pipe.flow.backtrace_to_buffer(pipe.gpu, &gpu_flow, &points, DEFAULT_BACKTRACE_TIME, DEFAULT_BACKTRACE_STEPS)
+            pipe.flow.backtrace_to_buffer(pipe.gpu, &gpu_flow, &points, params.backtrace_time, params.backtrace_steps())
         });
         Ok(GpuBandState { gpu_flow, coarse_back, sw })
     }

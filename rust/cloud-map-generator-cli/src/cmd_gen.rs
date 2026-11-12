@@ -198,7 +198,7 @@ pub fn run(a: GenArgs, project: &Project) -> Result<()> {
         return run_banded(&a, project, body, width, &out, &stem, surface);
     }
 
-    let params = GenParams { isotropic: a.isotropic, allow_any_regime: a.experiment, ..GenParams::default() };
+    let params = GenParams { isotropic: a.isotropic, allow_any_regime: a.experiment, ..GenParams::realistic() };
     let t0 = Instant::now();
     let gen = generate(&body, a.seed, width, &params, surface.as_ref(), !a.isotropic).map_err(|e| Fail::new(e.to_string()))?;
     let seconds = t0.elapsed().as_secs_f64();

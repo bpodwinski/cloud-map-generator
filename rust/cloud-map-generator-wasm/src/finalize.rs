@@ -173,7 +173,17 @@ pub(crate) fn meta_json(m: &GenMeta) -> J {
 
 /// The generator's knobs of a request (`GenerateRequest::params`).
 pub fn params_of(options: &MapOptions) -> GenParams {
-    GenParams { isotropic: options.isotropic, allow_any_regime: options.experiment, ..GenParams::default() }
+    GenParams { isotropic: options.isotropic, allow_any_regime: options.experiment, ..GenParams::realistic() }
+}
+
+/// The rows near the poles of the three maps, filtered as a map of a sphere should be (`cloud_map_generator_core::polar`).
+pub fn polar_smooth_output(output: &mut GenOutput) {
+    let (h, w) = (output.height, output.width);
+    cloud_map_generator_core::polar::polar_filter(&mut output.coverage, 0, h, w, h);
+    if let Some(e) = output.extras.as_mut() {
+        cloud_map_generator_core::polar::polar_filter(&mut e.kind, 0, h, w, h);
+        cloud_map_generator_core::polar::polar_filter(&mut e.high_share, 0, h, w, h);
+    }
 }
 
 /// What the answer needs besides the maps.
@@ -189,8 +199,11 @@ pub struct Run<'a> {
 }
 
 /// The match to Earth, the encodings, the measures and the answer.
-pub fn finish(run: Run<'_>, output: GenOutput) -> Result<Finished, String> {
+pub fn finish(run: Run<'_>, mut output: GenOutput) -> Result<Finished, String> {
     let t_start = now_ms();
+    if params_of(&run.req.options).polar_smooth {
+        polar_smooth_output(&mut output);
+    }
     let GenRequest { body, seed, width: _, options, compute: requested } = run.req;
     let (height, width) = (output.height, output.width);
     let params = params_of(options);

@@ -298,6 +298,15 @@ pub fn sink_band(band: usize, data: &[f32]) -> Result<(), String> {
             return Err(format!("band {band} reached the sink before band {}", sink.next));
         }
         sink.next += 1;
+        // The rows near the poles, filtered as the server's sink does (`GenParams::polar_smooth`).
+        let filtered: Option<Vec<f32>> = params_of(&r.req.options).polar_smooth.then(|| {
+            let mut v = data.to_vec();
+            for k in 0..(if extras { 3 } else { 1 }) {
+                cloud_map_generator_core::polar::polar_filter(&mut v[k * n..(k + 1) * n], r0, rows, w, h);
+            }
+            v
+        });
+        let data: &[f32] = filtered.as_deref().unwrap_or(data);
         let out = BandOut {
             index: band,
             r0,
@@ -592,7 +601,10 @@ mod tests {
             let r8gz = &done.files.iter().find(|f| f.0 == "coverage.r8.gz").unwrap().2;
             let mut r8 = Vec::new();
             std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(&r8gz[..]), &mut r8).unwrap();
-            let north_up = preview_u8(&page);
+            // The sink writes the rows near the poles filtered (`polar_smooth`), as the server's does.
+            let mut filtered = page.clone();
+            cloud_map_generator_core::polar::polar_filter(&mut filtered, 0, 128, 256, 128);
+            let north_up = preview_u8(&filtered);
             let w = 256;
             assert_eq!(&r8[..w], &north_up[north_up.len() - w..], "the first R8 row is the southernmost");
         }

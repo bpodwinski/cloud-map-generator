@@ -148,6 +148,8 @@ Each limit is a deliberate simplification, a model choice; the design log explai
 - **One storm track per hemisphere.** A fast rotator would have several jets.
 - **Earth's cell sizes on every body.**
 - **Weak marine decks:** they hold on only 2 of 4 seeds.
+- **No cirrus layer, and fronts do not join one low to the next:** the thin high cloud and the long frontal bands of real maps are the next
+  step ([docs/HISTORY.md](docs/HISTORY.md), "Realism tuning").
 - **The fine texture is still recognizably procedural up close.** That covers the fibres inside
   frontal shields and the irregularity of real cells.
 

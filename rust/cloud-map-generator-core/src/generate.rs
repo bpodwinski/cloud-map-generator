@@ -164,6 +164,11 @@ pub struct GenParams {
     pub surface_terms: bool,
     /// Finite-difference step of the row sensitivity d coverage / d t, in units of s's std.
     pub sensitivity_step: f64,
+    /// How long the air is traced back to find where it came from, in the flow's time unit (the Python generator's 1.0):
+    /// longer wraps fronts into commas and filaments.
+    pub backtrace_time: f64,
+    /// Filter each row near a pole along longitude by the width a texel there really covers ([`polar_filter`]); off in the port.
+    pub polar_smooth: bool,
 }
 
 impl Default for GenParams {
@@ -194,7 +199,33 @@ impl Default for GenParams {
             allow_any_regime: false,
             surface_terms: true,
             sensitivity_step: 0.05,
+            backtrace_time: crate::flow::DEFAULT_BACKTRACE_TIME,
+            polar_smooth: false,
         }
+    }
+}
+
+impl GenParams {
+    /// The knobs the products run with: [`GenParams::default`] (the port of the Python generator, what the golden cases pin)
+    /// tuned against Earth's cloud statistics (`docs/HISTORY.md`, "Realism tuning"): crisper-to-softer shield edges, less
+    /// texel-scale grain, a longer back-trace so fronts wrap into commas and filaments, and the poles filtered as a map of
+    /// a sphere should be (a pole is one point).
+    pub fn realistic() -> GenParams {
+        GenParams {
+            shield_ramp: 1.0,
+            shield_texture: 0.5,
+            a_fine: 0.3,
+            fine_top: 0.85,
+            cumulus_depth: 1.5,
+            backtrace_time: 1.3,
+            polar_smooth: true,
+            ..GenParams::default()
+        }
+    }
+
+    /// The steps of the back-trace for [`GenParams::backtrace_time`]: the default 48 per unit of time.
+    pub fn backtrace_steps(&self) -> usize {
+        ((crate::flow::DEFAULT_BACKTRACE_STEPS as f64) * self.backtrace_time / crate::flow::DEFAULT_BACKTRACE_TIME).ceil().max(1.0) as usize
     }
 }
 
@@ -1201,7 +1232,7 @@ pub fn generate_with_plans_norm(
         let sw = params.structure_width.min(width);
         assert!(sw >= 2, "structure_width must be at least 2, got {}", params.structure_width);
         let coarse = grid_dirs::<f64>(sw, sw / 2);
-        let back_c = flow.backtrace_default(&coarse);
+        let back_c = flow.backtrace(&coarse, params.backtrace_time, params.backtrace_steps());
         if sw == width {
             let trace_copy = want_trace.then(|| CoarseBack { height: sw / 2, width: sw, data: back_c.clone() });
             (back_c, trace_copy)

@@ -42,7 +42,7 @@ use crate::texture::{LatInput, TextureFields, TextureKernels, TextureMoments, We
 use crate::GpuContext;
 use bytemuck::{Pod, Zeroable};
 use cloud_map_generator_core::climate::{hadley_edge_deg, is_bakeable, target_zonal_coverage, BodyInputs};
-use cloud_map_generator_core::flow::{build_flow, Flow, DEFAULT_BACKTRACE_STEPS, DEFAULT_BACKTRACE_TIME};
+use cloud_map_generator_core::flow::{build_flow, Flow};
 use cloud_map_generator_core::generate::{
     area_mean, fine_ladder, isotropic_flow, py_round, subtexel_scale, texture_fmax, Extras, FlowMeta, GenMeta, GenOutput, GenParams, GeneratePlans,
     GenerateError, SurfaceMeta, TexturePlans, VortexMeta, MID_OCTAVES, MOISTURE_FREQUENCY, MOISTURE_OCTAVES, ORIENTATION, SEED_FINE, SEED_MID,
@@ -314,7 +314,7 @@ impl<'a> GpuPipeline<'a> {
 
         // GPU: where the air came from, on the coarse grid.
         let gpu_flow = GpuFlow::new(self.gpu, flow);
-        let coarse_back = (!params.isotropic).then(|| self.flow.backtrace_to_buffer(self.gpu, &gpu_flow, &coarse_points, DEFAULT_BACKTRACE_TIME, DEFAULT_BACKTRACE_STEPS));
+        let coarse_back = (!params.isotropic).then(|| self.flow.backtrace_to_buffer(self.gpu, &gpu_flow, &coarse_points, params.backtrace_time, params.backtrace_steps()));
         progress(0.05, "GPU: back-trace and the synoptic field");
 
         // Phase A, per band: the directions, the synoptic field (raw), its statistics.

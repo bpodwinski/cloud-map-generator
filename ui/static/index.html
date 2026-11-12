@@ -8,7 +8,28 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23605dff'/%3E%3Cpath transform='translate(4 4)' fill='%23fff' d='M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'/%3E%3C/svg%3E" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@400..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
+    /* Two typefaces. Display, the dot-matrix Doto: titles (the logo, h1 and h2 of the page, the headers of the panels and of the
+       dialogs), the counters and the avatars. Mono, JetBrains Mono: everything else (running text, fields, tables, drawers,
+       tooltips, toasts, dropdowns). */
+    :root {
+      --font-annuaire-display: "Doto", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+      --font-annuaire-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+    }
+    html, body, button, input, select, textarea, table, .tooltip:before, .toast, .dropdown-content, .menu, .alert, .badge, .btn, .tab, .kbd, .collapse-title {
+      font-family: var(--font-annuaire-mono);
+    }
+    h1, h2, h3, .fieldset-legend, .annuaire-display {
+      font-family: var(--font-annuaire-display);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    /* Doto is a dot matrix: it needs more size than a text face to stay legible. */
+    .fieldset-legend, h2, h3 { font-size: 1.05rem; }
+    h1 { font-size: 1.25rem; }
     /* Tooltips never wider than a phone screen leaves room for. */
     .tooltip[data-tip]:before { max-width: min(16rem, calc(100vw - 11rem)); }
     /* Number fields: no spin buttons, the arrow keys still step the value. */
@@ -40,7 +61,7 @@
 
   <header class="navbar sticky top-0 z-30 min-h-12 shrink-0 border-b border-base-300 bg-base-200 px-4">
     <div class="navbar-start gap-2">
-      <h1 class="text-base font-semibold tracking-tight">Cloud Map Generator</h1>
+      <h1 class="font-semibold">Cloud Map Generator</h1>
       <span id="version" class="text-xs text-base-content/60"></span>
     </div>
     <div class="navbar-end gap-2">
@@ -88,7 +109,7 @@
         <label class="input input-sm w-full">
           <span class="label">Rotation period</span>
           <input id="f-rotation_period_days" data-field="rotation_period_days" data-name="Rotation period" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
-          <span class="label w-10 justify-start">days</span>
+          <span class="label w-14 justify-start">days</span>
         </label>
         <p class="text-xs text-error empty:hidden" data-hint-for="rotation_period_days"></p>
         <p class="text-xs text-base-content/70">A negative period is a retrograde spin.</p>
@@ -96,21 +117,21 @@
         <label class="input input-sm mt-2 w-full">
           <span class="label">Radius</span>
           <input id="f-radius_km" data-field="radius_km" data-name="Radius" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
-          <span class="label w-10 justify-start">km</span>
+          <span class="label w-14 justify-start">km</span>
         </label>
         <p class="text-xs text-error empty:hidden" data-hint-for="radius_km"></p>
 
         <label class="input input-sm mt-2 w-full">
           <span class="label">Gravity</span>
           <input id="f-gravity_mps2" data-field="gravity_mps2" data-name="Gravity" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
-          <span class="label w-10 justify-start">m/s&sup2;</span>
+          <span class="label w-14 justify-start">m/s&sup2;</span>
         </label>
         <p class="text-xs text-error empty:hidden" data-hint-for="gravity_mps2"></p>
 
         <label class="input input-sm mt-2 w-full">
           <span class="label">Scale height</span>
           <input id="f-scale_height_km" data-field="scale_height_km" data-name="Scale height" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
-          <span class="label w-10 justify-start">km</span>
+          <span class="label w-14 justify-start">km</span>
         </label>
         <p class="text-xs text-error empty:hidden" data-hint-for="scale_height_km"></p>
       </div>
@@ -121,22 +142,22 @@
         <dl class="grid grid-cols-2 gap-x-3 gap-y-3">
           <div class="min-w-0">
             <dt class="text-xs text-base-content/70">Hadley edge</dt>
-            <dd id="st-hadley" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-hadley" class="annuaire-display text-xl leading-tight tabular-nums">&mdash;</dd>
             <dd class="text-xs text-base-content/60">Edge of the tropical cell</dd>
           </div>
           <div class="min-w-0">
             <dt class="text-xs text-base-content/70">Storm track</dt>
-            <dd id="st-storm" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-storm" class="annuaire-display text-xl leading-tight tabular-nums">&mdash;</dd>
             <dd class="text-xs text-base-content/60">Mid-latitude storm belt</dd>
           </div>
           <div class="min-w-0">
             <dt class="text-xs text-base-content/70">Cyclones per hemisphere</dt>
-            <dd id="st-cyclones" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-cyclones" class="annuaire-display text-xl leading-tight tabular-nums">&mdash;</dd>
             <dd id="st-cyclones-desc" class="text-xs text-base-content/60">Baroclinic eddies</dd>
           </div>
           <div class="min-w-0">
             <dt class="text-xs text-base-content/70">Texel size</dt>
-            <dd id="st-texel" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-texel" class="annuaire-display text-xl leading-tight tabular-nums">&mdash;</dd>
             <dd id="st-texel-desc" class="text-xs text-base-content/60">At the chosen width</dd>
           </div>
         </dl>
@@ -260,7 +281,7 @@
           <!-- The lit globe (WebGPU), drawn over the 2D canvas, which stays underneath for the pointer and the keys and
                is the fallback without WebGPU. Shown with it (peer), and only once the GPU is ready. -->
           <canvas id="globeGpu" class="pointer-events-none invisible absolute inset-0 size-full peer-[.hidden]:hidden" aria-hidden="true"></canvas>
-          <div id="loadingBox" class="absolute inset-0 hidden">
+          <div id="loadingBox" class="absolute inset-0 hidden cursor-default select-none">
             <div class="skeleton size-full rounded-none"></div>
             <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center" aria-hidden="true">
               <span class="loading loading-spinner loading-md"></span>

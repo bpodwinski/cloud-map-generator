@@ -25,7 +25,7 @@ pub fn body_json(b: &BodyInputs) -> J {
 
 /// `asdict(params)`, in the field order of `GenParams`.
 pub fn params_json(p: &GenParams) -> J {
-    J::obj([
+    let mut json = J::obj([
         ("structure_width", int(p.structure_width)),
         ("a_moisture", J::Float(p.a_moisture)),
         ("a_ascent", J::Float(p.a_ascent)),
@@ -51,7 +51,15 @@ pub fn params_json(p: &GenParams) -> J {
         ("allow_any_regime", J::Bool(p.allow_any_regime)),
         ("surface_terms", J::Bool(p.surface_terms)),
         ("sensitivity_step", J::Float(p.sensitivity_step)),
-    ])
+    ]);
+    // The knobs after the Python generator's 25 appear only when they are not its values, so a sidecar of the port is the port's.
+    if p.backtrace_time != cloud_map_generator_core::flow::DEFAULT_BACKTRACE_TIME {
+        json.push("backtrace_time", J::Float(p.backtrace_time));
+    }
+    if p.polar_smooth {
+        json.push("polar_smooth", J::Bool(true));
+    }
+    json
 }
 
 fn kind_name(k: VortexKind) -> &'static str {

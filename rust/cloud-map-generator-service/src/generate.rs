@@ -425,7 +425,7 @@ pub fn run_generation(rt: &Runtime, reference: &Reference, job: &Job, progress: 
     let greq = GenerateRequest { body: job.body.clone(), seed: job.seed, width: job.width, options: opt, compute: job.compute, surface };
     let params: GenParams = greq.params();
     let t_engine = Instant::now();
-    let Generated { output, compute } = {
+    let Generated { mut output, compute } = {
         let base = run.last;
         let progress = run.progress;
         let scaled = |f: f64, msg: &str| progress(base + (ENGINE_END - base) * f.clamp(0.0, 1.0), msg);
@@ -440,6 +440,13 @@ pub fn run_generation(rt: &Runtime, reference: &Reference, job: &Job, progress: 
     };
     let compute = ComputeUse { note, devices: listed_devices(&compute.devices, rt.cpu.name.as_deref()), ..compute };
     let (height, width) = (output.height, output.width);
+    if params.polar_smooth {
+        cloud_map_generator_core::polar::polar_filter(&mut output.coverage, 0, height, width, height);
+        if let Some(e) = output.extras.as_mut() {
+            cloud_map_generator_core::polar::polar_filter(&mut e.kind, 0, height, width, height);
+            cloud_map_generator_core::polar::polar_filter(&mut e.high_share, 0, height, width, height);
+        }
+    }
 
     let extras = output.extras.as_ref().ok_or_else(|| RunError::Failed("the engine returned no derived maps".to_string()))?;
     let mut cov = output.coverage.clone();

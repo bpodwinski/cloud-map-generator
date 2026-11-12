@@ -240,6 +240,10 @@ fn genparams_case(c: &Case) -> Out {
         allow_any_regime,
         surface_terms,
         sensitivity_step,
+        // `backtrace_time` and `polar_smooth` are the Rust products' own (`GenParams::realistic`): the Python generator has no
+        // such knobs, and their defaults here are its behaviour.
+        backtrace_time: _,
+        polar_smooth: _,
     } = GenParams::default();
     let fields = [
         ("structure_width", json!(structure_width)),

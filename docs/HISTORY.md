@@ -183,6 +183,34 @@ Not done (proposed by the deck session, to decide):
 - Coherence (bands and fronts) moves from the baseline toward Earth; tuning toward it overshot to
   0.70 at first.
 
+## Realism tuning (2026-11-12): `GenParams::realistic()`
+
+The products (`gen`, `serve`, the MCP server, the browser) run `GenParams::realistic()`; `GenParams::default()` stays the port of the Python generator,
+which the golden cases pin. Measured against Earth's Blue Marble map at 2048 wide, `compute: cpu`, Earth, mean of seeds 1 to 4 (`measure` rows):
+
+| metric | port (`default`) | `realistic` | Earth |
+| --- | ---: | ---: | ---: |
+| histogram distance to Earth (L1) | 0.287 | 0.128 | 0 |
+| structure coherence | 0.386 | 0.496 | 0.487 |
+| cloud in big objects (%) | 72.6 | 83.9 | 80.3 |
+| median object area (km2) | 534 | 298 | 308 |
+| spectral slope (40-400 km) | -2.63 | -2.65 | -2.90 |
+| pole spread, north / south | 0.131 / 0.104 | 0.051 / 0.056 | 0 / 0.029 |
+
+What changed, one knob at a time first (each swept alone, then together; the knobs interact: the histogram and the coherence pull apart):
+- `shield_ramp` 0.35 -> 1.0 and `shield_texture` 0.3 -> 0.5: softer shield edges and thinner interiors, so the map has the grays of thin cloud
+  (histogram L1 0.287 -> 0.12 on its own).
+- `a_fine` 0.6 -> 0.3, `fine_top` 0.95 -> 0.85, `cumulus_depth` 1.6 -> 1.5: less texel-scale grain (median object 534 -> 300 km2).
+- `backtrace_time` 1.0 -> 1.3 (new knob; 48 steps per unit): the air is traced back further, so fronts wrap into commas and filaments
+  (coherence +0.03 to +0.1 by value; 1.6 and more marbles the map like Jupiter).
+- `polar_smooth` (new knob): each row is averaged along longitude over the `1 / cos(latitude)` texels it oversamples, from about 70 degrees up
+  (`core/src/polar.rs`, applied by every engine's output and by the banded sinks). A pole is one point; the unfiltered rows held a texel of noise each.
+
+Not changed: the mean and the zonal RMSE vs Earth (0.366 and 0.092 against 0.404 and 0) come from the target zonal profile, which the thresholds
+are solved to, not from these knobs; Earth's own pole rows are the satellite's saturated ice (a pole spread of 0), so those two metrics are not
+targets. Not done: a separate cirrus layer and fronts that join one low to the next need a new term in `compose` and in its WGSL kernel and a new
+flow plan (and new golden cases).
+
 ## Tuning record (sheets v1-v8, `output/cloudgen/`)
 
 | Version | Change | Result |

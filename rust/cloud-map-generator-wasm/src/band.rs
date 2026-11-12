@@ -103,7 +103,7 @@ impl Setup {
             if coarse_width == width {
                 // The coarse grid is the map's own: the band's rows are exactly the rows it reads.
                 let grid = band_dirs::<f64>(width, height, r0, r1);
-                coarse_f32 = Some(plans.flow.backtrace_default(&grid));
+                coarse_f32 = Some(plans.flow.backtrace(&grid, params.backtrace_time, params.backtrace_steps()));
             } else {
                 // `sample_equirect` reads rows floor(fy) and floor(fy) + 1 of the coarse grid at fy = (pi/2 - lat) / pi * h - 0.5;
                 // one row more on each side is margin against rounding at the edges (a test compares with the one-piece map).
@@ -113,7 +113,7 @@ impl Setup {
                 let lo = (fy(r0).floor() as i64 - 1).clamp(0, last) as usize;
                 let hi = (fy(r1 - 1).floor() as i64 + 2).clamp(0, last) as usize;
                 let grid = band_dirs::<f64>(coarse_width, coarse_height, lo, hi + 1);
-                let traced = plans.flow.backtrace_default(&grid);
+                let traced = plans.flow.backtrace(&grid, params.backtrace_time, params.backtrace_steps());
                 let mut full = vec![[0.0f64; 3]; coarse_width * coarse_height];
                 for (i, v) in traced.iter().enumerate() {
                     full[lo * coarse_width + i] = [f64::from(v[0]), f64::from(v[1]), f64::from(v[2])];

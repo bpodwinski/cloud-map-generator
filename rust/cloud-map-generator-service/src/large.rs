@@ -307,6 +307,8 @@ impl SliceSink {
 
 /// Every sink of a run behind one [`BandSink`].
 struct LargeSink {
+    /// Filter the rows near the poles before they are written (`GenParams::polar_smooth`).
+    polar: bool,
     r8: Option<R8Sink>,
     master: Option<Png16Sink>,
     slices: SliceSink,
@@ -320,6 +322,24 @@ impl BandSink for LargeSink {
     }
 
     fn band(&mut self, out: &BandOut<'_>) -> Result<(), String> {
+        if self.polar {
+            let height = self.info.as_ref().map_or(0, |i| i.height);
+            let (rows, w) = (out.rows, out.width);
+            let filtered = |plane: &[f32]| {
+                let mut v = plane.to_vec();
+                cloud_map_generator_core::polar::polar_filter(&mut v, out.r0, rows, w, height);
+                v
+            };
+            let (coverage, kind, high_share) = (filtered(out.coverage), out.kind.map(filtered), out.high_share.map(filtered));
+            let own = BandOut { index: out.index, r0: out.r0, rows, width: w, coverage: &coverage, kind: kind.as_deref(), high_share: high_share.as_deref() };
+            return self.write_band(&own);
+        }
+        self.write_band(out)
+    }
+}
+
+impl LargeSink {
+    fn write_band(&mut self, out: &BandOut<'_>) -> Result<(), String> {
         if let Some(r8) = self.r8.as_mut() {
             r8.band(out).map_err(|e| format!("the R8 file: {e}"))?;
         }
@@ -374,7 +394,7 @@ pub fn run_large(rt: &Runtime, reference: &Reference, job: &LargeJob, progress: 
     let (width, height) = (job.width, job.width / 2);
     let synthetic = (job.surface.is_none() && opt.surface == SurfaceChoice::Synthetic).then(|| synthetic_surface(width.min(1024)));
     let surface = job.surface.as_ref().or(synthetic.as_ref());
-    let params = GenParams { isotropic: opt.isotropic, allow_any_regime: opt.experiment, ..GenParams::default() };
+    let params = GenParams { isotropic: opt.isotropic, allow_any_regime: opt.experiment, ..GenParams::realistic() };
     // Hybrid shares bands, so it wants more of them: a quarter of the texels per band.
     let budget = if used == Used::Hybrid { BAND_TEXELS / 4 } else { BAND_TEXELS };
     let band_rows = aligned_band_rows(width, height, job.band_rows.unwrap_or_else(|| auto_band_rows(width, height, budget)));
@@ -395,6 +415,7 @@ pub fn run_large(rt: &Runtime, reference: &Reference, job: &LargeJob, progress: 
         let _ = std::fs::remove_file(&master_path);
     };
     let mut sink = LargeSink {
+        polar: params.polar_smooth,
         r8: Some(R8Sink::new(&job.out_dir, &names.r8gz, width, height).map_err(|e| RunError::Failed(format!("{}: {e}", r8_path.display())))?),
         master: Some(Png16Sink::new(&master_path, width, height).map_err(RunError::Failed)?),
         slices: SliceSink::new(width, height),
