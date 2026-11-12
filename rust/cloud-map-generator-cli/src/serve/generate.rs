@@ -11,7 +11,11 @@ use cloud_map_generator_core::flow::VortexKind;
 use cloud_map_generator_core::generate::{py_round, GenMeta};
 use cloud_map_generator_service::generate::{compute_json, metric_table, round5, run_generation as run, Job, RunError};
 use std::collections::HashMap;
+use std::sync::atomic::Ordering;
 use std::time::Instant;
+
+/// The message of the 409 a stopped generation answers (`POST /api/generate/cancel`); the page tells it from a failure by the status.
+pub const CANCELLED: &str = "the generation was cancelled";
 
 /// `wrap_lon_deg`: a longitude in [-180, 180) (the flow places its lows at lon0 + k 2 pi / m, past 180 for the last ones).
 pub fn wrap_lon_deg(lon: f64) -> f64 {
@@ -84,10 +88,11 @@ pub fn run_generation(state: &AppState, req: &GenRequest) -> Result<J, ApiError>
         sidecar_seconds: true,
     };
     let log = |fraction: f64, msg: &str| state.log(&format!("[gen] {:3.0} % {msg}", 100.0 * fraction));
-    let g = run(&state.runtime, reference, &job, &log, &|| false).map_err(|e| match e {
+    let cancelled = || state.cancel.load(Ordering::Relaxed);
+    let g = run(&state.runtime, reference, &job, &log, &cancelled).map_err(|e| match e {
         RunError::Refused(m) => bad(m),
         RunError::Failed(m) => ApiError::new(500, m),
-        RunError::Cancelled => ApiError::new(500, "the generation was cancelled"),
+        RunError::Cancelled => ApiError::new(409, CANCELLED),
     })?;
     let (height, width) = (g.height, g.width);
     let stem = format!("cloudgen_s{}_{width}x{height}_{rid}", req.seed);
@@ -182,10 +187,11 @@ fn run_large_generation(state: &AppState, req: &GenRequest, reference: &cloud_ma
         sidecar_seconds: true,
     };
     let log = |fraction: f64, msg: &str, _: Option<cloud_map_generator_core::banded::Progress>| state.log(&format!("[gen] {:3.0} % {msg}", 100.0 * fraction));
-    let g = run_large(&state.runtime, reference, &job, &log, &|| false).map_err(|e| match e {
+    let cancelled = || state.cancel.load(Ordering::Relaxed);
+    let g = run_large(&state.runtime, reference, &job, &log, &cancelled).map_err(|e| match e {
         RunError::Refused(m) => bad(m),
         RunError::Failed(m) => ApiError::new(500, m),
-        RunError::Cancelled => ApiError::new(500, "the generation was cancelled"),
+        RunError::Cancelled => ApiError::new(409, CANCELLED),
     })?;
     let (height, width) = (g.height, g.width);
     let read = |key: &str| -> Vec<u8> { g.files.iter().find(|f| f.key == key).and_then(|f| std::fs::read(&f.path).ok()).unwrap_or_default() };

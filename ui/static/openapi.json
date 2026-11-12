@@ -216,6 +216,19 @@
           "405": {
             "$ref": "#/components/responses/MethodNotAllowed"
           },
+          "409": {
+            "description": "The generation was stopped by POST /api/generate/cancel before it finished. Nothing was kept.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "the generation was cancelled"
+                }
+              }
+            }
+          },
           "429": {
             "description": "A generation is already running.",
             "content": {
@@ -231,6 +244,45 @@
           },
           "500": {
             "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/generate/cancel": {
+      "post": {
+        "tags": [
+          "Maps"
+        ],
+        "operationId": "cancelGeneration",
+        "summary": "Stop the generation in progress",
+        "description": "Asks the running generation to stop: it stops at its next stage or band boundary, and its own request then answers 409. Nothing is kept. A request while nothing runs does nothing (`cancelled: false`), so a late call cannot stop the next generation. No request body.",
+        "responses": {
+          "200": {
+            "description": "Whether a generation was running and has been asked to stop.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "cancelled"
+                  ],
+                  "properties": {
+                    "cancelled": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "cancelled": true
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
           }
         }
       }

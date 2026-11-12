@@ -20,6 +20,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, TryLockError};
 use std::time::{Duration, Instant};
 
@@ -246,6 +247,15 @@ fn read_json(body: &Body) -> Result<(Value, &[u8]), ApiError> {
 }
 
 fn post(state: &AppState, path: &str, body: &Body) -> Result<HttpResponse, ApiError> {
+    if path == "/api/generate/cancel" {
+        // No body: the page asks the running generation to stop. Only a run in progress is asked (the lock is held),
+        // so a late click cannot cancel the next one.
+        let running = matches!(state.gen_lock.try_lock(), Err(TryLockError::WouldBlock));
+        if running {
+            state.cancel.store(true, Ordering::Relaxed);
+        }
+        return Ok(json_response(200, &J::obj([("cancelled", J::Bool(running))])));
+    }
     let (payload, raw) = read_json(body)?;
     if path == "/api/derive" {
         let body = parse_derive(&payload)?;
@@ -259,6 +269,7 @@ fn post(state: &AppState, path: &str, body: &Body) -> Result<HttpResponse, ApiEr
         Err(TryLockError::Poisoned(p)) => p.into_inner(),
         Err(TryLockError::WouldBlock) => return Err(ApiError::new(429, "a generation is already running")),
     };
+    state.cancel.store(false, Ordering::Relaxed);
     let result = run_generation(state, &req);
     drop(guard);
     Ok(json_response(200, &result?))
@@ -273,7 +284,7 @@ fn dispatch(state: &AppState, req: &HttpRequest) -> Result<HttpResponse, ApiErro
     let method = if method == "HEAD" { "GET" } else { method.as_str() };
     let path = path_of(&req.target);
     let known_get = matches!(path, "/" | "/favicon.ico" | "/docs" | "/openapi.json" | "/api/defaults" | "/api/reference/coverage.png") || path.starts_with("/static/") || result_route(path).is_some();
-    let known_post = matches!(path, "/api/derive" | "/api/generate");
+    let known_post = matches!(path, "/api/derive" | "/api/generate" | "/api/generate/cancel");
     if method == "GET" && known_get {
         return get(state, path);
     }
@@ -327,6 +338,7 @@ fn reason(status: u16) -> &'static str {
         403 => "Forbidden",
         404 => "Not Found",
         405 => "Method Not Allowed",
+        409 => "Conflict",
         429 => "Too Many Requests",
         431 => "Request Header Fields Too Large",
         500 => "Internal Server Error",

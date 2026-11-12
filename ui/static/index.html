@@ -225,6 +225,11 @@
             <kbd class="kbd kbd-xs">Ctrl</kbd><kbd class="kbd kbd-xs">Enter</kbd>
           </span>
         </button>
+        <button id="stop" type="button" class="btn btn-outline btn-error relative hidden w-full" aria-keyshortcuts="Escape">
+          <svg class="i size-5" aria-hidden="true"><use href="#i-x" /></svg>
+          <span id="stopLabel">Stop</span>
+          <span class="absolute right-3 hidden items-center gap-1 sm:inline-flex" aria-hidden="true"><kbd class="kbd kbd-xs">Esc</kbd></span>
+        </button>
         <p id="blockReason" class="hidden items-start gap-2 text-xs text-base-content/70">
           <svg class="i mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#i-triangle-alert" /></svg>
           <span id="blockText"></span>
@@ -288,6 +293,10 @@
               <span id="loadingText" class="text-sm tabular-nums"></span>
               <span id="loadingHint" class="text-xs text-base-content/70"></span>
             </div>
+            <button id="stopStage" type="button" class="btn btn-sm btn-outline btn-error absolute bottom-3 left-1/2 hidden -translate-x-1/2 bg-base-100">
+              <svg class="i size-4" aria-hidden="true"><use href="#i-x" /></svg>
+              <span id="stopStageLabel">Stop</span>
+            </button>
           </div>
         </div>
 

@@ -143,7 +143,10 @@ fn run_pass<T: Send>(
                         if count == 0 && workers.len() > 1 && unassigned <= workers.len() {
                             let warm_peer = st.rate.iter().enumerate().any(|(o, &(_, c))| o != w && st.alive[o] && c > 0);
                             if warm_peer {
-                                return;
+                                // Step aside, but do not leave: a peer that fails hands its band back, and this worker may
+                                // be the only one left to take it (it is woken by every completion and every failure).
+                                st = wake.wait(st).unwrap_or_else(|p| p.into_inner());
+                                continue;
                             }
                         }
                         if count > 0 {
@@ -159,7 +162,9 @@ fn run_pass<T: Send>(
                                 }
                             }
                             if !unknown && others > 0.0 && secs / count as f64 > unassigned as f64 / others {
-                                return;
+                                // Same as above: wait for the faster workers, and take over if one of them is lost.
+                                st = wake.wait(st).unwrap_or_else(|p| p.into_inner());
+                                continue;
                             }
                         }
                         break st.requeue.pop_front().unwrap_or_else(|| {
@@ -222,6 +227,8 @@ fn run_pass<T: Send>(
     *rates.lock().unwrap_or_else(|p| p.into_inner()) = st.rate.clone();
     match st.error {
         Some(e) => Err(e),
+        // Never hand back a pass with a band missing (the callers rely on every band having run).
+        None if st.done < bands => Err(BandedError::Sink(format!("pass ended with {} of {bands} bands done", st.done))),
         None => Ok(()),
     }
 }
@@ -342,7 +349,7 @@ mod tests {
         }
     }
 
-    /// A worker that fails on its second band.
+    /// A worker that fails on its first band.
     struct Flaky<'a, 'b> {
         inner: CpuBands<'a, 'b>,
         calls: Mutex<usize>,
@@ -357,7 +364,8 @@ mod tests {
         fn pass_a(&self, band: usize) -> Result<BandMoments, String> {
             let mut c = self.calls.lock().unwrap();
             *c += 1;
-            if *c == 2 {
+            // Its first band: the loss must not depend on how the scheduler happens to split the bands.
+            if *c == 1 {
                 return Err("device lost".to_string());
             }
             drop(c);

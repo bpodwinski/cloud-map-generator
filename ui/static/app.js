@@ -75,6 +75,7 @@ const els = {
   panel: $('#panel'), empty: $('#empty'), emptyTitle: $('#emptyTitle'), emptyText: $('#emptyText'), emptyAction: $('#emptyAction'),
   stage: $('#stage'), mapImg: $('#mapImg'), globe: $('#globe'), globeGpu: $('#globeGpu'), loadingBox: $('#loadingBox'),
   loadingText: $('#loadingText'), loadingHint: $('#loadingHint'),
+  stop: $('#stop'), stopLabel: $('#stopLabel'), stopStage: $('#stopStage'), stopStageLabel: $('#stopStageLabel'),
   readoutRow: $('#readoutRow'), readout: $('#readout'), caption: $('#caption'),
   details: $('#details'), metricsSub: $('#metricsSub'), metricsNote: $('#metricsNote'), metricsNoteText: $('#metricsNoteText'),
   runWarnings: $('#runWarnings'), metricsBody: $('#metricsBody'),
@@ -486,8 +487,9 @@ function estimateSeconds() {
 
 function tick() {
   const s = Math.floor((performance.now() - state.startedAt) / 1000);
-  els.generateLabel.textContent = `Generating… ${s} s`;
-  els.loadingText.textContent = `Generating… ${s} s`;
+  const verb = state.stopping ? 'Stopping' : 'Generating';
+  els.generateLabel.textContent = `${verb}… ${s} s`;
+  els.loadingText.textContent = `${verb}… ${s} s`;
   const est = estimateSeconds();
   if (typeof est === 'number') {
     els.loadingHint.textContent = s > est * 1.5
@@ -500,6 +502,12 @@ function tick() {
 
 function setRunning(running) {
   state.running = running;
+  state.stopping = false;
+  for (const b of [els.stop, els.stopStage]) {
+    b.classList.toggle('hidden', !running);
+    b.disabled = false;
+  }
+  els.stopLabel.textContent = els.stopStageLabel.textContent = 'Stop';
   clearInterval(tickTimer);
   els.generateIcon.innerHTML = running
     ? '<span class="loading loading-spinner loading-sm"></span>'
@@ -558,11 +566,29 @@ async function generate() {
     renderResult();
     revealResult();
   } catch (err) {
-    if (err.status === 429) toast('Another generation is already running. Try again when it has finished.', 'warning');
-    else toast(err.message);
-    setStatus('Last run failed.');
+    if (err.status === 409) setStatus('Generation stopped.');
+    else {
+      if (err.status === 429) toast('Another generation is already running. Try again when it has finished.', 'warning');
+      else toast(err.message);
+      setStatus('Last run failed.');
+    }
   } finally {
     setRunning(false);
+  }
+}
+
+// Asks the engine to stop the run in progress (the server polls between its bands; the browser engine stops its workers).
+// The run's own request then answers 409, which `generate` reports as a stop, not a failure.
+async function stopGeneration() {
+  if (!state.running || state.stopping) return;
+  state.stopping = true;
+  for (const b of [els.stop, els.stopStage]) b.disabled = true;
+  els.stopLabel.textContent = els.stopStageLabel.textContent = 'Stopping…';
+  tick();
+  try {
+    await api('/api/generate/cancel', {});
+  } catch {
+    // The run answers for itself: a failed request to stop it changes nothing here.
   }
 }
 
@@ -1723,10 +1749,15 @@ async function init() {
     e.preventDefault();
     generate();
   });
+  els.stop.addEventListener('click', stopGeneration);
+  els.stopStage.addEventListener('click', stopGeneration);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       generate();
+    } else if (e.key === 'Escape' && state.running && !e.defaultPrevented && !els.downloadBox.hasAttribute('open')) {
+      e.preventDefault();
+      stopGeneration();
     }
   });
 

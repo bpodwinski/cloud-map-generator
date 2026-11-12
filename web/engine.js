@@ -87,7 +87,7 @@
       return new Promise((resolve, reject) => {
         const id = this.nextId++;
         const worker = this.workers[index];
-        this.pending.set(id, { resolve, reject, worker });
+        this.pending.set(id, { resolve, reject, worker, op });
         worker.postMessage({ id, op, args }, transfer || []);
       });
     }
@@ -99,7 +99,23 @@
     async start() {
       await this.all('init', () => ({ module: this.module }));
     }
+
+    // Stops every worker at once (a worker inside a WebAssembly call cannot be interrupted any other way) and fails the
+    // calls still waiting for one. The pool is unusable afterwards: the engine builds a new one.
+    abort(error) {
+      for (const w of this.workers) w.terminate();
+      // A question of the page that was waiting behind the run (the physics of the form, say) is not the run's: it is asked
+      // again of the new pool (`restarted`).
+      const again = Object.assign(new Error('the engine was restarted'), { restarted: true });
+      for (const [, p] of this.pending) p.reject(ASKED_AGAIN.has(p.op) ? again : error);
+      this.pending.clear();
+    }
   }
+
+  const ASKED_AGAIN = new Set(['derive', 'defaults', 'reference_png']);
+
+  // What a stopped generation answers (the status the native server gives it too: 409).
+  const CANCELLED = 'the generation was cancelled';
 
   // ---------------------------------------------------------------------------------------------------------
   // The engine
@@ -165,7 +181,17 @@
         const bytes = await (await realFetch(wasmUrl)).arrayBuffer();
         module = await WebAssembly.compile(bytes);
       }
-      this.pool = new Pool(size, module);
+      this.module = module;
+      this.size = size;
+      const gpu = await this.startPool();
+      this.caps = { threads, workers: size, gpu: gpu.info, gpu_reason: gpu.reason };
+      this.capsText = JSON.stringify(this.caps);
+    }
+
+    // The workers, their links and the GPU probe: at start, and again after a generation was stopped (its workers are gone).
+    async startPool() {
+      const size = this.size;
+      this.pool = new Pool(size, this.module);
       await this.pool.start();
       // The last worker does the CPU-side stages after the maps (encodings, metrics against Earth): it computes Earth's
       // reference measures now, in the background, while the page is being read. With one worker the first map pays.
@@ -174,8 +200,25 @@
       const gpu = await this.probeGpu();
       // Earth's reference measures (about two seconds in WebAssembly), ahead of the first map.
       if (size > 1) this.pool.call(this.finalizer, 'warm').catch(() => {});
-      this.caps = { threads, workers: size, gpu: gpu.info, gpu_reason: gpu.reason };
-      this.capsText = JSON.stringify(this.caps);
+      return gpu;
+    }
+
+    // Stops the running generation: the workers are terminated (the files it had begun are removed), and a fresh pool is
+    // made before the next request is served. Answers whether there was a run to stop.
+    cancel() {
+      if (!this.busy || this.stopping) return { cancelled: false };
+      this.stopping = true;
+      this.pool.abort(new Error(CANCELLED));
+      // At once, so that whatever asks next (or again) waits for the new pool.
+      this.ready = this.afterStop(this.runId);
+      return { cancelled: true };
+    }
+
+    async afterStop(id) {
+      // The sync access handles went with the workers; the partial files of this run go too.
+      await new Promise((r) => setTimeout(r, 100));
+      await this.diskRemove([`${id}_master16.png`, `${id}_coverage.r8`, `${id}_coverage.r8.gz`]);
+      await this.startPool();
     }
 
     // The GPU: WebGPU through wgpu, in the last worker (rust/cloud-map-generator-wasm/src/gpu.rs). A mode is offered only when the probe has
@@ -205,7 +248,14 @@
       } catch (err) {
         return failure(500, `The in-browser engine could not start: ${err.message || err}`);
       }
-      const response = await this.route(method, path, bodyText);
+      let response;
+      try {
+        response = await this.route(method, path, bodyText);
+      } catch (err) {
+        if (!(err && err.restarted)) throw err;
+        await this.ready;
+        response = await this.route(method, path, bodyText);
+      }
       if (signal && signal.aborted) throw new DOMException('Aborted', 'AbortError');
       return response;
     }
@@ -218,10 +268,12 @@
         try {
           return new Response(await this.pool.call(0, 'derive', { request: bodyText }), { headers: { 'Content-Type': 'application/json' } });
         } catch (err) {
+          if (err.restarted) throw err;
           return failure(400, err.message);
         }
       }
       if (method === 'POST' && path === '/api/generate') return this.generate(bodyText);
+      if (method === 'POST' && path === '/api/generate/cancel') return jsonResponse(200, this.cancel());
       if (method === 'GET' && path === '/api/reference/coverage.png') {
         const bytes = await this.pool.call(0, 'reference_png');
         return new Response(new Blob([bytes], { type: 'image/png' }));
@@ -241,6 +293,9 @@
     async generate(requestText) {
       if (this.busy) return failure(429, 'a generation is already running');
       this.busy = true;
+      this.stopping = false;
+      const id = newId();
+      this.runId = id;
       try {
         const t0 = performance.now();
         const since = () => (performance.now() - t0) / 1000;
@@ -249,22 +304,26 @@
         try {
           plan = JSON.parse(await this.pool.call(0, 'plan', { request: requestText, caps: this.capsText }));
         } catch (err) {
+          if (this.stopping) return failure(409, CANCELLED);
           return failure(400, err.message);
         }
-        const id = newId();
         let done;
         try {
           if (plan.large) done = await this.generateLarge(plan, requestText, id, since);
           else done = plan.used === 'gpu' ? await this.generateGpu(plan, requestText, id, since) : await this.generateCpu(plan, requestText, id, since);
         } catch (err) {
+          // Stopped by the page: the workers are gone, there is nothing to close.
+          if (this.stopping) return failure(409, CANCELLED);
           await this.pool.all('band_close').catch(() => {});
           await this.pool.all('large_close').catch(() => {});
           await this.pool.all('large_gpu_close').catch(() => {});
           return failure(500, err.message || String(err));
         }
+        if (this.stopping) return failure(409, CANCELLED);
         return jsonResponse(200, this.keep(id, done));
       } finally {
         this.busy = false;
+        this.stopping = false;
       }
     }
 

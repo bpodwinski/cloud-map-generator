@@ -36,11 +36,12 @@ JSON in and out, UTF-8. Errors are always `{"error": "<message>"}`.
 | `GET /api/defaults` | Version, backend, presets, widths, limits, time estimates, compute capabilities |
 | `POST /api/derive` | The physics numbers of a body (fast, no generation) |
 | `POST /api/generate` | Generate one map, measure it, keep the files |
+| `POST /api/generate/cancel` | Stop the generation in progress (no body): `{"cancelled": true}`, and the run's own request answers `409`. `{"cancelled": false}` when nothing runs |
 | `GET /api/result/<id>/<name>` | A file of a kept result. `name`: `coverage.png`, `type.png`, `high_share.png`, `wind.png`, `master16.png`, `coverage.r8.gz`, `meta.json` |
 | `GET /api/reference/coverage.png` | Earth's 2048x1024 reference (Blue Marble cloud fraction) |
 
 Status codes: `200`; `400` bad input (the message names the field); `403` foreign `Host` or `Origin`
-header; `404` unknown route, file or result; `405` wrong method; `429` a generation is running; `500`
+header; `404` unknown route, file or result; `405` wrong method; `409` the generation was stopped; `429` a generation is running; `500`
 anything else (the message is the exception).
 
 ### `GET /api/defaults`

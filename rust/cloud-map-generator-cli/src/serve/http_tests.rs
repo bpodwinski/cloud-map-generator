@@ -403,6 +403,27 @@ fn a_generation_while_one_runs_is_a_429_and_the_rest_of_the_api_still_answers() 
 }
 
 #[test]
+fn cancel_only_stops_a_run_in_progress_and_the_next_run_starts_clean() {
+    use std::sync::atomic::Ordering;
+    let _turn = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let s = shared();
+    // Nothing runs: a late click asks nothing, and cannot stop the next generation.
+    let idle = post(s, "/api/generate/cancel", &json!({}));
+    assert_eq!((idle.status, json_of(&idle)), (200, json!({"cancelled": false})));
+    assert!(!s.cancel.load(Ordering::Relaxed));
+    // A run holds the lock: the request is taken.
+    let held = s.gen_lock.lock().unwrap_or_else(|e| e.into_inner());
+    let busy = post(s, "/api/generate/cancel", &json!({}));
+    assert_eq!((busy.status, json_of(&busy)), (200, json!({"cancelled": true})));
+    assert!(s.cancel.load(Ordering::Relaxed));
+    drop(held);
+    // The next generation clears it and completes.
+    assert_eq!(post(s, "/api/generate", &gen_request(64, json!({}))).status, 200);
+    assert!(!s.cancel.load(Ordering::Relaxed));
+    assert_eq!(route(s, &request("GET", "/api/generate/cancel", &[], Body::Bytes(Vec::new()))).status, 405);
+}
+
+#[test]
 fn results_are_evicted_oldest_first_and_unknown_ids_are_404() {
     let _turn = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     let s = state_with(Runtime::cpu_only("none"), &[64], 2, None);
@@ -484,6 +505,7 @@ fn the_openapi_document_and_its_swagger_page_are_served_and_match_the_routes() {
         ("GET", "/api/result/{id}/{name}"),
         ("POST", "/api/derive"),
         ("POST", "/api/generate"),
+        ("POST", "/api/generate/cancel"),
     ]
     .iter()
     .map(|(m, p)| (m.to_string(), p.to_string()))

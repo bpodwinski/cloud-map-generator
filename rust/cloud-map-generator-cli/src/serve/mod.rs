@@ -30,6 +30,7 @@ use engine::Runtime;
 use reference::Reference;
 use request::ApiError;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicBool;
 use std::sync::{Mutex, OnceLock};
 use std::time::Instant;
 use store::ResultStore;
@@ -60,6 +61,9 @@ pub struct AppState {
     pub results: ResultStore,
     /// Held while a generation runs: a second one gets a 429.
     pub gen_lock: Mutex<()>,
+    /// Set by `POST /api/generate/cancel` while a generation runs; the run polls it between its bands and stops.
+    /// Cleared when the next generation starts.
+    pub cancel: AtomicBool,
     pub project: Project,
     /// `Host` values this server answers to, lower case.
     pub allowed_hosts: Vec<String>,
@@ -95,6 +99,7 @@ impl AppState {
             runtime,
             results: ResultStore::new(config.keep),
             gen_lock: Mutex::new(()),
+            cancel: AtomicBool::new(false),
             project,
             allowed_hosts: ["127.0.0.1", "localhost", "[::1]"].iter().map(|h| format!("{h}:{port}")).collect(),
             reference_png,
