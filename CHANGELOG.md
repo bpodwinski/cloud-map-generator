@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.6.0...v0.7.0) (2026-11-12)
+
+
+### Features
+
+* enhance realism tuning with polar filtering and backtrace adjustments ([81aad4a](https://github.com/bpodwinski/cloud-map-generator/commit/81aad4a23b50ce2ca0ea529086c30c52a66c3d7f))
+
 ## [0.6.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.5.0...v0.6.0) (2026-11-12)
 
 
