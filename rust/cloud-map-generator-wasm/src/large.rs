@@ -15,9 +15,11 @@
 //! * the finished bands go, north to south, to worker 0, which streams them into the 16-bit master (PNG), the raw R8 (rows
 //!   south-up) and the 2048-wide slices, then ends the run with the server's own [`finish_parts`].
 //!
-//! The memory of a worker is a few bands; the sink holds the two big files and the slices: at 8192 x 4096 about 64 MB of
-//! master and 32 MiB of R8, at 32768 x 16384 about 1 GB and 512 MiB, which a tab may not have (the local server streams
-//! them to disk instead).
+//! The memory of a worker is a few bands. The two big files go to disk when the browser gives the page one (the origin
+//! private file system, written by the sink worker through synchronous access handles, as the server writes its files):
+//! the sink hands each band's bytes of the master and of the R8 (at their place counted from the south) to the page,
+//! which writes them; at the end the page reads the R8 back through [`gz_feed`] to compress it. Without that file system
+//! the sink keeps them in memory (at 32768 x 16384 about 1 GB of master and 512 MiB of R8, which a tab may not have).
 
 use crate::finalize::{meta_json, now_ms, params_of, reference, Finished};
 use crate::request::GenRequest;
@@ -62,11 +64,15 @@ pub fn band_count(width: usize, band_rows: usize) -> usize {
 // ---------------------------------------------------------------------------------------------------------
 // The run held by a worker
 
-/// The file sink of worker 0: the master streamed, the R8 placed row by row, the slices.
+/// The file sink: the master streamed, the R8 placed row by row, the slices. On disk (`disk`), the master's bytes and
+/// each band's R8 rows wait in `master_bytes` and `r8_band` for the page to take and write them.
 struct Sink {
     master: Option<png::StreamWriter<'static, SharedBuf>>,
     master_bytes: SharedBuf,
+    disk: bool,
     r8: Vec<u8>,
+    r8_band: Vec<u8>,
+    r8_at: usize,
     slices: Option<SliceSink>,
     next: usize,
 }
@@ -95,6 +101,8 @@ pub(crate) struct Run {
 
 thread_local! {
     pub(crate) static RUN: RefCell<Option<Run>> = const { RefCell::new(None) };
+    /// The gzip of an R8 the page reads back from disk.
+    static GZ: RefCell<Option<(flate2::write::GzEncoder<SharedBuf>, SharedBuf)>> = const { RefCell::new(None) };
     /// The synthetic world of each size, made once per worker (a run borrows it for its life).
     static SURFACES: RefCell<HashMap<usize, &'static Surface>> = RefCell::new(HashMap::new());
 }
@@ -244,7 +252,8 @@ pub fn set_thresholds(thr_raw: &[f64], sens: Vec<f64>) -> Result<(), String> {
 // ---------------------------------------------------------------------------------------------------------
 // The sink (worker 0)
 
-pub fn sink_begin() -> Result<(), String> {
+/// `disk`: the page writes the master and the R8 to files; otherwise they are kept here.
+pub fn sink_begin(disk: bool) -> Result<(), String> {
     with_run(|r| {
         let (w, h) = (r.req.width, r.req.width / 2);
         let master_bytes = SharedBuf::default();
@@ -254,10 +263,13 @@ pub fn sink_begin() -> Result<(), String> {
         // As the server: fast, the master is streamed at the speed of the bands.
         enc.set_compression(png::Compression::Fast);
         let stream = enc.write_header().and_then(|wr| wr.into_stream_writer_with_size(PNG_ROW_STREAM)).map_err(|e| format!("the 16-bit master: {e}"))?;
-        // The master grows band by band: reserve about what it ends at (1.9 bytes a texel measured at 8192, fast PNG) so a
-        // 32768-wide one is not copied as it doubles.
-        master_bytes.0.borrow_mut().reserve(w * h * 2);
-        r.sink = Some(Sink { master: Some(stream), master_bytes, r8: vec![0; w * h], slices: Some(SliceSink::new(w, h)), next: 0 });
+        // In memory the master grows band by band: reserve about what it ends at (1.9 bytes a texel measured at 8192, fast
+        // PNG) so a 32768-wide one is not copied as it doubles.
+        if !disk {
+            master_bytes.0.borrow_mut().reserve(w * h * 2);
+        }
+        let r8 = if disk { Vec::new() } else { vec![0; w * h] };
+        r.sink = Some(Sink { master: Some(stream), master_bytes, disk, r8, r8_band: Vec::new(), r8_at: 0, slices: Some(SliceSink::new(w, h)), next: 0 });
         Ok(())
     })
 }
@@ -298,13 +310,73 @@ pub fn sink_band(band: usize, data: &[f32]) -> Result<(), String> {
         // The raw R8, rows south-up: this band's rows, last first, at their place counted from the south.
         let bytes = preview_u8(out.coverage);
         let first_from_south = h - r1;
-        for (k, row) in (0..rows).rev().enumerate() {
-            let at = (first_from_south + k) * w;
-            sink.r8[at..at + w].copy_from_slice(&bytes[row * w..(row + 1) * w]);
+        if sink.disk {
+            sink.r8_band = Vec::with_capacity(n);
+            for row in (0..rows).rev() {
+                sink.r8_band.extend_from_slice(&bytes[row * w..(row + 1) * w]);
+            }
+            sink.r8_at = first_from_south * w;
+        } else {
+            for (k, row) in (0..rows).rev().enumerate() {
+                let at = (first_from_south + k) * w;
+                sink.r8[at..at + w].copy_from_slice(&bytes[row * w..(row + 1) * w]);
+            }
         }
         sink.slices.as_mut().ok_or("the slices are closed")?.band(&out);
         Ok(())
     })
+}
+
+/// On disk: the master's bytes made since the last call (append them to the master's file).
+pub fn sink_take_master() -> Result<Vec<u8>, String> {
+    with_run(|r| Ok(std::mem::take(&mut *r.sink.as_ref().ok_or("the sink was not begun")?.master_bytes.0.borrow_mut())))
+}
+
+/// On disk: where the last band's R8 rows go in the R8 file (bytes from its start).
+pub fn sink_r8_offset() -> Result<usize, String> {
+    with_run(|r| Ok(r.sink.as_ref().ok_or("the sink was not begun")?.r8_at))
+}
+
+/// On disk: the last band's R8 rows and where they go in the R8 file (bytes from its start).
+pub fn sink_take_r8() -> Result<(Vec<u8>, usize), String> {
+    with_run(|r| {
+        let s = r.sink.as_mut().ok_or("the sink was not begun")?;
+        Ok((std::mem::take(&mut s.r8_band), s.r8_at))
+    })
+}
+
+/// On disk, after the last band: closes the master's PNG stream and gives its last bytes.
+pub fn sink_end_master() -> Result<Vec<u8>, String> {
+    with_run(|r| {
+        let s = r.sink.as_mut().ok_or("the sink was not begun")?;
+        s.master.take().ok_or("the master is closed")?.finish().map_err(|e| format!("the 16-bit master: {e}"))?;
+        Ok(std::mem::take(&mut *s.master_bytes.0.borrow_mut()))
+    })
+}
+
+/// The gzip of an R8 read back from disk, chunk by chunk: [`gz_begin`], [`gz_feed`] for each chunk (returns the
+/// compressed bytes so far), [`gz_finish`] (the rest).
+pub fn gz_begin() {
+    let out = SharedBuf::default();
+    GZ.with(|g| *g.borrow_mut() = Some((gzip_level(out.clone()), out)));
+}
+
+pub fn gz_feed(chunk: &[u8]) -> Result<Vec<u8>, String> {
+    GZ.with(|cell| {
+        let mut slot = cell.borrow_mut();
+        let (enc, out) = slot.as_mut().ok_or("gz_feed before gz_begin")?;
+        enc.write_all(chunk).map_err(|e| e.to_string())?;
+        let bytes = std::mem::take(&mut *out.0.borrow_mut());
+        Ok(bytes)
+    })
+}
+
+pub fn gz_finish() -> Result<Vec<u8>, String> {
+    let taken = GZ.with(|g| g.borrow_mut().take());
+    let (enc, out) = taken.ok_or("gz_finish before gz_begin")?;
+    enc.finish().map_err(|e| e.to_string())?;
+    let rest = std::mem::take(&mut *out.0.borrow_mut());
+    Ok(rest)
 }
 
 /// The end of the run on the sink: the server's sidecar, products and measures ([`finish_parts`]), the files as bytes
@@ -322,11 +394,17 @@ pub fn finish(id: &str, compute: ComputeUse, anomaly: Option<[f32; 2]>, engine_s
         return Err(format!("the sink has {} of the {} bands", sink.next, banded.bands()));
     }
     let (width, height) = (req.width, req.width / 2);
-    sink.master.take().ok_or("the master is closed")?.finish().map_err(|e| format!("the 16-bit master: {e}"))?;
-    let master = std::mem::take(&mut *sink.master_bytes.0.borrow_mut());
-    let mut gz = gzip_level(Vec::with_capacity(width * height / 4));
-    gz.write_all(&sink.r8).map_err(|e| e.to_string())?;
-    let r8gz = gz.finish().map_err(|e| e.to_string())?;
+    // In memory, the two big files are finished here; on disk the page has them already.
+    let big = if sink.disk {
+        None
+    } else {
+        sink.master.take().ok_or("the master is closed")?.finish().map_err(|e| format!("the 16-bit master: {e}"))?;
+        let master = std::mem::take(&mut *sink.master_bytes.0.borrow_mut());
+        let mut gz = gzip_level(Vec::with_capacity(width * height / 4));
+        gz.write_all(&sink.r8).map_err(|e| e.to_string())?;
+        let r8gz = gz.finish().map_err(|e| e.to_string())?;
+        Some((master, r8gz))
+    };
     drop(sink.r8);
     let slices = sink.slices.take().ok_or("the slices are closed")?.into_slices();
 
@@ -368,8 +446,10 @@ pub fn finish(id: &str, compute: ComputeUse, anomaly: Option<[f32; 2]>, engine_s
     if let Some(wp) = &products.wind_png {
         files.push(("wind.png", "image/png", images::rgb8(wp.width, wp.height, &wp.data)));
     }
-    files.push(("master16.png", "image/png", master));
-    files.push(("coverage.r8.gz", "application/gzip", r8gz));
+    if let Some((master, r8gz)) = big {
+        files.push(("master16.png", "image/png", master));
+        files.push(("coverage.r8.gz", "application/gzip", r8gz));
+    }
     files.push(("meta.json", "application/json; charset=utf-8", dumps(&meta).into_bytes()));
 
     let total_seconds = elapsed_before + (now_ms() - t_start) / 1000.0;
@@ -460,7 +540,7 @@ mod tests {
         for &b in &order {
             results[b] = cpu_pass_c(b).unwrap();
         }
-        sink_begin().unwrap();
+        sink_begin(false).unwrap();
         let w = req.width;
         let mut coverage = Vec::new();
         for (b, r) in results.iter().enumerate() {
@@ -518,5 +598,82 @@ mod tests {
         assert!(band_count(1024, band_rows_for(1024, Used::Hybrid, 16)) >= 16);
         assert!(band_rows_for(8192, Used::Gpu, 1) % 4 == 0, "a multiple of width / 2048 for the slices");
         assert!(is_large(8192, ComputeMode::Auto) && is_large(512, ComputeMode::Hybrid) && !is_large(4096, ComputeMode::Gpu));
+    }
+}
+
+#[cfg(test)]
+mod disk_tests {
+    use super::tests_support::*;
+    use super::*;
+
+    /// The page's disk path: the master taken band by band, the R8 rows written at their offsets, the R8 compressed in
+    /// chunks. The files equal the in-memory ones (the master byte for byte, the R8 once decompressed).
+    #[test]
+    fn the_disk_path_writes_the_same_files_as_the_memory_path() {
+        let req = request(256, "{}");
+        let memory = run_sink(req.clone(), false);
+        let disk = run_sink(req, true);
+        let file = |d: &Finished, n: &str| d.files.iter().find(|f| f.0 == n).map(|f| f.2.clone());
+        assert_eq!(file(&disk.0, "master16.png"), None, "on disk the big files are the page's");
+        assert_eq!(disk.1, file(&memory.0, "master16.png").unwrap());
+        let gunzip = |b: &[u8]| {
+            let mut out = Vec::new();
+            std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(b), &mut out).unwrap();
+            out
+        };
+        assert_eq!(gunzip(&disk.2), gunzip(&file(&memory.0, "coverage.r8.gz").unwrap()));
+    }
+}
+
+#[cfg(test)]
+mod tests_support {
+    use super::*;
+    use crate::request::parse_generate;
+
+    pub fn request(width: usize, options: &str) -> GenRequest {
+        let v: serde_json::Value = serde_json::from_str(&format!(
+            r#"{{"body": {{"rotation_period_days": 0.99727, "radius_km": 6371, "gravity_mps2": 9.81, "scale_height_km": 8}}, "seed": 42, "width": {width}, "options": {options}}}"#
+        ))
+        .unwrap();
+        let rt = cloud_map_generator_service::engine::Runtime::cpu_only("no GPU in this test");
+        parse_generate(&v, &[256, 512, 1024, 2048, 4096, 8192], &rt).unwrap()
+    }
+
+    /// A whole run in one process; with `disk`, the master's bytes and the R8 as the page would write them to files.
+    pub fn run_sink(req: GenRequest, disk: bool) -> (Finished, Vec<u8>, Vec<u8>) {
+        open(req.clone(), 24).unwrap();
+        let bands = banded().unwrap().bands();
+        let moments: Vec<f64> = (0..bands).flat_map(|b| cpu_pass_a(b).unwrap()).collect();
+        set_moments(&moments).unwrap();
+        let (mut thr, mut sens) = (Vec::new(), Vec::new());
+        for b in 0..bands {
+            let p = cpu_pass_b(b).unwrap();
+            let (n, ns) = (p[2] as usize, p[3] as usize);
+            thr.extend_from_slice(&p[4..4 + n]);
+            sens.extend_from_slice(&p[4 + n..4 + n + ns]);
+        }
+        set_thresholds(&thr, sens).unwrap();
+        sink_begin(disk).unwrap();
+        let (mut master, mut r8) = (Vec::new(), vec![0u8; req.width * req.width / 2]);
+        for b in 0..bands {
+            let rows = cpu_pass_c(b).unwrap();
+            sink_band(b, &rows).unwrap();
+            if disk {
+                master.extend(sink_take_master().unwrap());
+                let (bytes, at) = sink_take_r8().unwrap();
+                r8[at..at + bytes.len()].copy_from_slice(&bytes);
+            }
+        }
+        let mut r8gz = Vec::new();
+        if disk {
+            master.extend(sink_end_master().unwrap());
+            gz_begin();
+            for chunk in r8.chunks(1000) {
+                r8gz.extend(gz_feed(chunk).unwrap());
+            }
+            r8gz.extend(gz_finish().unwrap());
+        }
+        let compute = ComputeUse { used: Used::Cpu, devices: vec![], note: None };
+        (finish("0123456789ab", compute, None, 1.0, 1.0).unwrap(), master, r8gz)
     }
 }

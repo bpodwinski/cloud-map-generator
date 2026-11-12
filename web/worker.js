@@ -104,8 +104,9 @@ const ops = {
     wasm.large_open(request, caps, band_rows);
     return true;
   },
-  large_close() {
+  async large_close() {
     wasm.large_close();
+    await diskDrop();
     return true;
   },
   large_pass_a({ band }) {
@@ -148,16 +149,31 @@ const ops = {
     wasm.large_set_thresholds(thr_raw, sensitivity);
     return true;
   },
-  large_sink_begin: () => {
-    wasm.large_sink_begin();
-    return true;
+  // The sink writes the two big files to disk when it can (see diskOpen); `dir` is the page's session folder.
+  async large_sink_begin({ dir, id }) {
+    await diskDrop();
+    disk = await diskOpen(dir, id);
+    wasm.large_sink_begin(!!disk);
+    return { disk: !!disk };
   },
   large_sink_band: ({ band, data }) => {
     wasm.large_sink_band(band, data);
+    if (disk) {
+      const master = wasm.large_sink_take_master();
+      disk.master.h.write(master, { at: disk.masterAt });
+      disk.masterAt += master.length;
+      const at = wasm.large_sink_r8_offset();
+      disk.r8.h.write(wasm.large_sink_take_r8(), { at });
+    }
     return true;
   },
-  large_finish: (a) =>
-    finished(wasm.large_finish(a.id, a.used, a.devices, a.note ?? undefined, a.anomaly_min, a.anomaly_max, a.engine_seconds, a.elapsed_before)),
+  async large_finish(a) {
+    const files = disk ? await diskFinish() : [];
+    const out = finished(wasm.large_finish(a.id, a.used, a.devices, a.note ?? undefined, a.anomaly_min, a.anomaly_max, a.engine_seconds, a.elapsed_before));
+    out.result.files.push(...files);
+    out.result.disk = files.map((f) => f.path);
+    return out;
+  },
 
   // Barriers and the answer.
   merge_moments: ({ flat }) => wasm.merge_moments(flat),
@@ -168,6 +184,89 @@ const ops = {
   finalize: (a) => finished(wasm.finalize_maps(a.request, a.caps, a.id, a.coverage, a.kind, a.high_share, a.used, a.devices, a.note ?? undefined, a.engine_seconds, a.elapsed_before)),
   run_whole: (a) => finished(wasm.run_whole(a.request, a.caps, a.id, a.note ?? undefined, a.elapsed_before))
 };
+
+// ---------------------------------------------------------------------------------------------------------
+// The two big files of a banded map on disk: the origin private file system (no permission asked, a share of the disk),
+// written through synchronous access handles, which only a worker has. The master is appended band by band; the R8 rows
+// land at their place counted from the south (a seek, as the server's temporary file), then the R8 is read back in chunks
+// through the module's gzip. The page gets the files as disk-backed File objects: a 1 GB master is never in memory.
+// Without that file system (an old browser), the sink keeps them in memory.
+
+let disk = null;
+const CHUNK = 8 << 20;
+
+async function diskOpen(dirName, id) {
+  const opened = [];
+  try {
+    if (!self.navigator || !self.navigator.storage || !self.navigator.storage.getDirectory) return null;
+    const root = await self.navigator.storage.getDirectory();
+    const top = await root.getDirectoryHandle('cloud-map-generator', { create: true });
+    const dir = await top.getDirectoryHandle(dirName, { create: true });
+    const open = async (name) => {
+      const f = await dir.getFileHandle(name, { create: true });
+      if (!f.createSyncAccessHandle) throw new Error('no synchronous access handles');
+      const h = await f.createSyncAccessHandle();
+      h.truncate(0);
+      const file = { f, h, name };
+      opened.push(file);
+      return file;
+    };
+    return { dir, master: await open(`${id}_master16.png`), r8: await open(`${id}_coverage.r8`), masterAt: 0, id };
+  } catch (err) {
+    for (const o of opened) o.h.close();
+    return null;
+  }
+}
+
+// After the last band: the master's last bytes, the R8 compressed into its .gz, the raw R8 removed. Returns the files.
+async function diskFinish() {
+  const d = disk;
+  const tail = wasm.large_sink_end_master();
+  d.master.h.write(tail, { at: d.masterAt });
+  d.master.h.flush();
+  d.master.h.close();
+  const gzName = `${d.id}_coverage.r8.gz`;
+  const gzHandle = await d.dir.getFileHandle(gzName, { create: true });
+  const gz = await gzHandle.createSyncAccessHandle();
+  gz.truncate(0);
+  let gzAt = 0;
+  const put = (bytes) => {
+    gz.write(bytes, { at: gzAt });
+    gzAt += bytes.length;
+  };
+  wasm.large_gz_begin();
+  const size = d.r8.h.getSize();
+  const buf = new Uint8Array(CHUNK);
+  for (let at = 0; at < size; ) {
+    const n = d.r8.h.read(buf, { at });
+    if (n <= 0) throw new Error('the raw R8 file is short');
+    put(wasm.large_gz_feed(buf.subarray(0, n)));
+    at += n;
+  }
+  put(wasm.large_gz_finish());
+  gz.flush();
+  gz.close();
+  d.r8.h.close();
+  await d.dir.removeEntry(d.r8.name).catch(() => {});
+  disk = null;
+  return [
+    { name: 'master16.png', type: 'image/png', file: await d.master.f.getFile(), path: d.master.name },
+    { name: 'coverage.r8.gz', type: 'application/gzip', file: await gzHandle.getFile(), path: gzName }
+  ];
+}
+
+// A run that failed or was replaced: its handles closed, its files removed.
+async function diskDrop() {
+  const d = disk;
+  disk = null;
+  if (!d) return;
+  for (const o of [d.master, d.r8]) {
+    try {
+      o.h.close();
+    } catch {}
+    await d.dir.removeEntry(o.name).catch(() => {});
+  }
+}
 
 // A wasm `Finished` -> { json, files: [{ name, type, bytes }] }, with the bytes transferred.
 function finished(done) {

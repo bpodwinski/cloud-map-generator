@@ -33,9 +33,9 @@ use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 
 /// The map widths the page offers, as the local server: up to 4096 the one-piece engine or the bands of [`band`]; from
-/// 8192 the banded engine of the server ([`large`]). The files of a banded map are kept in memory: at 32768 x 16384 the
-/// R8 is 512 MiB before compression and the 16-bit master about 1 GB, which a tab may not have (the run then fails with
-/// the browser's out-of-memory error; the local server streams them to disk).
+/// 8192 the banded engine of the server ([`large`]), whose two big files (at 32768 x 16384 a 16-bit master of about
+/// 1 GB and an R8 of 512 MiB before compression) are streamed to the origin private file system, as the server streams
+/// them to its disk; in memory only when the browser has no such file system.
 pub const WIDTHS: [usize; 7] = [512, 1024, 2048, 4096, 8192, 16384, 32768];
 
 /// Seconds a whole generation takes on the CPU engine of the page (the workers' bands, then the encodings and the metrics
@@ -538,9 +538,49 @@ pub fn large_pass_c(band: usize) -> Result<Vec<f32>, String> {
     large::cpu_pass_c(band)
 }
 
+/// `disk`: the page writes the master and the R8 to files (see [`large`]); otherwise they are kept in memory.
 #[wasm_bindgen]
-pub fn large_sink_begin() -> Result<(), String> {
-    large::sink_begin()
+pub fn large_sink_begin(disk: bool) -> Result<(), String> {
+    large::sink_begin(disk)
+}
+
+/// On disk: the master's bytes made since the last call.
+#[wasm_bindgen]
+pub fn large_sink_take_master() -> Result<Vec<u8>, String> {
+    large::sink_take_master()
+}
+
+/// On disk: the last band's R8 rows.
+#[wasm_bindgen]
+pub fn large_sink_take_r8() -> Result<Vec<u8>, String> {
+    large::sink_take_r8().map(|(b, _)| b)
+}
+
+/// On disk: where the last band's R8 rows go (bytes from the start of the file).
+#[wasm_bindgen]
+pub fn large_sink_r8_offset() -> Result<f64, String> {
+    large::sink_r8_offset().map(|o| o as f64)
+}
+
+/// On disk, after the last band: the master's last bytes.
+#[wasm_bindgen]
+pub fn large_sink_end_master() -> Result<Vec<u8>, String> {
+    large::sink_end_master()
+}
+
+#[wasm_bindgen]
+pub fn large_gz_begin() {
+    large::gz_begin();
+}
+
+#[wasm_bindgen]
+pub fn large_gz_feed(chunk: &[u8]) -> Result<Vec<u8>, String> {
+    large::gz_feed(chunk)
+}
+
+#[wasm_bindgen]
+pub fn large_gz_finish() -> Result<Vec<u8>, String> {
+    large::gz_finish()
 }
 
 /// A finished band, in band order (the page orders them).

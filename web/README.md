@@ -102,8 +102,14 @@ on one worker, the same in both modes; it is what the GPU cannot shorten. A synt
   WebGPU in workers the page runs the CPU path and says why.
 * The page loads daisyUI and Tailwind from a CDN, as the local page does (vendoring them is the one change needed for a page
   with no third-party request). The engine's files carry a build stamp (`?v=`), so a release never mixes with a cached one.
-* 16384 and 32768 are offered but were not run in the browser: their files are kept in memory (at 32768 the master is about
-  1 GB and the R8 512 MiB), which a tab may not have; the local server streams them to disk. Their estimates are the 8192
-  time scaled by the texels, not measured.
+* 16384 and 32768 are offered but were not run in the browser. Their estimates are the 8192 time scaled by the texels, not
+  measured.
+* **Files on disk.** The 16-bit master and the R8 of a banded map are streamed, band by band, to the origin private file
+  system (`navigator.storage.getDirectory()`, no permission asked, a share of the disk), through synchronous access handles
+  in the sink worker: the master appended, the R8 rows written at their place counted from the south, then read back in
+  8 MiB chunks through the module's gzip. The downloads are disk-backed `File`s, so a 1 GB master is never in memory. Each
+  open page has its own folder, held by a Web Lock; a page removes the folders of pages that are gone, and the files of a
+  result when it leaves the last 8. Without that file system the files are kept in memory. At 8192 on the GPU the disk path
+  writes the same 63 MB master and 25 MB R8 as the memory path (11.9 s).
 * On CPU + GPU the CPU workers are slower than the GPU per band, so at 8192 hybrid is slower than the GPU alone (as natively
   when the GPU is fast): `auto` picks the GPU.

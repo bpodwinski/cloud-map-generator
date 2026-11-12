@@ -111,7 +111,35 @@
       this.ready = this.start();
     }
 
+    // The page's folder for the big files of banded maps, on the origin private file system: one per open page, held by a
+    // Web Lock for the page's life, so a page removes the folders of pages that are gone and never another open page's.
+    diskSession() {
+      this.diskDir = `session-${newId()}`;
+      if (!navigator.storage || !navigator.storage.getDirectory || !navigator.locks) return;
+      const mine = this.diskDir;
+      navigator.locks.request(`cloud-map-generator:${mine}`, () => new Promise(() => {})).catch(() => {});
+      (async () => {
+        const top = await (await navigator.storage.getDirectory()).getDirectoryHandle('cloud-map-generator', { create: true });
+        for await (const name of top.keys()) {
+          if (name === mine) continue;
+          await navigator.locks.request(`cloud-map-generator:${name}`, { ifAvailable: true }, async (lock) => {
+            if (lock) await top.removeEntry(name, { recursive: true }).catch(() => {});
+          });
+        }
+      })().catch(() => {});
+    }
+
+    async diskRemove(names) {
+      if (!names || !names.length) return;
+      try {
+        const top = await (await navigator.storage.getDirectory()).getDirectoryHandle('cloud-map-generator');
+        const dir = await top.getDirectoryHandle(this.diskDir);
+        for (const n of names) await dir.removeEntry(n).catch(() => {});
+      } catch {}
+    }
+
     async start() {
+      this.diskSession();
       const threads = Math.max(1, navigator.hardwareConcurrency || 4);
       // The page's own thread keeps the interface alive: one hardware thread less for the workers (at least one).
       const size = Math.max(1, Math.min(threads - 1, MAX_WORKERS));
@@ -230,18 +258,21 @@
     keep(id, done) {
       const answer = JSON.parse(done.json);
       this.lastEngineSeconds = done.engine_seconds;
-      const files = new Map(done.files.map((f) => [f.name, new Blob([f.bytes], { type: f.type })]));
+      // A file on disk (a banded map's master and R8) stays there: the Blob only refers to it.
+      const files = new Map(done.files.map((f) => [f.name, new Blob([f.file || f.bytes], { type: f.type })]));
       const urls = [];
       for (const d of answer.downloads) {
         const name = d.href.split('/').pop();
         d.href = URL.createObjectURL(files.get(name));
         urls.push(d.href);
       }
-      this.results.set(id, { files, urls });
+      this.results.set(id, { files, urls, disk: done.disk || [] });
       while (this.results.size > KEEP) {
         const [oldest] = this.results.keys();
-        for (const u of this.results.get(oldest).urls) URL.revokeObjectURL(u);
+        const gone = this.results.get(oldest);
+        for (const u of gone.urls) URL.revokeObjectURL(u);
         this.results.delete(oldest);
+        this.diskRemove(gone.disk);
       }
       return answer;
     }
@@ -385,7 +416,7 @@
       await Promise.all(open.map((i) => pool.call(i, 'large_set_thresholds', { thr_raw: thrRaw, sensitivity })));
 
       // Pass C: the bands reach the sink in order, whatever order they are made in.
-      await pool.call(sink, 'large_sink_begin');
+      await pool.call(sink, 'large_sink_begin', { dir: this.diskDir, id });
       const ready = new Map();
       let toSink = 0;
       let chain = Promise.resolve();

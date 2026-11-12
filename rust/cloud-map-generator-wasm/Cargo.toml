@@ -17,16 +17,14 @@ cloud-map-generator-service = { path = "../cloud-map-generator-service", default
 serde_json = { workspace = true }
 # The 16-bit master of a banded map, streamed band by band into memory (src/large.rs), as the server streams it to disk.
 png = { workspace = true }
+# The gzip of an R8 the page reads back from disk, chunk by chunk (src/large.rs).
+flate2 = { workspace = true }
 num-traits = { workspace = true }
 # Pinned to the wasm-bindgen CLI that builds the page (scripts/build_web.mjs checks the versions agree).
 wasm-bindgen = "=0.2.126"
 
 # The GPU path exists only in the browser build: wgpu's WebGPU backend (cloud-map-generator-gpu compiles to wasm32 with its
 # readbacks awaited). Natively this crate is the CPU engine's rlib for the tests, with no wgpu in it.
-[dev-dependencies]
-# The tests read the gzipped raw R8 back.
-flate2 = { workspace = true }
-
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 cloud-map-generator-gpu = { path = "../cloud-map-generator-gpu" }
 wasm-bindgen-futures = "0.4"
