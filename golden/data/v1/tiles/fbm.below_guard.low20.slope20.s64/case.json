@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "fbm.below_guard.low20.slope20.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "THE STD GUARD, active: slope 20 gives a pre-normalization std of 2.0e-14, BELOW 1e-12, so the division is by the guard, not by the std: the output is (field - mean) / 1e-12 and its std is 0.020, not 1. This is the case that pins the guard VALUE from below: the slope 10 and 14 cases bound it from above (it must stay under 1.8e-10), this one fixes it (the output scales as 1/guard: a guard of 1e-15 gives std 1 here, 1e-9 gives 2e-5). Never reached by the generator. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: max |diff| 2.8e-17 on values up to 0.075 (1.5e-14 relative above 1e-3; scipy.fft 2.1e-17), so 1e-9 relative / 1e-12 absolute: the guard is pinned to better than 1e-9 relative.",
+ "params": {
+  "size": 64,
+  "low": 20.0,
+  "slope": 20.0,
+  "seed": 32,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 64,
+    "low": 20.0,
+    "slope": 20.0,
+    "seed": 32
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f1ed0408afc04e0a5a88a4c8dd2a11c8d35e120f7902ff0607b0feceba9c02e7"
+}

@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "standardize.constant_half",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "A constant 0.5 float32 field (the float32 pairwise mean of 64 halves is exactly 0.5, so std is exactly 0): the same fallback gives 0. Exact. A port must keep sd == 0 as \"divide by 1\", not NaN. Only DYADIC constants (0, 0.5) are exact in float32 means: see the next case for the others.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 256,
+   "nbytes": 256,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "085b3d5869aa08c0f45be48853c1672cf2d4f2c4a85b1737ec606df25d010d58"
+}

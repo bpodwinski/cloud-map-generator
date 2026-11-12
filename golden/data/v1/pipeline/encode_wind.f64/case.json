@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "encode_wind.f64",
+ "group": "pipeline",
+ "function": "cloudgen.products.encode_wind",
+ "doc": "encode_wind on a f64 (10, 24, 2) wind of odd quarters of m/s (128 + v / 0.5 is an exact .5: half-to-even, 128.5 -> 128 but 129.5 -> 130), the clip edges +-63.25, +-63.75, +-64.25, +-1000, zero and negative zero: bytes clip(round(128 + v / WIND_STEP_MPS), 0, 255), B = 0. Exact.",
+ "params": {
+  "step_mps": 0.5,
+  "dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "wind",
+   "dtype": "f64",
+   "shape": [
+    10,
+    24,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 3840
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgb",
+   "dtype": "u8",
+   "shape": [
+    10,
+    24,
+    3
+   ],
+   "offset": 3840,
+   "nbytes": 720,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "25771a26cf8a2ad3d1d776dffafe4b238a327f2e5a517fb152c9e45f028d511b"
+}

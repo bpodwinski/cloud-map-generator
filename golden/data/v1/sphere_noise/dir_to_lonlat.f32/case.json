@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "dir_to_lonlat.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.dir_to_lonlat",
+ "doc": "float32 directions give float32 lon and lat (arctan2 and arcsin in float32). Includes the poles and the antimeridian, float32 z just below 1 (0.99999994, where arcsin is ill-conditioned but the input is exact) and z beyond 1 (clipped). Measured against the float64 evaluation of the same float32 inputs: 1.2e-7 in lon, 8.9e-8 in lat; tolerance 2e-6 abs + 1e-5 rel (more than 10x).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dir",
+   "dtype": "f32",
+   "shape": [
+    406,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 4872
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f32",
+   "shape": [
+    406
+   ],
+   "offset": 4872,
+   "nbytes": 1624,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    406
+   ],
+   "offset": 6496,
+   "nbytes": 1624,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "99c6be22501455ad78b2578c02bd74b31d6c7d5c8f5c20a57db282aaf81825a2"
+}

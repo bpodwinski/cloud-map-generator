@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "patches.earth256.full",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.patches",
+ "doc": "metrics.patches: 7 latitudes x 8 longitudes = 56 gnomonic patches of 256x256 (half-angle 10 deg) sampled bilinearly from the float32 map (stored here as u8, converted u8 / 255 in float32), returned as float64 (the lerp weights are float64). Outputs: the integer lat and lon of each patch, and the patches sampled at the texels listed in params.stride_idx (a subset, to keep the case small: a port computes the whole patch and compares these texels). Full-resolution float64 texels (rows and columns 64..191, the central 128x128 crop) of patch 0 (latitude -55, longitude -180): the patch center is ON the antimeridian, so the crop straddles it and columns wrap through the last map column. Same 1e-9. Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "patch_index": 0,
+  "lat": -55,
+  "lon": -180,
+  "crop": [
+   64,
+   192,
+   64,
+   192
+  ],
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 131072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4d6dfb1e28a170ec00434c11fbf5b0a1be0d1250cfbac4c54a4d0a445a11a41b"
+}

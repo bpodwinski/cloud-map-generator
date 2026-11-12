@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.odd.5x3_to_11x7",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "Odd sizes, 5x3 -> 11x7, FLOAT64 coarse input (the function converts to float64 either way; the output is float32 whatever the input dtype). Measured spread 3e-8 / 4.5e-7; same tolerance.",
+ "params": {
+  "width": 11,
+  "height": 7
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    3,
+    5,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 360
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    7,
+    11,
+    3
+   ],
+   "offset": 360,
+   "nbytes": 924,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ce5ddd079f579ecfc9b9e2dead24ed7566e5d9ab7ae3a134c967d343646d6d85"
+}

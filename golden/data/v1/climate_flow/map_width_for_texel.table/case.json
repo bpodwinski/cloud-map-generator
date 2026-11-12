@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "map_width_for_texel.table",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.map_width_for_texel",
+ "doc": "Map width from a target texel, all three arguments given: w = ((2 pi) radius) / texel in double (a true division, not a multiplication by the reciprocal), then 2 ** ceil(log2(max(w, 2))) (a power of two, never below 2), capped by max_width (the cap is returned as is, even when not a power of two, or 0 or 1). Rows: the planets (Earth and Venus 16384, Mars and Titan 8192, the Moon 4096), caps, tiny, zero and negative radius and a negative texel (width 2), 1e300 km, an exact power of two (1024 stays 1024), one part in 1e9 below and above 4096, and widths 1e-14 .. 1e-11 (relative) above 2^3, 2^7, 2^10, 2^12 and 2^14 (the next power of two, 16 .. 32768). Integers: exact. A port computes the ceil from a libm log2 (Python math.log2, Rust f64::log2) exactly as written; an exact integer test would agree on every row of this table and differ only in the map_width_for_texel.log2_window case. A port must compare with the cap in floating point or saturate before shifting (2 ** 996 overflows a u64). The calls that raise in Python (a NaN or infinite radius: ValueError or OverflowError from math.ceil; a zero texel: ZeroDivisionError) are not cases.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "radius_km",
+   "dtype": "f64",
+   "shape": [
+    34
+   ],
+   "offset": 0,
+   "nbytes": 272
+  },
+  {
+   "name": "texel_km",
+   "dtype": "f64",
+   "shape": [
+    34
+   ],
+   "offset": 272,
+   "nbytes": 272
+  },
+  {
+   "name": "max_width",
+   "dtype": "i64",
+   "shape": [
+    34
+   ],
+   "offset": 544,
+   "nbytes": 272
+  }
+ ],
+ "outputs": [
+  {
+   "name": "width",
+   "dtype": "i64",
+   "shape": [
+    34
+   ],
+   "offset": 816,
+   "nbytes": 272,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c5c7a82aa50cc4d7bc6018576f167f209fa9bb91d6d2a61f31ea3e14470f604c"
+}

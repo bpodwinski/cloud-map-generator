@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.float32_ties.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "A FLOAT32 field quantized to 41 levels (many ties): np.unique on float32 values, the same mean-rank arithmetic in float64. The tiles never pass float32; the case pins that ties are decided in the field's own dtype. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   32,
+   32
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f32",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 4096,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "98530cff4b0d69f7903fc55b3d9bce30f0afb2e02e0663d01ad7fbea98d591bd"
+}

@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.edge_values",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction at NaN (NaN), +-inf (the gaussians go to 0, the smoothsteps saturate: 0.70), 1e300 and signed zeros, with ITCZ shifts 0 and 8 (row 0, row 1). Float64: rtol 1e-9; NaN equals NaN.",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    9
+   ],
+   "offset": 0,
+   "nbytes": 72
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 72,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    2,
+    9
+   ],
+   "offset": 88,
+   "nbytes": 144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "98d065dc34fc8c13caffe7bc6a00e17a792e2b13c24c09d5651c3d14de8428af"
+}

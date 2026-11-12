@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "type_map.earth.hadley30",
+ "group": "products_generate",
+ "function": "cloudgen.products.type_map",
+ "doc": "The weather-map type ladder: shield x c + (1 - shield) x cumulus, c = convective_tendency of the latitude (climate.py, evaluated inside and covered by the climate_flow group; here the latitude is shifted 4 degrees as the pipeline shifts it with the ITCZ) and cumulus the weights times the four type levels. Pipeline dtypes: float64 shield and latitudes, float32 weights; output float32. The float32 weight products and the cast are the only roundings; tolerance is the golden float32 default. Arguments: shield, the weights (w_closed, w_open, w_street = the dict entries closed, open, street) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The four type levels and the other constants it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 1.2e-7; one-ulp nudges of every float input and parameter change it by at most 1.2e-7 (worst of 6 random trials); the tolerance is 55x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  },
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 8192
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 41216,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fbfa0575def2315a17aec905c138bf2ede5e8125120d9108b6b0c9944dc2ab0a"
+}

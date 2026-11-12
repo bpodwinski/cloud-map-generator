@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.plateau.quarter_zero.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "A quarter of the field (the 16x16 corner) is exactly 0 (an open cell's empty center): the 256 equal texels take ONE mean rank, hence one byte, never a ramp down the rows. The plateau is the lowest value, mean rank 127.5 of 1024 texels: byte 31. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   32,
+   32
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d1d4da159986bda7768dfcfd50d448cfe9762ae0ca5da6cacd99762c2f3095c7"
+}

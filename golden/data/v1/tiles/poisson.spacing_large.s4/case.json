@@ -1,0 +1,106 @@
+{
+ "format": 1,
+ "id": "poisson.spacing_large.s4",
+ "group": "tiles",
+ "function": "cloudgen.tiles.poisson_points",
+ "doc": "spacing = 1.5 (radius 0.375 on a torus whose farthest point is 0.707 away): only 4 points survive (8 without the wrap), so the PERIODIC distance min(d, 1 - d) decides every rejection near the tile edges. The strict `<` against the threshold is pinned by poisson.exact_tie.injected.s1, not by this case (no drawn candidate lands on a threshold to the ulp). The candidates and the thinning mask the seed draws are the inputs plan0.cand (n, 2: x, y) and plan0.keep (n,); n = int(12.0 / min(size_field)^2) and the thinning is keep = (u < (min size / size at the candidate)^2), the size being the nearest-texel one. The uniforms u of the thinning draw are the input thin_u (n,) (the code's own plan keeps only their outcome, so the case module records them): a port that draws its own cand and u derives keep from them, and the output keep_from_u (bool, n, exact: the square is one multiplication r * r, the comparison STRICT) is what it must obtain; it equals plan0.keep. The dart throwing over cand[keep] (scan order, a candidate is rejected when a PERIODIC distance to any accepted point is < spacing * max(its size, the accepted point's size), STRICTLY) is sequential and order-dependent, so the accepted points are an exact output, with their indices into cand[keep]. Accepted points are copies of candidates (exact); the accept decisions flip only for a distance within an ulp of its threshold, which never occurred in 8 trials with every candidate and size nudged by one ulp.",
+ "params": {
+  "seed": 11,
+  "spacing": 1.5,
+  "n_candidates": 192,
+  "n_kept": 192,
+  "literals": {
+   "oversample": 12.0
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.poisson",
+    "seed": 11,
+    "spacing": 1.5
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "size_field",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 128
+  },
+  {
+   "name": "plan0.cand",
+   "dtype": "f64",
+   "shape": [
+    192,
+    2
+   ],
+   "offset": 128,
+   "nbytes": 3072
+  },
+  {
+   "name": "plan0.keep",
+   "dtype": "bool",
+   "shape": [
+    192
+   ],
+   "offset": 3200,
+   "nbytes": 192
+  },
+  {
+   "name": "thin_u",
+   "dtype": "f64",
+   "shape": [
+    192
+   ],
+   "offset": 3392,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    4,
+    2
+   ],
+   "offset": 4928,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "index",
+   "dtype": "i64",
+   "shape": [
+    4
+   ],
+   "offset": 4992,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "keep_from_u",
+   "dtype": "bool",
+   "shape": [
+    192
+   ],
+   "offset": 5024,
+   "nbytes": 192,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0c24d99f7f43f9ba924fe0d71c7e01d1cdca53cf63905905d9ebafce87c9603b"
+}

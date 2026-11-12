@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.odd.s9",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "An odd size (9): fftfreq has k = 0..4 then -4..-1 and no Nyquist row; low 1.5 cuts the modes of radius 0, 1 and 1.41. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 9,
+  "low": 1.5,
+  "slope": 3.0,
+  "seed": 22,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 9,
+    "low": 1.5,
+    "slope": 3.0,
+    "seed": 22
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9
+   ],
+   "offset": 0,
+   "nbytes": 648
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9
+   ],
+   "offset": 648,
+   "nbytes": 648,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5c546cd2d077abd71808c9779af1710d5c38775523e28cd026f816ac0d5849e6"
+}

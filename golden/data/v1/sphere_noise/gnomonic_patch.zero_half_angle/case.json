@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.zero_half_angle",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Half angle 0: tan = 0, every sample is the center direction (up to normalization rounding). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 0.3,
+  "lat0": 0.1,
+  "half_angle": 0.0,
+  "n": 4
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c704694e4749838b8f47a2e59db6934b876a2db851c6c853f1ac4fb8f942915f"
+}

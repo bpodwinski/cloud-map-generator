@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "smoothstep.sweep",
+ "group": "climate_flow",
+ "function": "cloudgen.climate._smoothstep",
+ "doc": "The private smoothstep t^2 (3 - 2 t), t = clip((x - a) / (b - a), 0, 1), on x in [-1, 10] for the edge pairs of inputs.a and inputs.b: the climate pairs (2, 2.6) and (1, 2), the (0, 8) of texture.py, the unit pair (0, 1) and a reversed one (a=1, b=0), which the code never uses but the formula defines. Both clip ends are taken. Float64: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    441
+   ],
+   "offset": 0,
+   "nbytes": 3528
+  },
+  {
+   "name": "a",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 3528,
+   "nbytes": 40
+  },
+  {
+   "name": "b",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 3568,
+   "nbytes": 40
+  }
+ ],
+ "outputs": [
+  {
+   "name": "s",
+   "dtype": "f64",
+   "shape": [
+    5,
+    441
+   ],
+   "offset": 3608,
+   "nbytes": 17640,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "be99df1bcc895fd33468467ab1bf13c565867ec1491ba34b1b65868a07ec16b4"
+}

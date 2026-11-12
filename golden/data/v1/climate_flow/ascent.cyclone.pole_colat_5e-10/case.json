@@ -1,0 +1,59 @@
+{
+ "format": 1,
+ "id": "ascent.cyclone.pole_colat_5e-10",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "Ascent of a cyclone 5e-10 rad from the north pole (lon 1.3, age 0.7): its east vector cross(z, c) has norm 5e-10 (the sine of the colatitude), below the 1e-9 of the code, so the FALLBACK east (0, 1, 0) is used and the comma head shifts accordingly. Together the eight pole_colat_* cases (0.5, 0.9, 0.99, 0.99999 below; 1.00001, 1.01, 1.1, 2 above) pin the threshold 1e-9 to 1e-5 relative (the colatitude of a double latitude near pi/2 is itself quantized by 2.2e-16, i.e. 2.2e-7 relative, and the assertion that builds each case checks which side of 1e-9 the computed norm falls): a port with 1e-8, 1e-10 or 1.0001e-9 fails on at least one. 21 x 21 float32 patch of half-angle 0.5 rad. Measured on these eight patches: the float64-promoted computation differs by at most 1.2e-7 and a one-ulp nudge of the directions by 2.4e-7 (0.05 of the band). Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN). Tolerance rtol 5e-5, atol 5e-6: over the single-vortex float32 cases the float64-promoted computation differs by at most 3.1e-7 and a one-ulp nudge of the directions by 9e-7 (the oldest low, 0.44 of the default band); tolerance 10 times the worst, rounded up.",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": 1.3,
+    "lat": 1.5707963262948965,
+    "radius": 0.25,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 0.7
+   }
+  ],
+  "east_norm": 5.000001026025254e-10,
+  "colatitude": 5e-10,
+  "fallback_expected": true,
+  "dtype_chain": "p float32: a = float32 zeros; per vortex the center is cast to float32, d2, exp and the gaussians are float32 (a cyclone takes _comma_ascent, float32; a tropical subtracts its float32 eye); the term is np.float32(ascent) * g.astype(float32) and a += term accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    441,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 5292
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    441
+   ],
+   "offset": 5296,
+   "nbytes": 1764,
+   "tol": {
+    "mode": "close",
+    "rtol": 5e-05,
+    "atol": 5e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1a1b1de73df2930532240ead5d39375052d59cd2079e321023fa03d9c0067f8c"
+}

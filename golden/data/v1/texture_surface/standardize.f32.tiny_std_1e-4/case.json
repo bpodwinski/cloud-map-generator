@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "standardize.f32.tiny_std_1e-4",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "A float32 field with std 1.0e-4 (mean ~0): small but strictly positive, so the divisor is the std itself and the result has unit variance. It pins the `sd > 0` test to ZERO: a threshold such as 1e-3 would fall back to dividing by 1 and return values of order 1e-4. Default tolerance 1e-5/1e-6: the same float32 statistics as the unit-interval case (measured worst difference 1.8e-7, relative error is scale-free).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 256,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "99baefddd7145772aef832a8de7a288107c2a7b352205448a276451eeefd6723"
+}

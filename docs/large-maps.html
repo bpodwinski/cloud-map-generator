@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Large maps: up to 32768 x 16384</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1f21; --muted:#5f6368; --line:#dadce0; --card:#ffffff; --accent:#1a5fb4; --ok:#1e7b34; --warn:#9a6200; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; } }
+body { background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; margin:0; padding:24px 16px 64px; }
+main { max-width:920px; margin:0 auto; }
+h1 { font-size:1.8rem; margin:0 0 4px; } h2 { font-size:1.25rem; margin:36px 0 8px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.status { color:var(--muted); margin:0 0 24px; }
+table { border-collapse:collapse; width:100%; margin:8px 0 16px; font-size:.95rem; display:block; overflow-x:auto; }
+th, td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+th { background:var(--card); }
+code { font-family:ui-monospace, Consolas, monospace; font-size:.9em; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0; }
+.warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+<h1>Large maps: up to 32768 x 16384</h1>
+<p class="status">Status (2026-11-12): L1 to L4 built and measured on the development machine, except what the table below marks "not measured": the banded engine (<code>cloud-map-generator-core/src/banded.rs</code>), the file sinks and the CLI (<code>cloud-map-generator gen --width 32768 --band-rows 256</code>), the GPU and hybrid workers (<code>cloud-map-generator-service/src/bands.rs</code>, <code>cloud-map-generator-gpu/src/pipeline/bands.rs</code>), the per-machine widths and the measured estimates. Not built: the tile viewer, the resume of a cancelled run, the MCP widths above 4096, the browser engine (L5).</p>
+
+<h2>Why 32K is a different program, not a bigger one</h2>
+<table>
+<tr><th>Quantity at 32768 x 16384</th><th>Size</th></tr>
+<tr><td>texels</td><td>536,870,912</td></tr>
+<tr><td>one float32 field</td><td>2 GiB</td></tr>
+<tr><td>the generator's fields held at once (back-trace vectors, synoptic field, fine texture, streak, sub-texel noise, products): about fifteen</td><td>about 30 GiB of RAM</td></tr>
+<tr><td>the product the renderer loads: coverage as R8 (rows south-up)</td><td>512 MiB raw</td></tr>
+<tr><td>the 16-bit master PNG</td><td>1 GiB raw</td></tr>
+</table>
+<p>So the engine must be <strong>out of core</strong>: it computes the map in horizontal bands, never holds more than a few bands, and streams the result to files. Only the Rust engine (and, for a browser, a streamed variant of it) can do this. Python stays capped (about 4096, 8192 on a big machine); its capabilities say so.</p>
+
+<h2>The algorithm: three passes over bands, fields recomputed instead of stored</h2>
+<p>Every stage of the generator is per texel, except three global couplings. Each is a small vector, so the fields can be recomputed band by band instead of stored:</p>
+<table>
+<tr><th>Coupling</th><th>Where</th><th>Banded form</th></tr>
+<tr><td>mean and standard deviation of the synoptic field <code>s</code></td><td>the standardisation of <code>s</code></td><td><strong>Pass A</strong>: each band computes its raw <code>s</code> and returns sum and sum of squares (float64, per fixed-size block so the result does not depend on the band size); the engine combines them</td></tr>
+<tr><td>the per-row threshold, a 36-step bisection of the row's mean cloud fraction</td><td><code>solve_thresholds</code></td><td><strong>Pass B</strong>: each band recomputes its fields and solves its rows; with surface terms, the first solve, the row sensitivity and the second solve are three sub-passes over the same band</td></tr>
+<tr><td>the threshold smoothed over 2 degrees of latitude</td><td><code>gaussian_filter1d</code> of the thresholds</td><td>a vector of one value per row (16384 floats): smoothed once between B and C</td></tr>
+<tr><td>coverage, type, high share</td><td>compose and the products</td><td><strong>Pass C</strong>: each band recomputes its fields, composes with the final thresholds and hands the band to the sinks</td></tr>
+</table>
+<p>Cost: the fields are computed about three times (the bisection is already the largest single cost). Memory: a few bands. The result equals the non-banded engine to float rounding for any band size, and bit for bit on the CPU when the reductions are block-deterministic: that equality is the test of the whole design.</p>
+<p>The sub-texel white noise (one normal draw per texel, 537 million of them) cannot be a stored array: it becomes a counter-based generator, <code>normal(seed, texel_index)</code> (a hash, the same function on the CPU and in WGSL), so a band can draw its own texels independently. The small-map golden cases keep the array form (they inject numpy's draws); both forms live behind one source type.</p>
+
+<h2>Sinks: what receives a finished band</h2>
+<table>
+<tr><th>Sink</th><th>Receives</th><th>Writes</th></tr>
+<tr><td>R8 file</td><td>coverage rows</td><td>the shader file, rows south-up, gzip streamed: a band is written at its place (rows arrive north to south: write the file back to front, or buffer bands in a small reorder queue)</td></tr>
+<tr><td>16-bit PNG</td><td>coverage rows</td><td>a streaming PNG encoder (row by row)</td></tr>
+<tr><td>slices</td><td>box-downsampled rows</td><td>the 2048-wide coverage, type, high-share and wind products the renderer reads, accumulated band by band</td></tr>
+<tr><td>metrics</td><td>the same 2048-wide downsample</td><td>the comparison with Earth runs on the downsample (as measure.py does), not on 537 megatexels</td></tr>
+<tr><td>preview pyramid</td><td>downsampled bands</td><td>tiles at every power of two down to 512 px, for the viewer</td></tr>
+</table>
+<p>Type and high-share are NOT written at full size: at 32K they exist only as 2048-wide slices (as the bake already does). Only coverage is full resolution.</p>
+
+<h2>Where each engine stops</h2>
+<table>
+<tr><th>Engine</th><th>Largest width</th><th>Limit</th></tr>
+<tr><td>Python</td><td>4096 (8192 with 8+ GiB free)</td><td>whole-array numpy</td></tr>
+<tr><td>Rust, CPU</td><td>32768</td><td>time, and disk for the outputs (about 1.7 GiB of files at 32K); memory stays below a few GiB</td></tr>
+<tr><td>Rust, GPU / hybrid</td><td>32768</td><td>band size within the adapter's buffer limits; float32 throughout</td></tr>
+<tr><td>WASM in a browser</td><td>8192 to 16384 by default; 32768 in Chromium when the user picks a file to stream into</td><td>WebAssembly memory is 4 GiB and a tab has less: output must stream to a file through the File System Access API or the origin-private file system, with only a 2048-wide preview kept in memory</td></tr>
+</table>
+<p>The capabilities contract (<code>docs/compute-modes.html</code>) gains <code>max_width</code> on each mode and <code>widths</code> in the limits, computed per machine (free RAM, free disk, adapter limits); the interface offers 8192, 16384 and 32768 only when the chosen mode advertises them, and says why otherwise.</p>
+
+<h2>What the interface does at this size</h2>
+<ul>
+<li>It never receives a 32K image: the server returns a preview of at most 2048 px and the file paths (or download links).</li>
+<li>A viewer over the preview pyramid lets the user zoom and pan down to the texel, loading tiles on demand.</li>
+<li>Progress is per band and pass ("pass B, band 41 of 64"), with cancel; a checkpoint per pass lets a crashed or cancelled run resume.</li>
+<li>A time and disk estimate is shown before the run, from the measured throughput of the chosen device.</li>
+</ul>
+
+<h2>Measured (2026-11-12)</h2>
+<p>Machine: AMD Ryzen 7 5800X3D (8 cores, 16 threads), NVIDIA GeForce RTX 5080 (Vulkan), Windows 11, release build, Earth, seed 42, no surface, <code>cloud-map-generator gen --banded --compute &lt;mode&gt;</code> writing to an NVMe disk; other jobs of the machine were running. Wall seconds of the whole command (map, files, metrics against Earth); the engine's own seconds (three passes and the streaming of the files) in parentheses; peak working set from the operating system. Bands: 4 million texels (1 million for hybrid), 256 rows at 32768 for the CPU and GPU runs.</p>
+<table>
+<tr><th>Width</th><th>cpu</th><th>gpu</th><th>auto (= gpu here)</th><th>hybrid</th></tr>
+<tr><td>4096</td><td>6.3 s (5.0)</td><td>2.7 s (0.6)</td><td>2.5 s (0.6)</td><td>3.0 s (1.0)</td></tr>
+<tr><td>8192</td><td>24.5 s (21.8)</td><td>5.6 s (2.2)</td><td>5.9 s (2.5)</td><td>7.0 s (3.8)</td></tr>
+<tr><td>16384</td><td>99.8 s (92.0)</td><td>19.0 s (10.3)</td><td>19.2 s (10.2)</td><td>25.4 s (16.9)</td></tr>
+<tr><td>32768</td><td class="warn">not measured on a clean run (a first run, disturbed by a compile, took 448 s)</td><td>77.6 s (42.8)</td><td>76.4 s (42.8)</td><td class="warn">not measured on the final code (an earlier build took 108 s)</td></tr>
+</table>
+<table>
+<tr><th>Width</th><th>Peak working set, cpu</th><th>gpu</th></tr>
+<tr><td>4096</td><td>486 MiB</td><td>427 MiB</td></tr>
+<tr><td>8192</td><td>531 MiB</td><td>600 MiB</td></tr>
+<tr><td>16384</td><td>557 MiB</td><td>653 MiB</td></tr>
+<tr><td>32768</td><td>1071 MiB (256-row bands)</td><td>985 MiB (256-row bands)</td></tr>
+</table>
+<p>The whole-array engine needed 3983 MiB at 8192. With bands of a fixed number of texels the memory does not depend on the width; the 32768 runs hold 8 million texels per band.</p>
+<p><strong>The 32768 x 16384 run</strong> (GPU, 64 bands of 256 rows): 77.6 s, peak 985 MiB, files 767 MiB (16-bit master), 344 MiB (R8 gzip), 1.2 MiB preview, 0.2 MiB type, 0.1 MiB high share and wind. Crops of the master at 1:1 (rows 3000 to 4024, across four band edges), at 1:8 and of the whole map at 1:32 were read as pictures: no seam at a band edge and no stripe. A CPU run of the same seed (first run) gave the same pictures; the GPU map equals the CPU map to float32 rounding: at 2048 with the synthetic surface the mean absolute difference is 2.8e-6 and the largest 1.4e-4 (<code>band_bench ... parity surface</code>).</p>
+<p><strong>What the table says.</strong> The GPU runs are bound by the CPU side (the 16-bit PNG, the R8 and the slices are written by one thread): at 32768 the GPU works 15 s of the 43 s of the engine. The GPU is about 20 to 75 times faster than the CPU per band, so sharing bands with the CPU does not pay on this machine: hybrid is slower than gpu at every width (its CPU worker takes 13 to 14 % of the rows and takes cores from the writer). It is there for machines whose two devices are within a few times of each other; <code>auto</code> never picks it.</p>
+<p>The same band is the same function of its position on both devices; the equality test of the CPU engine (<code>cloud-map-generator-core/tests/banded.rs</code>) is bit for bit against the non-banded engine for band heights 1, 7, 64 and the full height at 512, 1024 and 2048, with and without a surface.</p>
+
+$1
+<table>
+<tr><th>#</th><th>Phase</th><th>Gate</th></tr>
+<tr><td>L0</td><td>the Rust <code>generate()</code> with plans (in progress) is the reference</td><td>golden cases and statistics pass</td></tr>
+<tr><td>L1</td><td>banded engine on the CPU: three passes, block-deterministic reductions, the counter-based sub-texel normal, a sink trait</td><td>banded output equals the reference at 1024 and 2048 for band heights 1, 7, 64 and the full height (bit-identical on the CPU); peak memory independent of the width</td></tr>
+<tr><td>L2</td><td>the sinks (R8 gzip, streaming PNG, slices, metrics, pyramid) and the CLI (<code>--width 32768 --band-rows 256</code>, progress, resume)</td><td>a real 32768 x 16384 run on this machine: wall time, peak RSS, file sizes, a look at crops of the result at three scales (no seam between bands, no stripes)</td></tr>
+<tr><td>L3</td><td>rayon over bands, then the GPU and hybrid band scheduler</td><td>measured throughput per device; the estimates above replaced by numbers</td></tr>
+<tr><td>L4</td><td>capabilities with <code>max_width</code>, the interface widths, the preview server and the tile viewer, the MCP limits</td><td>driven in a real browser</td></tr>
+<tr><td>L5</td><td>the browser engine: streamed output to a file, the 2048-wide preview in memory</td><td>a 16384 run in Chromium, and 32768 streamed to disk</td></tr>
+</table>
+</main>
+</body>
+</html>

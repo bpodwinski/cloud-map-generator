@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "at.bilinear_up.x2",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "64x32 pattern up to 128x64 (w % width != 0, so bilinear): the first and the last output rows lie above the first and below the last source row center (latitude clamp: the pole row repeats), and column 0 and the last blend across the antimeridian. Default tolerance (as the other bilinear case).",
+ "params": {
+  "width": 128
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 16384,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 49152,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ddbc9e4d7d843364c4faf260037fc342b8425b5d8cac7aed67c1092ec31f6231"
+}

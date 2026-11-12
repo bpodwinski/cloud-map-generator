@@ -1,0 +1,69 @@
+{
+ "format": 1,
+ "id": "compose.no_streak_no_subtexel",
+ "group": "products_generate",
+ "function": "cloudgen.generate.compose",
+ "doc": "Defaults of the optional arguments: streak = 0.0 (scalar, so the shield texture is the constant 1 - 0.3 * 0.5) and subtexel = None (the binomial branch not taken), float32 fields, float64 threshold column. Tolerance is the golden float32 default. Arguments: s, fine, t, streak and subtexel are the inputs of that name when listed; an unlisted t, streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads (the others keep their defaults). params.result_dtype (\"f64\" or \"f32\") is the dtype numpy gives the result by promotion (a float64 t array or float64 inputs give f64, a python-float t with float32 fields keeps f32); it is informational, the stored output has that dtype. Measured: promoting the float32 inputs to float64 changes the output by at most 5.1e-8; one-ulp nudges of every float input and parameter change it by at most 1.6e-7 (worst of 6 random trials); the tolerance is 16x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "result_dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "t",
+   "dtype": "f64",
+   "shape": [
+    32,
+    1
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "742f70573f9b013fa96bafb6b3a3fc8705184d1b759b166cbf0d5f06b781dfed"
+}

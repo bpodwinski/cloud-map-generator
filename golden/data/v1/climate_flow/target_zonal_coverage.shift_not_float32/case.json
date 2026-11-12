@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.shift_not_float32",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction with ITCZ shifts that float32 cannot hold exactly (3.7, -6.123456789, 11.987654321, 0.1 and 17.123456789 degrees: every other case uses shifts exactly representable in float32): the shift enters the fade and the ITCZ gaussian as a float64 (a Python float), so a port that rounds it to float32 moves the answer by up to 1.1e-8 (measured: 2.7 to 38 times the tolerance band for every shift but 0.1, whose float32 error is 1.5e-9 degrees), above the tolerance. Hadley edges 30 and 12.5 (inputs.hadley_deg), a 0.5 degree sweep. Output [i, j] is hadley[i], shift[j]. Float64: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 2888
+  },
+  {
+   "name": "hadley_deg",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 2888,
+   "nbytes": 16
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 2904,
+   "nbytes": 40
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    2,
+    5,
+    361
+   ],
+   "offset": 2944,
+   "nbytes": 28880,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a696304df269677b3dff7fd537e02f99245ef818a45aee6ca8e7c40694bd5473"
+}

@@ -1,0 +1,68 @@
+{
+ "format": 1,
+ "id": "along.points.extrapolate",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "f outside [0, 1] is not clipped: f = 1.5 extrapolates past back (p (1 - f) + back f = -0.5 p + 1.5 back) before the normalization, and f = -0.5 the other way (second output). float32 points. Tolerance is the golden float32 default. Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: promoting the float32 inputs to float64 changes the output by at most 1.2e-7; one-ulp nudges of every float input and parameter change it by at most 2.4e-7 (worst of 6 random trials); the tolerance is 14x the larger of the two spreads.",
+ "params": {
+  "f": 1.5,
+  "f_neg": -0.5
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 2400
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 2400,
+   "nbytes": 2400
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 4800,
+   "nbytes": 2400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "q_neg",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 7200,
+   "nbytes": 2400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "becfbfff8e4818bf480e05b9b5fe599b37dd688c2f8062740c0b6b458faa5333"
+}

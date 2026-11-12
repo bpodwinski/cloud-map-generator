@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "constants.metrics",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics (module constants)",
+ "doc": "PATCH_LATS (7), PATCH_LONS (-180..135 step 45), PATCH_N, and the scalars named in params.names (PATCH_HALF_DEG, EARTH_RADIUS_KM, SURFACE_LAT_MAX, SURFACE_SPREAD_FACTOR, SURFACE_FLOOR[\"itcz_lat\"], and the implicit 0.01 floor of every other judged metric). SURFACE_JUDGED order is in params. The port reads them from the source; this case says what the Python build used. The integers are exact; the float scalars are literals of the source, so their tolerance is close(rtol 0, atol 0): bit-identical.",
+ "params": {
+  "names": [
+   "patch_half_deg",
+   "earth_radius_km",
+   "surface_lat_max",
+   "surface_spread_factor",
+   "surface_floor_itcz",
+   "surface_floor_default"
+  ],
+  "surface_judged": {
+   "land_minus_ocean": null,
+   "subtropics_land_minus_ocean": null,
+   "north_minus_south": "ocean_north_minus_south",
+   "midlat_north_minus_south": "ocean_midlat_north_minus_south",
+   "itcz_lat": null,
+   "deck_minus_open": null
+  }
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch_lats",
+   "dtype": "i32",
+   "shape": [
+    7
+   ],
+   "offset": 0,
+   "nbytes": 28,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "patch_lons",
+   "dtype": "i32",
+   "shape": [
+    8
+   ],
+   "offset": 32,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "patch_n",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 64,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "scalars",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 72,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.0
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "80c7967f820b8d039139d073f70473306eb69dfc708a66359a1bcfaeb09f8f2c"
+}

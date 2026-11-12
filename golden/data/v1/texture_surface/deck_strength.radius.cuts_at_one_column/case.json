@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "deck_strength.radius.cuts_at_one_column",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.deck_strength",
+ "doc": "Strength exp(-d / 1200 km) of marine stratocumulus for each ocean cell, d the distance to the next coast cell (cont >= 0.5, tested on the float32 values) DOWNSTREAM along its row (east on a prograde body; the row is mirrored for spin < 0, spin >= 0 counts as prograde), in wrapped columns times dx = 2 pi R / w max(cos lat, 1e-3); d x dx > 4000 km (strict) is infinite (strength 0); the result is multiplied by (1 - cont) (so a coast cell keeps at most 0.5). Rows with no coast or only coast are skipped (zeros). The exp is float64 rounded to float32, then a float32 product. `cont` is a float32 array and the test `cont >= 0.5` is made on those float32 values (0.5 is exact in both precisions): a port must keep cont in float32, because the hand-built inputs below put cells exactly on 0.5 and one float32 ulp either side of it. The 12-row field at radius 60000 km: texel width 11781 km: away from the poles one column already exceeds the 4000 km limit, so only the coast cells themselves (distance 0, strength 1 - cont) are non-zero; the polar rows reach 2 columns. Default tolerance. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 60000.0,
+  "spin": 1.0,
+  "constants": {
+   "DECK_COAST_LAND": 0.5,
+   "DECK_EFOLD_KM": 1200.0,
+   "DECK_MAX_SEARCH_KM": 4000.0,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "cont",
+   "dtype": "f32",
+   "shape": [
+    12,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "strength",
+   "dtype": "f32",
+   "shape": [
+    12,
+    32
+   ],
+   "offset": 1536,
+   "nbytes": 1536,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "78fb82967a2c59f2de269b8d4c1e17a2d968d035951cdef3a9280e71d9b51a50"
+}

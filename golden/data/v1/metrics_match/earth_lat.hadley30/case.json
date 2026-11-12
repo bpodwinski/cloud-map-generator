@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "earth_lat.hadley30",
+ "group": "metrics_match",
+ "function": "cloudgen.match._earth_lat",
+ "doc": "Earth-equivalent |latitude| (degrees) per row: min(|degrees(lat)| / hadley_deg * 30, 65) where 65 = EARTH_CAP_DEG - ZONE_DEG / 2 (past it the zones of Earth's ice-contaminated caps are replaced by the 62.5..67.5 zone). Earth: x * 30 is the latitude itself, up to the cap. Rows: a 64-row grid then the poles, the equator, +-0.0, 1e-9, 0.5, 1.2, 1.5 rad. Float64 closed form: 1e-9.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "earth_lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 608,
+   "nbytes": 608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "683f6cf62897979c1b54a7252f839d185b05b9b6fc4b02385b1da97dcf710f55"
+}

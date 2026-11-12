@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cloud Map Generator</title>
+  <link rel="icon" href="data:," />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    /* Tooltips never wider than a phone screen leaves room for. */
+    .tooltip[data-tip]:before { max-width: min(16rem, calc(100vw - 11rem)); }
+    /* Number fields: no spin buttons, the arrow keys still step the value. */
+    input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  </style>
+</head>
+<body class="min-h-screen overflow-x-clip">
+
+  <!-- Lucide icons (ISC licence), 24x24, drawn as strokes. Used through <use href="#i-name">. -->
+  <svg class="absolute size-0" aria-hidden="true" focusable="false">
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-dices" viewBox="0 0 24 24"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-map" viewBox="0 0 24 24"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-layers" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-cpu" viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-wand-sparkles" viewBox="0 0 24 24"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  </svg>
+
+  <header class="navbar sticky top-0 z-30 min-h-12 border-b border-base-300 bg-base-200 px-4">
+    <div class="navbar-start gap-2">
+      <h1 class="text-base font-semibold tracking-tight">Cloud Map Generator</h1>
+      <span id="version" class="text-xs text-base-content/60"></span>
+    </div>
+    <div class="navbar-end gap-2">
+      <span id="backend" class="badge badge-soft badge-sm hidden" title="Generator backend"></span>
+      <label class="btn btn-ghost btn-sm btn-square swap swap-rotate" title="Light or dark theme">
+        <input id="theme" type="checkbox" value="dark" class="theme-controller" aria-label="Dark theme" />
+        <svg class="i swap-off size-4" aria-hidden="true"><use href="#i-sun" /></svg>
+        <svg class="i swap-on size-4" aria-hidden="true"><use href="#i-moon" /></svg>
+      </label>
+      <script>
+        // Set the theme before the first paint: the saved choice, else the system preference.
+        (function () {
+          var dark = false;
+          try {
+            var saved = localStorage.getItem('cloud-map-generator.theme');
+            dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+          } catch (e) { /* storage blocked: stay light */ }
+          document.getElementById('theme').checked = dark;
+        })();
+      </script>
+    </div>
+  </header>
+
+  <main class="mx-auto grid w-full max-w-[1600px] gap-4 p-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-6 lg:p-4">
+
+    <!-- Controls -->
+    <form id="controls" class="flex min-w-0 flex-col gap-2.5 lg:sticky lg:top-12 lg:max-h-[calc(100dvh-4.5rem)] lg:self-start lg:overflow-y-auto" novalidate autocomplete="off">
+
+      <div role="group" aria-labelledby="g-preset" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
+        <div class="flex items-center justify-between gap-2">
+          <h2 id="g-preset" class="fieldset-legend -mt-1">Preset</h2>
+          <span class="flex items-center gap-2 text-xs text-base-content/70">
+            Cloud regime
+            <span id="regime" class="badge badge-soft badge-sm"></span>
+          </span>
+        </div>
+        <select id="preset" class="select select-sm w-full" aria-label="Preset"></select>
+        <p id="presetNote" class="min-h-8 text-xs text-base-content/70"></p>
+      </div>
+
+      <div role="group" aria-labelledby="g-body" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
+        <h2 id="g-body" class="fieldset-legend -mt-1">Body</h2>
+
+        <label class="input input-sm w-full">
+          <span class="label">Rotation period</span>
+          <input id="f-rotation_period_days" data-field="rotation_period_days" data-name="Rotation period" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
+          <span class="label w-10 justify-start">days</span>
+        </label>
+        <p class="text-xs text-error empty:hidden" data-hint-for="rotation_period_days"></p>
+        <p class="text-xs text-base-content/70">A negative period is a retrograde spin.</p>
+
+        <label class="input input-sm mt-2 w-full">
+          <span class="label">Radius</span>
+          <input id="f-radius_km" data-field="radius_km" data-name="Radius" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
+          <span class="label w-10 justify-start">km</span>
+        </label>
+        <p class="text-xs text-error empty:hidden" data-hint-for="radius_km"></p>
+
+        <label class="input input-sm mt-2 w-full">
+          <span class="label">Gravity</span>
+          <input id="f-gravity_mps2" data-field="gravity_mps2" data-name="Gravity" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
+          <span class="label w-10 justify-start">m/s&sup2;</span>
+        </label>
+        <p class="text-xs text-error empty:hidden" data-hint-for="gravity_mps2"></p>
+
+        <label class="input input-sm mt-2 w-full">
+          <span class="label">Scale height</span>
+          <input id="f-scale_height_km" data-field="scale_height_km" data-name="Scale height" type="number" step="any" required class="min-w-0 grow text-right" inputmode="decimal" />
+          <span class="label w-10 justify-start">km</span>
+        </label>
+        <p class="text-xs text-error empty:hidden" data-hint-for="scale_height_km"></p>
+      </div>
+
+      <div role="group" aria-labelledby="g-run" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
+        <h2 id="g-run" class="fieldset-legend -mt-1">Run</h2>
+
+        <label class="input input-sm w-full">
+          <span class="label">Seed</span>
+          <input id="f-seed" data-field="seed" data-name="Seed" data-integer="1" type="number" step="1" required class="min-w-0 grow text-right" inputmode="numeric" />
+          <button id="randomSeed" type="button" class="btn btn-ghost btn-xs btn-square -mr-1" aria-label="Random seed" title="Random seed">
+            <svg class="i size-4" aria-hidden="true"><use href="#i-dices" /></svg>
+          </button>
+        </label>
+        <p class="text-xs text-error empty:hidden" data-hint-for="seed"></p>
+
+        <div class="mt-2 text-xs text-base-content/70">Map width (px)</div>
+        <div id="widths" class="join w-full" role="radiogroup" aria-label="Map width"></div>
+        <p id="widthHint" class="text-xs text-base-content/70"></p>
+
+        <!-- Compute mode: built from the "compute" block of GET /api/defaults. Hidden for a backend that has none. -->
+        <div id="computeRow" hidden class="mt-2 grid gap-1.5">
+          <div id="computeLabel" class="text-xs text-base-content/70">Compute</div>
+          <!-- One tooltip for the whole control: its text follows the hovered option, so it never leaves the panel. -->
+          <div id="computeTip" class="tooltip tooltip-top block w-full">
+            <div id="compute" class="join w-full" role="radiogroup" aria-labelledby="computeLabel" aria-describedby="computeHint computeNote"></div>
+          </div>
+          <p id="computeHint" class="text-xs text-base-content/70"></p>
+          <p id="computeNote" class="flex items-start gap-1.5 text-xs text-base-content/70 empty:hidden"></p>
+        </div>
+      </div>
+
+      <div role="group" aria-labelledby="g-options" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
+        <h2 id="g-options" class="fieldset-legend -mt-1">Options</h2>
+        <div class="flex flex-col gap-2.5 text-sm">
+          <label class="tooltip tooltip-top flex w-full items-center gap-2 text-left" data-tip="Post-process the map so its per-scale, per-zone statistics match the Earth reference.">
+            <span>Match Earth statistics</span>
+            <svg class="i size-4 text-base-content/60" aria-hidden="true"><use href="#i-info" /></svg>
+            <input id="o-match_earth" data-option="match_earth" type="checkbox" class="toggle toggle-sm ml-auto" />
+          </label>
+          <label class="tooltip tooltip-top flex w-full items-center gap-2 text-left" data-tip="Skip the circulation model: plain isotropic noise, no jets and no vortices. A baseline to judge the flow against.">
+            <span>Isotropic baseline (no flow)</span>
+            <svg class="i size-4 text-base-content/60" aria-hidden="true"><use href="#i-info" /></svg>
+            <input id="o-isotropic" data-option="isotropic" type="checkbox" class="toggle toggle-sm ml-auto" />
+          </label>
+          <label class="tooltip tooltip-top flex w-full items-center gap-2 text-left" data-tip="Add a synthetic land and sea layout and let it bend the cloud bands.">
+            <span>Land and sea (synthetic world)</span>
+            <svg class="i size-4 text-base-content/60" aria-hidden="true"><use href="#i-info" /></svg>
+            <input id="o-surface" data-option="surface" type="checkbox" class="toggle toggle-sm ml-auto" />
+          </label>
+          <label class="tooltip tooltip-top flex w-full items-center gap-2 text-left" data-tip="Generate for a body whose clouds are not water. The amount of cloud stays Earth's, so read the result as a what-if, never as a bake.">
+            <span>Experiment: allow non-water clouds</span>
+            <svg class="i size-4 text-base-content/60" aria-hidden="true"><use href="#i-info" /></svg>
+            <input id="o-experiment" data-option="experiment" type="checkbox" class="toggle toggle-sm ml-auto" />
+          </label>
+        </div>
+      </div>
+
+      <div class="sticky bottom-0 z-10 flex flex-col gap-2 border-t border-base-300 bg-base-100 pt-2 pb-2">
+        <button id="generate" type="submit" class="btn btn-primary relative w-full" disabled aria-keyshortcuts="Control+Enter">
+          <span id="generateIcon" class="inline-flex"><svg class="i size-5" aria-hidden="true"><use href="#i-sparkles" /></svg></span>
+          <span id="generateLabel">Generate</span>
+          <span class="absolute right-3 hidden items-center gap-1 sm:inline-flex" aria-hidden="true">
+            <kbd class="kbd kbd-xs">Ctrl</kbd><kbd class="kbd kbd-xs">Enter</kbd>
+          </span>
+        </button>
+        <p id="blockReason" class="hidden items-start gap-2 text-xs text-base-content/70">
+          <svg class="i mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#i-triangle-alert" /></svg>
+          <span id="blockText"></span>
+        </p>
+      </div>
+    </form>
+
+    <!-- Main area -->
+    <section class="flex min-w-0 flex-col gap-4">
+
+      <div id="stats" class="stats grid grid-flow-row grid-cols-2 border border-base-300 bg-base-200 sm:grid-cols-4">
+        <div class="stat px-4 py-3">
+          <div class="stat-title text-xs">Hadley edge</div>
+          <div id="st-hadley" class="stat-value text-2xl font-medium">&mdash;</div>
+          <div class="stat-desc">Edge of the tropical cell</div>
+        </div>
+        <div class="stat px-4 py-3">
+          <div class="stat-title text-xs">Storm track</div>
+          <div id="st-storm" class="stat-value text-2xl font-medium">&mdash;</div>
+          <div class="stat-desc">Mid-latitude storm belt</div>
+        </div>
+        <div class="stat px-4 py-3">
+          <div class="stat-title text-xs">Cyclones per hemisphere</div>
+          <div id="st-cyclones" class="stat-value text-2xl font-medium">&mdash;</div>
+          <div id="st-cyclones-desc" class="stat-desc">Baroclinic eddies</div>
+        </div>
+        <div class="stat px-4 py-3">
+          <div class="stat-title text-xs">Texel size</div>
+          <div id="st-texel" class="stat-value text-2xl font-medium">&mdash;</div>
+          <div id="st-texel-desc" class="stat-desc">At the chosen width</div>
+        </div>
+      </div>
+
+      <div id="warnings" class="flex flex-col gap-2 empty:hidden"></div>
+
+      <div id="status" role="status" aria-live="polite" class="-mb-2 flex scroll-mt-14 flex-col gap-1.5 text-xs text-base-content/70 empty:hidden"></div>
+
+      <div id="viewBar" class="flex scroll-mt-14 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div id="tabs" role="tablist" aria-label="Map product" class="tabs tabs-border tabs-sm max-w-full flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button type="button" role="tab" id="tab-coverage" data-tab="coverage" class="tab whitespace-nowrap">Coverage</button>
+          <button type="button" role="tab" id="tab-type" data-tab="type" class="tab whitespace-nowrap">Type</button>
+          <button type="button" role="tab" id="tab-high_share" data-tab="high_share" class="tab whitespace-nowrap">High clouds</button>
+          <button type="button" role="tab" id="tab-wind" data-tab="wind" class="tab whitespace-nowrap">Wind</button>
+          <button type="button" role="tab" id="tab-earth" data-tab="earth" class="tab whitespace-nowrap">Earth</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="join" role="group" aria-label="View mode">
+            <button type="button" id="view-map" data-view="map" class="btn btn-sm join-item" aria-pressed="true">
+              <svg class="i size-4" aria-hidden="true"><use href="#i-map" /></svg>Map
+            </button>
+            <button type="button" id="view-globe" data-view="globe" class="btn btn-sm join-item" aria-pressed="false">
+              <svg class="i size-4" aria-hidden="true"><use href="#i-globe" /></svg>Globe
+            </button>
+          </div>
+          <details id="download" class="dropdown dropdown-end">
+            <summary id="downloadButton" class="btn btn-sm btn-disabled" aria-disabled="true">
+              <svg class="i size-4" aria-hidden="true"><use href="#i-download" /></svg>Download
+              <svg class="i size-4" aria-hidden="true"><use href="#i-chevron-down" /></svg>
+            </summary>
+            <ul id="downloadMenu" class="dropdown-content menu z-10 mt-1 w-80 rounded-box border border-base-300 bg-base-100 p-2"></ul>
+          </details>
+        </div>
+      </div>
+
+      <div id="panel" role="tabpanel" aria-labelledby="tab-coverage" class="flex flex-col gap-2">
+        <!-- Empty state, shown until a product exists for the tab -->
+        <div id="empty" class="flex flex-col items-center gap-3 rounded-box border border-base-300 bg-base-200 px-6 py-12 text-center">
+          <svg class="i size-6 text-base-content/60" aria-hidden="true"><use href="#i-layers" /></svg>
+          <h2 id="emptyTitle" class="text-base font-medium">No map yet</h2>
+          <p id="emptyText" class="max-w-md text-sm text-base-content/70">Pick a body on the left and press Generate. The four products appear here: coverage, type, high clouds and wind.</p>
+          <button id="emptyAction" type="button" class="btn btn-sm">Load Earth reference</button>
+        </div>
+
+        <!-- Map or globe -->
+        <div id="stage" class="relative hidden w-full aspect-[2/1] overflow-hidden rounded-box border border-base-300 bg-base-200">
+          <img id="mapImg" alt="Map" class="absolute inset-0 size-full object-contain" draggable="false" />
+          <canvas id="globe" class="absolute inset-0 hidden size-full cursor-grab touch-none" tabindex="0" role="img" aria-label="Globe view. Drag or use the arrow keys to rotate, double click to reset."></canvas>
+          <div id="loadingBox" class="absolute inset-0 hidden">
+            <div class="skeleton size-full rounded-none"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center" aria-hidden="true">
+              <span class="loading loading-spinner loading-md"></span>
+              <span id="loadingText" class="text-sm tabular-nums"></span>
+              <span id="loadingHint" class="text-xs text-base-content/70"></span>
+            </div>
+          </div>
+        </div>
+
+        <div id="readoutRow" class="hidden flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-xs text-base-content/70">
+          <output id="readout" class="tabular-nums">&nbsp;</output>
+          <span id="caption"></span>
+        </div>
+      </div>
+
+      <div id="details" class="hidden min-w-0 flex-col gap-4">
+        <div id="runWarnings" class="flex flex-col gap-2 empty:hidden"></div>
+        <div class="grid min-w-0 gap-4 md:grid-cols-2">
+          <section class="rounded-box border border-base-300 bg-base-200 p-4" aria-labelledby="metricsTitle">
+            <h3 id="metricsTitle" class="text-sm font-medium">Metrics</h3>
+            <p id="metricsSub" class="mb-2 text-xs text-base-content/70"></p>
+            <p id="metricsNote" class="mb-2 hidden items-start gap-2 text-xs text-base-content/70">
+              <svg class="i mt-0.5 size-4 shrink-0" aria-hidden="true"><use href="#i-info" /></svg>
+              <span id="metricsNoteText"></span>
+            </p>
+            <div>
+              <table class="table table-sm">
+                <thead class="text-xs">
+                  <tr>
+                    <th>Metric</th>
+                    <th class="px-1.5 text-right">Generated</th>
+                    <th class="px-1.5 text-right">Earth</th>
+                    <th class="px-1.5 text-right">Gap</th>
+                  </tr>
+                </thead>
+                <tbody id="metricsBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="flex flex-col rounded-box border border-base-300 bg-base-200 p-4" aria-labelledby="zonalTitle">
+            <h3 id="zonalTitle" class="text-sm font-medium">Zonal profile</h3>
+            <p class="mb-2 text-xs text-base-content/70">Mean cloud fraction by latitude, 5 degree bands.</p>
+            <div id="zonalLegend" class="mb-2 flex flex-wrap gap-2">
+              <span class="badge badge-soft badge-success badge-sm">Generated</span>
+              <span class="badge badge-soft badge-info badge-sm">Earth</span>
+              <span class="badge badge-soft badge-sm">Target</span>
+            </div>
+            <div class="relative min-h-56 flex-1"><canvas id="zonal" class="absolute inset-0 size-full" role="img" aria-label="Zonal mean cloud fraction against latitude for the generated map, Earth and the target profile"></canvas></div>
+            <output id="zonalReadout" class="mt-1 block min-h-4 text-xs tabular-nums text-base-content/70">&nbsp;</output>
+          </section>
+        </div>
+
+        <div class="collapse collapse-arrow min-w-0 rounded-box border border-base-300 bg-base-200">
+          <input type="checkbox" aria-label="Show vortices and flow" />
+          <div class="collapse-title text-sm font-medium">Vortices and flow</div>
+          <div class="collapse-content min-w-0 text-sm">
+            <dl id="flowList" class="mb-4 grid grid-cols-[repeat(auto-fill,minmax(8rem,1fr))] gap-x-6 gap-y-3"></dl>
+            <div class="max-h-80 overflow-auto">
+              <table class="table table-sm table-pin-rows [&_thead_tr]:bg-base-200">
+                <thead class="text-xs">
+                  <tr>
+                    <th>Kind</th>
+                    <th class="text-right">Lon (deg)</th>
+                    <th class="text-right">Lat (deg)</th>
+                    <th class="text-right">Radius</th>
+                    <th class="text-right">Omega</th>
+                    <th class="text-right">Age</th>
+                  </tr>
+                </thead>
+                <tbody id="vortexBody"></tbody>
+              </table>
+            </div>
+            <p id="vortexNone" class="hidden py-2 text-base-content/70">No vortices in this run.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toasts" class="toast toast-end toast-bottom z-50 max-w-[calc(100vw-2rem)] sm:max-w-md" aria-live="assertive"></div>
+
+  <noscript>
+    <div role="alert" class="alert m-4"><span>This tool needs JavaScript.</span></div>
+  </noscript>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.identity.8x4",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "Target size equal to the coarse size: the target texel centers are the coarse texel centers, so the result is the (already unit) input, normalized again. Checks the texel-center convention end to end (an off-by-half-texel bug would blur it). Measured spread 3e-8 (float64) / 3.6e-7 (all float32); tolerance as the other upsample cases.",
+ "params": {
+  "width": 8,
+  "height": 4
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8,
+    3
+   ],
+   "offset": 384,
+   "nbytes": 384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f0f456c17221206ab9955f2af98bd388f932404dabbc79f244650d5aea55814a"
+}

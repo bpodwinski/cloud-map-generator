@@ -1,0 +1,68 @@
+{
+ "format": 1,
+ "id": "octave_ladder.defaults",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.octave_ladder",
+ "doc": "The function called WITHOUT lacunarity and top: the Python defaults 2.03 and 0.95 (texture.py calls octave_ladder(fine_frequency, fmax) with exactly these; generate.py passes top). 16 rows (low_frequency, max_frequency): the production maps (low 48 at widths 256..16384 with 2 texels per wavelength, low 3 at 256 and 4096 with 4), hi == low (10 against 10 / 0.95: both sides of the comparison give (10, 1) because ln(1 + 2e-16) / ln(2.03) floors to 0), hi just above low, hi below low, low 0.01 .. 1e4 (20 octaves). No row sits within 1e-6 of a floor boundary of the log ratio (checked at build time). Both the start frequency (hi / lacunarity^(n - 1), rtol 1e-9) and n move with either default: five mutated defaults (lacunarity 2.0, 2.029, 2.05, top 0.9, 0.951) each change at least 8 of the 16 rows (checked at build time). start: float64 closed form, rtol 1e-9; n: exact.",
+ "params": {
+  "omitted_arguments": [
+   "lacunarity",
+   "top"
+  ],
+  "defaults": {
+   "lacunarity": 2.03,
+   "top": 0.95
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "low_frequency",
+   "dtype": "f64",
+   "shape": [
+    16
+   ],
+   "offset": 0,
+   "nbytes": 128
+  },
+  {
+   "name": "max_frequency",
+   "dtype": "f64",
+   "shape": [
+    16
+   ],
+   "offset": 128,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "start",
+   "dtype": "f64",
+   "shape": [
+    16
+   ],
+   "offset": 256,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "n",
+   "dtype": "i64",
+   "shape": [
+    16
+   ],
+   "offset": 384,
+   "nbytes": 128,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "682a05af9c9b8ba94a2c7b300d0e9c4565dab2b3ad260be2706f651981089bb0"
+}

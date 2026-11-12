@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "normalize.degenerate.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.normalize",
+ "doc": "Unguarded degenerate input, float32: the zero vector gives NaN (0/0); 1e30 squares to infinity so the result is 0, not 1; 1e-30 squares to 0 (below the smallest float32 subnormal) so the result is [inf, NaN, NaN]; 1e20 each overflows the sum. These are what the Python does with the naive formula; no caller passes such vectors. Tagged degenerate: a port that guards (hypot, scaling) may differ.",
+ "params": {},
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    4,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 48
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    4,
+    3
+   ],
+   "offset": 48,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e1f3dd4869a54d58807868e470ce2d0911dcdad96dd6a5b0dc2d218ff154e9c3"
+}

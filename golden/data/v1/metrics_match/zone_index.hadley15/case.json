@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "zone_index.hadley15",
+ "group": "metrics_match",
+ "function": "cloudgen.match._zone_index",
+ "doc": "Zone number of each row: floor(_earth_lat / 5).astype(int) (floor, then a truncating cast: non-negative here), so zones 0..13, the cap rows all in 13. No latitude sits within 1e-4 of a zone edge (a tie would depend on the last bit of degrees()), apart from exact 0 and the capped 65. A body whose Hadley edge is at 15 degrees: zones stretch twice as fast, the cap starts at 32.5 degrees. Rows: a 64-row grid then the poles, the equator, +-0.0, 1e-9, 0.5, 1.2, 1.5 rad.",
+ "params": {
+  "hadley_deg": 15.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "zone",
+   "dtype": "i64",
+   "shape": [
+    76
+   ],
+   "offset": 608,
+   "nbytes": 608,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fd5d21e3574a079bad748e5d93c2e9fb68de656f00123d3e2cb906a5d1840b9f"
+}

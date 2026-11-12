@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "area_mean.pole_rows",
+ "group": "products_generate",
+ "function": "cloudgen.generate.area_mean",
+ "doc": "Only the first row (value 1, north) and the last row (value 3, south) set: the weights there are cos(87.2 deg) = 0.049, the smallest of the map, so the mean is small and tests the weighting at the poles. Float64, rtol 1e-9. Arguments: a, the field (h, w), north-up. Weights: c_i = cos(lat_i) at the cell centres of grid_lonlat(w, h), row i at lat_i = 90 deg - (i + 0.5) 180 deg / h (row 0 is north, float64 radians pi/2 - (i + 0.5) pi / h); result = sum_i(mean_j a[i, j] c_i) / sum_i c_i, a float64 scalar stored as a one-element array. The row mean runs in the dtype of a (float32 rows are averaged in float32, numpy pairwise summation), the weighting in float64. Measured: one-ulp nudges of every float input and parameter change it by at most 0 (worst of 6 random trials); no difference was observed at all.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 16384,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "efc20695e67b1c52e44efd4b2f0ad64c9ba0275a21525a57b0252f4642ba0795"
+}

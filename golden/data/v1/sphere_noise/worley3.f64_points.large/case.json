@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "worley3.f64_points.large",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "FLOAT64 points of large magnitude (800 in [-2000, 2000]^3, plus cells beyond the 1024 wrap and exact lattice points): floor() and the fraction x - floor(x) must be taken in FLOAT64 and only the fraction rounded to float32. Rounding the points to float32 first moves a coordinate of magnitude 1024..2048 by up to 6e-5, so F1 and F2 move by up to 8.0e-05 (measured), outside the default tolerance (1e-5 relative + 1e-6 absolute) for 646 (F1) and 568 (F2) of the 800 points (checked at build time). The float64-promoted evaluation of the same tables (exact fraction, float64 jitter and distances) differs by 1.3e-7 at most, so the default tolerance is at least 12x that. Shifting the points by a multiple of 1024 gives bit-identical outputs (the index wraps). A port that works in float32 throughout fails this case by design. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 15,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 15
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f64",
+   "shape": [
+    800,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 19200
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 19200,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 27392,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    800
+   ],
+   "offset": 39680,
+   "nbytes": 3200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    800
+   ],
+   "offset": 42880,
+   "nbytes": 3200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "18ab100f55c2b735366d095cba58efadd7fde262c058bcf0ca37817282ba5182"
+}

@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "zone_index.f32.hadley30",
+ "group": "metrics_match",
+ "function": "cloudgen.match._zone_index",
+ "doc": "Zone number of each row: floor(_earth_lat / 5).astype(int) (floor, then a truncating cast: non-negative here), so zones 0..13, the cap rows all in 13. No latitude sits within 1e-4 of a zone edge (a tie would depend on the last bit of degrees()), apart from exact 0 and the capped 65. A float32 latitude array (float32 arithmetic before the floor).",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 304
+  }
+ ],
+ "outputs": [
+  {
+   "name": "zone",
+   "dtype": "i64",
+   "shape": [
+    76
+   ],
+   "offset": 304,
+   "nbytes": 608,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "56a4f8f3f31bb8f86776ba2338e26cf1d18dcb25d6975d96541845720df39c96"
+}

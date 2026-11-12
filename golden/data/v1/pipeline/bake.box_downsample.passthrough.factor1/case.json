@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "bake.box_downsample.passthrough.factor1",
+ "group": "pipeline",
+ "function": "bake.box_downsample",
+ "doc": "An 8x24 map and width 16: the factor is 1 (<= 1), the map comes back unchanged (the engine resamples it, bake does not). Exact.",
+ "params": {
+  "width": 16
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    8,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    8,
+    24
+   ],
+   "offset": 768,
+   "nbytes": 768,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4349c9afaff278dd8d5c12896790bd053d886e2d0d8eeb496988bc6293b24738"
+}

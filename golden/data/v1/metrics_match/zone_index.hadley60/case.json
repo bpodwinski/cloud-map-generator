@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "zone_index.hadley60",
+ "group": "metrics_match",
+ "function": "cloudgen.match._zone_index",
+ "doc": "Zone number of each row: floor(_earth_lat / 5).astype(int) (floor, then a truncating cast: non-negative here), so zones 0..13, the cap rows all in 13. No latitude sits within 1e-4 of a zone edge (a tie would depend on the last bit of degrees()), apart from exact 0 and the capped 65. A slow rotator (edge at 60 degrees): the zones cover half the globe's span, none reach the cap. Rows: a 64-row grid then the poles pulled in by 1e-3 rad (|lat| = 90 would sit exactly on a zone edge for this edge), the equator, +-0.0, 1e-9, 0.5, 1.2, 1.5 rad.",
+ "params": {
+  "hadley_deg": 60.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "zone",
+   "dtype": "i64",
+   "shape": [
+    76
+   ],
+   "offset": 608,
+   "nbytes": 608,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "27b20eb17260d214da8416ce892775f809870b3695c559095a572ca5ee7fdd6c"
+}

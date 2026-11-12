@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "area_histogram.bins4",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.area_histogram",
+ "doc": "4 bins (the edges 0.25, 0.5, 0.75 are exact in float32). Random float32 values in [0, 1). np.histogram bins [edge_k, edge_k+1), the last bin closed, edges = linspace(0, 1, bins + 1) computed in float64 (k * (1 / bins)) and rounded to the IMAGE dtype (float32 edges for a float32 image); values outside [0, 1] are dropped; weights cos(lat) in float64, normalized by their sum. Float64 sums of weights: 1e-9.",
+ "params": {
+  "bins": 4
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    12,
+    20
+   ],
+   "offset": 0,
+   "nbytes": 960
+  }
+ ],
+ "outputs": [
+  {
+   "name": "hist",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 960,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c0bf627af72a40c1d17bbee64677d26c1233f2018e0dd09214a20ab00185774d"
+}

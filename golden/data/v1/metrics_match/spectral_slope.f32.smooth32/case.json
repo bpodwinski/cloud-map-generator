@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "spectral_slope.f32.smooth32",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.spectral_slope",
+ "doc": "Log-log slope of the radially averaged power spectrum: (patch - mean) * Hann (np.hanning(n) outer itself, symmetric, 0.5 - 0.5 cos(2 pi i / (n - 1))), np.fft.fft2 (unnormalized, complex128), fftshift, |F|^2, radius r = int(hypot(x, y)) with x, y counted from n // 2 (truncation), radial[r] = mean of the power at integer radius r (np.bincount), wavelength of bin k = n * patch_px_km() / k km; bins with lo <= wavelength <= hi (inclusive) and radial > 0 enter np.polyfit(log k, log radial, 1), whose slope is returned; fewer than 4 bins give NaN. n = patch.shape[0] (square patches only). A float32 patch: patch.mean() accumulates in float32 and the subtraction stays float32 (then times the float64 window). A port that accumulates the mean in float64 differs by 1.6e-6 relative on this smoothed patch (the float32 rounding of the data itself reaches the small high-wavenumber power): the golden float32 tolerance, 10x above it.",
+ "params": {
+  "lo_km": 40.0,
+  "hi_km": 400.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f32",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 4096,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2a5a0f67a734e3429b623feda3dfa84bf7a25fe7fd40e18a00eda9e94d9b55c3"
+}

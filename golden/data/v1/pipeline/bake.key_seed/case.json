@@ -1,0 +1,59 @@
+{
+ "format": 1,
+ "id": "bake.key_seed",
+ "group": "pipeline",
+ "function": "bake.key_seed",
+ "doc": "zlib.crc32 of the UTF-8 bytes masked with 0x7FFFFFFF, for 18 keys (empty, ASCII, accents, an emoji, a long one); crc32 holds the unmasked value so the mask is checked (several keys have the top bit set). Exact: integers. Keys are in params.keys.",
+ "params": {
+  "keys": [
+   "earth",
+   "Dev:Gaia",
+   "Dev:Aurora",
+   "Sol:Earth Moon",
+   "mars",
+   "a b:C D",
+   "",
+   " ",
+   "::",
+   "UPPER:CASE",
+   "\u00c9ire \u2603",
+   "\u00c0\u00c9\u00ce \u00d5\u00fc",
+   "\u0391\u03a3",
+   "\u0130stanbul",
+   "Stra\u00dfe",
+   "\ud83c\udf0d globe",
+   "with\ttab",
+   "long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key "
+  ]
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "crc32",
+   "dtype": "u32",
+   "shape": [
+    18
+   ],
+   "offset": 0,
+   "nbytes": 72,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "seed",
+   "dtype": "u32",
+   "shape": [
+    18
+   ],
+   "offset": 72,
+   "nbytes": 72,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2eca4c9f8db84ba716f29c50bf3b08c4d27aea96cf9c28fc5f77b905e14d83e4"
+}

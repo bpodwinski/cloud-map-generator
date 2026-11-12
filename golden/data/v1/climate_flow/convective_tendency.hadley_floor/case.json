@@ -1,0 +1,50 @@
+{
+ "format": 1,
+ "id": "convective_tendency.hadley_floor",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.convective_tendency",
+ "doc": "Convective tendency of a latitude set of 1e-5 .. 10 degrees (both signs, inputs.lat_deg) for the tiny, zero, negative, NaN and infinite Hadley edges of inputs.hadley_deg: the divisor is max(1e-3, hadley) (an edge of 0, -5, -1e-3, 5e-4 or -inf is the floor 1e-3, so x = |lat| / 1e-3; an edge of 1.5e-3 .. 0.1 is used as is; NaN is the floor because Python max(1e-3, NaN) returns 1e-3, as Rust f64::max would; +inf gives x = 0 everywhere). The latitudes run through x = 0.01 .. 10000 so every gaussian and the smoothstep see the floor value, not only the equator. Output [i, j] is hadley[i], lat[j]. Float64 closed form: rtol 1e-12. NaN and infinities may appear in the inputs (a rotation period None is stored as NaN) and in the outputs: NaN equals NaN, an infinity equals the same infinity (sign included).",
+ "params": {
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 0,
+   "nbytes": 312
+  },
+  {
+   "name": "hadley_deg",
+   "dtype": "f64",
+   "shape": [
+    13
+   ],
+   "offset": 312,
+   "nbytes": 104
+  }
+ ],
+ "outputs": [
+  {
+   "name": "c",
+   "dtype": "f64",
+   "shape": [
+    13,
+    39
+   ],
+   "offset": 416,
+   "nbytes": 4056,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 1e-14
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "242fa50650ed38c26e00f42294ec179a1390599ea0ed444a199b22e7d1a6f372"
+}

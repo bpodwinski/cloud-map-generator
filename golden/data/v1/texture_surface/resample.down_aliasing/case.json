@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "resample.down_aliasing",
+ "group": "texture_surface",
+ "function": "cloudgen.surface._resample",
+ "doc": "A random 64x32 float32 field resampled to width 24 by sample_equirect at the texel-center directions (bilinear, longitude wraps, latitude clamps, no prefiltering: a downsample aliases): float64 interpolation rounded to float32, default tolerance (measured worst difference against an analytic-index float64 evaluation 1.1e-7, one ulp). The output rows all lie between source row centers: no latitude clamp.",
+ "params": {
+  "width": 24
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    12,
+    24
+   ],
+   "offset": 8192,
+   "nbytes": 1152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "09f22d1143524ec802096f8494115225317f160d4cc57b9ffa62a333168ace59"
+}

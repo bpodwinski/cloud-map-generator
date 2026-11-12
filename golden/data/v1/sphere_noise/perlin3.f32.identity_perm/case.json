@@ -1,0 +1,76 @@
+{
+ "format": 1,
+ "id": "perlin3.f32.identity_perm",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Perlin3.__call__",
+ "doc": "A hand-made identity permutation (perm[i] = i): the corner hash is then (X + Y + Z) & 255, so sweeping the cell along each axis in turn (16 cells x 3 axes, fractions k/64 + 1/128) drives every gradient branch of the table in a predictable order. The permutation is the input plan0.perm (seed null). Same tolerance as perlin3.f32.random (measured spread 1.1e-7). The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": null,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": null,
+    "custom": true
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    48
+   ],
+   "offset": 0,
+   "nbytes": 192
+  },
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    48
+   ],
+   "offset": 192,
+   "nbytes": 192
+  },
+  {
+   "name": "z",
+   "dtype": "f32",
+   "shape": [
+    48
+   ],
+   "offset": 384,
+   "nbytes": 192
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 576,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    48
+   ],
+   "offset": 1600,
+   "nbytes": 192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1.5e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2dd086f196367f568b03c83ffb1ee9ba3b0de0245ecd897afd12035aa1cf8f5d"
+}

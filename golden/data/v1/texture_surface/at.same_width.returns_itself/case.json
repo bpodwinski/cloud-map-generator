@@ -1,0 +1,63 @@
+{
+ "format": 1,
+ "id": "at.same_width.returns_itself",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "at(width) with width == the surface width returns the surface unchanged (no copy, no resampling): the outputs equal the inputs. Exact.",
+ "params": {
+  "width": 64
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24576,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2e8d8027c4056266c987f1f02a478121d7a4be193233ae9b5744c548770bc854"
+}

@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.tiny_half_angle",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Half angle 1e-3 rad: a 5x5 patch whose samples differ from the center by up to 1.4e-3 (a port must not lose them to float32 rounding: this is float64). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 0.3,
+  "lat0": 0.1,
+  "half_angle": 0.001,
+  "n": 5
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    5,
+    5,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 600,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4b38fe11f67a500579bffdd46a3684c98764f96c11bbfefdab4ca81c6b2d7903"
+}

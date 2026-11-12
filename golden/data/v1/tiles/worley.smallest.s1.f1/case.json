@@ -1,0 +1,69 @@
+{
+ "format": 1,
+ "id": "worley.smallest.s1.f1",
+ "group": "tiles",
+ "function": "cloudgen.tiles.tileable_worley",
+ "doc": "The smallest legal tile: one texel, one cell. F1 is the distance from the texel center (0.5, 0.5) to the jittered point, F2 to its image. The jitter grid the seed draws is the input plan0.jitter (freq, freq, 2: [row][col][x, y] offset inside the cell). Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 7.1e-15 over the seven worley cases (6.7e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute; F1 and F2 are continuous in the jitter, no tie flips.",
+ "params": {
+  "size": 1,
+  "freq": 1,
+  "seed": 2,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.worley",
+    "size": 1,
+    "freq": 1,
+    "seed": 2
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.jitter",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 16,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 24,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d2330f6c6c3b3e7559ee06a14610836983c2476e3e2de3435dc951b274e278b7"
+}

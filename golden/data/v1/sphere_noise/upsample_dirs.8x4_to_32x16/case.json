@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.8x4_to_32x16",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "A perturbed 8x4 grid of unit vectors (float32) upsampled to 32x16: the 3D vectors are interpolated bilinearly in float64 at the target texel centers (longitude wraps, rows above the first coarse row clamp) and renormalized, then rounded to float32. One band (rows < 4M / width). Output unit length to 4e-8. Measured: a float64 pipeline without the final rounding differs by 3e-8 (half a float32 ulp), a pipeline in float32 end to end (positions in float32) by 8e-7 at this size; tolerance 1e-5 abs + 1e-5 rel (10x the latter). At 4096 columns the all-float32 pipeline still differs by only 6.6e-6 (see the bands case).",
+ "params": {
+  "width": 32,
+  "height": 16
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32,
+    3
+   ],
+   "offset": 384,
+   "nbytes": 6144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "74f7636e0575ccedc1a67d5b98d4c2c06d90bcef60e9712c9723328763e3d497"
+}

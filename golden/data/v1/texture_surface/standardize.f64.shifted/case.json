@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "standardize.f64.shifted",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "The same on a float64 array (mean -7, std 3): float64 statistics, result float64. Tolerance 1e-9 (numpy sums pairwise, a plain loop differs by ~1e-16; measured against a direct float64 evaluation: 0).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 512,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4725fa27f81cab1b98bfd52896bab5520e3a2f8ef1b2a21d68bb9565c6aa8eab"
+}

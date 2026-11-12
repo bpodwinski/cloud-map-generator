@@ -1,0 +1,79 @@
+{
+ "format": 1,
+ "id": "earth_tables_at.nodes_midpoints_clamps",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.earth_tables_at",
+ "doc": "np.interp of x into the two Earth centering tables (15 nodes at x = 1/12 + k/6): every node, every midpoint, and points below the first node and past the last (np.interp CLAMPS to the end values, it does not extrapolate), plus 0, 3 and 1e6. The tables are stored as inputs. Float64: 1e-9 (measured against a manual linear interpolation: 3e-17, one blend per segment).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    37
+   ],
+   "offset": 0,
+   "nbytes": 296
+  },
+  {
+   "name": "table_x",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 296,
+   "nbytes": 120
+  },
+  {
+   "name": "table_continentality",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 416,
+   "nbytes": 120
+  },
+  {
+   "name": "table_deck",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 536,
+   "nbytes": 120
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f64",
+   "shape": [
+    37
+   ],
+   "offset": 656,
+   "nbytes": 296,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "deck",
+   "dtype": "f64",
+   "shape": [
+    37
+   ],
+   "offset": 952,
+   "nbytes": 296,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6c5b04c1aefaead30077b6ac4bd08e58cf0862502eb8f7d0eaa54c204dc0221f"
+}

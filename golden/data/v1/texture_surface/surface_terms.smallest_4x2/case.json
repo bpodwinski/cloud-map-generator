@@ -1,0 +1,242 @@
+{
+ "format": 1,
+ "id": "surface_terms.smallest_4x2",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.surface_terms",
+ "doc": "SurfaceTerms of surface_terms: the six maps (anomaly, land, deck, orographic, continentality, deck_strength: the SurfaceTerms dataclass fields in order) and the ITCZ shift. The smooth terms are computed at tw = min(term_width, width) and resampled to `width` when tw != width; anomaly = land + deck + orographic with land = land_contrast(x) (EARTH_cont(x) - cont), deck = 0.35 (deck_window(x) strength - EARTH_deck(x)). Inputs surface_land and (only when a wind is given) surface_elevation_km: the elevation is read only through the wind; the maps keep the SurfaceTerms field names. The Earth centering tables EARTH_TABLE_X / EARTH_CONTINENTALITY / EARTH_DECK (module constants of surface.py, read by earth_tables_at) are the inputs earth_table_x, earth_table_continentality and earth_table_deck. The coast threshold of deck_strength is at least 1e-4 from every continentality texel (asserted), so no rounding of a port flips it. Tolerance: atol 2e-6, rtol 1e-5: measured worst difference against an all-float64 evaluation 7.4e-8, and 1.2e-7 when land, elevation and wind move by one float32 ulp (10x). Default itcz_shift_deg tolerance 1e-9. The smallest grid: a 4x2 pattern surface at width 4 (term_width 1024), a 4x2 swirl wind, Hadley 60 (the 45 deg rows sit at x = 0.75, inside the deck window), radius 6371, prograde: every term runs on 2 rows and 4 columns (smoothing copies the rows, the deck search wraps over 4 columns). Output `itcz_shift_deg` is 0-d: shape [] in case.json, one item of data.bin. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "width": 4,
+  "hadley_deg": 60.0,
+  "radius_km": 6371.0,
+  "spin": 1.0,
+  "term_width": 1024,
+  "has_wind": true,
+  "wind_width": 4,
+  "surface_width": 4,
+  "constants": {
+   "LAND_CONTRAST_CONVERGENCE": -0.08,
+   "LAND_CONTRAST_EXTRATROPICS": 0.12,
+   "LAND_CONTRAST_DESERT": 0.04,
+   "convergence_gauss_mu_s": [
+    0.0,
+    0.3
+   ],
+   "extratropics_rise": [
+    0.35,
+    0.7
+   ],
+   "extratropics_fade": [
+    2.2,
+    2.8
+   ],
+   "desert_gauss_mu_s": [
+    0.8,
+    0.25
+   ],
+   "window_rise": [
+    0.3,
+    0.5
+   ],
+   "window_fall": [
+    0.95,
+    1.25
+   ],
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001,
+   "DECK_COAST_LAND": 0.5,
+   "DECK_EFOLD_KM": 1200.0,
+   "DECK_MAX_SEARCH_KM": 4000.0,
+   "EARTH_ITCZ_SHIFT_X": 0.16666666666666666,
+   "EARTH_LAND_ASYMMETRY": 0.2,
+   "ITCZ_SHIFT_MAX_X": 0.35,
+   "OROGRAPHIC_AMPLITUDE": 0.25,
+   "RAIN_SHADOW_AMPLITUDE": 0.2,
+   "OROGRAPHIC_W0_MPS": 0.05,
+   "RAIN_SHADOW_KM": 800.0,
+   "SHADOW_DESCENT_KM": [
+    0.2,
+    1.0
+   ],
+   "shadow_fractions": [
+    0.15,
+    0.35,
+    0.6,
+    1.0
+   ],
+   "shadow_weight_per_fraction": 0.5,
+   "dx_cos_floor": 0.001,
+   "speed_floor_mps": 0.001,
+   "backtrace_cos_floor": 0.001,
+   "DECK_AMPLITUDE": 0.35
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "surface_land",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 32
+  },
+  {
+   "name": "earth_table_x",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 32,
+   "nbytes": 120
+  },
+  {
+   "name": "earth_table_continentality",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 152,
+   "nbytes": 120
+  },
+  {
+   "name": "earth_table_deck",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 272,
+   "nbytes": 120
+  },
+  {
+   "name": "surface_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 392,
+   "nbytes": 32
+  },
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4,
+    2
+   ],
+   "offset": 424,
+   "nbytes": 64
+  }
+ ],
+ "outputs": [
+  {
+   "name": "anomaly",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 488,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 520,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "deck",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 552,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "orographic",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 584,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 616,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "deck_strength",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 648,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 680,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "02a8c4128d0493641e07a415e065a409e137f939d05ee66bacb7d75fb22a6e19"
+}

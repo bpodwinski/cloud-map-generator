@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "surface._smoothstep.land_contrast_ramps",
+ "group": "texture_surface",
+ "function": "cloudgen.surface._smoothstep",
+ "doc": "surface._smoothstep(0.35, 0.7, x) in float64 over x from -0.5 to 4, the knees and 1e9. Closed form: 1e-9 (measured: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp)).",
+ "params": {
+  "a": 0.35,
+  "b": 0.7
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    188
+   ],
+   "offset": 0,
+   "nbytes": 1504
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    188
+   ],
+   "offset": 1504,
+   "nbytes": 1504,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a3276fc561dc24e78ffb803af860b0055a490d57cd8a173a3a27b332d02c3078"
+}

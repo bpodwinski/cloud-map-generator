@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "moisture_profile.tiny.f32_1",
+ "group": "products_generate",
+ "function": "cloudgen.generate.moisture_profile",
+ "doc": "A single float32 latitude of 0.5 rad (28.6 degrees, Hadley 30): the smallest legal shape. Tolerance is the golden float32 default. Measured: promoting the float32 inputs to float64 changes the output by at most 5.8e-8; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is about 2e2x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 4
+  }
+ ],
+ "outputs": [
+  {
+   "name": "profile",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 4,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "412174596a372a0f4e9423aa1f623a5cf1b9071bf3ec1afb63223f14c9bb7c20"
+}

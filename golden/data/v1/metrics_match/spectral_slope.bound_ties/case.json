@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "spectral_slope.bound_ties",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.spectral_slope",
+ "doc": "Log-log slope of the radially averaged power spectrum: (patch - mean) * Hann (np.hanning(n) outer itself, symmetric, 0.5 - 0.5 cos(2 pi i / (n - 1))), np.fft.fft2 (unnormalized, complex128), fftshift, |F|^2, radius r = int(hypot(x, y)) with x, y counted from n // 2 (truncation), radial[r] = mean of the power at integer radius r (np.bincount), wavelength of bin k = n * patch_px_km() / k km; bins with lo <= wavelength <= hi (inclusive) and radial > 0 enter np.polyfit(log k, log radial, 1), whose slope is returned; fewer than 4 bins give NaN. n = patch.shape[0] (square patches only). BIT-EXACT TIES on both bounds: lo_km = 32 * px / 8 = 35.10559981542595 and hi_km = 32 * px / 2 = 140.4223992617038 are the wavelengths of the bins k = 8 and k = 2 exactly, and the band is inclusive on both sides (>= lo, <= hi), so the fit uses the 7 bins k = 2..8; an exclusive bound would drop one end (6 or 5 bins, another slope). The tie holds only if the port evaluates n * px / k with the SAME px bits as Python (params.px_km_hex, = 2 tan(10 deg) 6371 / 256): a libm whose tan differs by one ulp turns it into a strict inequality on one side. Define patch_px_km in the port as that constant to be bit-exact here; the patch_px_km case itself only asks 1e-12. The whole chain is float64 (the Hann window is float64 even for a float32 patch): an independent float64 reimplementation agrees to 9e-16 with np.fft and to 1.4e-13 with an explicit DFT-matrix product (a different operation order; measured on Earth patches, noise and smooth fields), a float64 one-ulp nudge of the texels moves the slope by <= 1.7e-15; tolerance 1e-9. ",
+ "params": {
+  "lo_km": 35.10559981542595,
+  "hi_km": 140.4223992617038,
+  "bit_exact_tie": true,
+  "px_km_hex": "0x1.18d844b74dbeap+3",
+  "bins": [
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8192,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c2a0f1afb5f786e5dc0f097036a1db7aeb8fff1fcf0704fd73f4fc36f1e98874"
+}

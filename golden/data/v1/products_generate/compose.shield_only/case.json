@@ -1,0 +1,89 @@
+{
+ "format": 1,
+ "id": "compose.shield_only",
+ "group": "products_generate",
+ "function": "cloudgen.generate.compose",
+ "doc": "shield_texture = 0, cumulus_max = 0, a_fine = 0: the coverage is the bare shield ramp clip(0.5 + u / ramp, 0, 1) even with streak and sub-texel arrays given (the cumulus is 0 so the binomial term is 0). Pipeline dtypes; tolerance is 2x the golden float32 default (a one-ulp change of s moves the narrow ramp by 3e-7 where the coverage is small). Arguments: s, fine, t, streak and subtexel are the inputs of that name when listed; an unlisted t, streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads (the others keep their defaults). params.result_dtype (\"f64\" or \"f32\") is the dtype numpy gives the result by promotion (a float64 t array or float64 inputs give f64, a python-float t with float32 fields keeps f32); it is informational, the stored output has that dtype. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 1.7e-7 (worst of 6 random trials); the tolerance is 12x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.0,
+   "cumulus_max": 0.0,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.0
+  },
+  "result_dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "t",
+   "dtype": "f64",
+   "shape": [
+    32,
+    1
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 8192
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 2e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b65bbd45a75bf46355a29afb7a48717f7e4b828c9599eb0be3e376d0c25c92d3"
+}

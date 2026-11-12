@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.pole_threshold.outside",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Center 2e-9 rad from the pole: |z x c| = 2e-9 > 1e-9, the regular frame (east = (-sin 2, cos 2, 0)) is used: the same patch as pole_threshold.inside, rotated by 2 rad about the pole. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 2.0,
+  "lat0": 1.5707963247948966,
+  "half_angle": 0.2,
+  "n": 7
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    7,
+    7,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1176,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5ecc7735c74045239f5bd45884cdfd60aab8537cc5ccbb2786f4df48f7fea6aa"
+}

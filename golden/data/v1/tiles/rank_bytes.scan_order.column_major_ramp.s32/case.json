@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.scan_order.column_major_ramp.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "Values increase DOWN the columns first (value = col * 32 + row): the bytes are rank // 4 in C scan order of the flattened field, so a transposed port shows at once. Output shape equals the input shape. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   32,
+   32
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e34fcf9af6d692f42c1250c704239e6d69031c5b35042d0298b2c8fc0ca38a7d"
+}

@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "ascent.cyclone.age_young",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "Ascent of one northern cyclone (lon 20, lat 50, radius 0.2) of age 0.25: a young open wave: the comma head sits mostly EAST of the center (shift 0.8 east at age 0), on a 41 x 41 gnomonic patch of half-angle 0.4 rad around it (float32 directions, as the generator passes them). Float32 chain (squared chord distance, exp, 2 gaussians). Tolerance rtol 5e-5, atol 5e-6: over the single-vortex float32 cases the float64-promoted computation differs by at most 3.1e-7 and a one-ulp nudge of the directions by 9e-7 (the oldest low, 0.44 of the default band); tolerance 10 times the worst, rounded up. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": 0.3490658503988659,
+    "lat": 0.8726646259971648,
+    "radius": 0.2,
+    "omega": 0.75,
+    "ascent": 1.0,
+    "age": 0.25
+   }
+  ],
+  "dtype_chain": "p float32: a = float32 zeros; per vortex the center is cast to float32, d2, exp and the gaussians are float32 (a cyclone takes _comma_ascent, float32; a tropical subtracts its float32 eye); the term is np.float32(ascent) * g.astype(float32) and a += term accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 20172
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    1681
+   ],
+   "offset": 20176,
+   "nbytes": 6724,
+   "tol": {
+    "mode": "close",
+    "rtol": 5e-05,
+    "atol": 5e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d482ad899fdfd0cadb863cbcc10db1135d18aae72f24ed9f3f72ff01d5ff9008"
+}

@@ -1,0 +1,254 @@
+{
+ "format": 1,
+ "id": "ascent.earth.float64",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "The same Earth-like ascent with float64 directions: float64 gaussians, the per-vortex terms cast to float32 and accumulated in float32, so the sum still rounds per vortex. Tolerance rtol 1e-5, atol 1e-6 (the default): the output is float32, so a float64 nudge of the inputs changes nothing (0 observed) and the other float64 order (reversed vortices, one cast at the end of an all-float64 accumulation) differs by at most 2.4e-7 (0.03 of the band). Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": -2.9670597283903604,
+    "lat": 0.8639379797371931,
+    "radius": 0.17,
+    "omega": 0.99,
+    "ascent": 1.0,
+    "age": 0.3
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -2.3387411976724017,
+    "lat": 0.5410520681182421,
+    "radius": 0.27,
+    "omega": -1.32,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -1.710422666954443,
+    "lat": 0.9075712110370514,
+    "radius": 0.2,
+    "omega": 1.8899999999999997,
+    "ascent": 1.0,
+    "age": 0.7
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -1.0821041362364843,
+    "lat": 0.5585053606381855,
+    "radius": 0.28500000000000003,
+    "omega": -1.08,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -0.4537856055185257,
+    "lat": 0.8901179185171081,
+    "radius": 0.22,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 0.17453292519943295,
+    "lat": 0.5759586531581288,
+    "radius": 0.30000000000000004,
+    "omega": -1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 0.8028514559173916,
+    "lat": 0.9250245035569946,
+    "radius": 0.19,
+    "omega": 4.14,
+    "ascent": 1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 1.4311699866353502,
+    "lat": 0.5934119456780721,
+    "radius": 0.315,
+    "omega": -1.38,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.059488517353309,
+    "lat": 0.8726646259971648,
+    "radius": 0.15,
+    "omega": 3.6975,
+    "ascent": 1.0,
+    "age": 1.45
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 2.6878070480712677,
+    "lat": 0.6108652381980153,
+    "radius": 0.33,
+    "omega": -1.02,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -2.6179938779914944,
+    "lat": -0.8813912722571364,
+    "radius": 0.15,
+    "omega": -3.6975,
+    "ascent": 1.0,
+    "age": 1.45
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -1.9896753472735358,
+    "lat": -0.5235987755982988,
+    "radius": 0.28,
+    "omega": 1.02,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -1.361356816555577,
+    "lat": -0.9337511498169663,
+    "radius": 0.19,
+    "omega": -4.14,
+    "ascent": 1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -0.7330382858376184,
+    "lat": -0.5410520681182421,
+    "radius": 0.29000000000000004,
+    "omega": 1.38,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -0.10471975511965978,
+    "lat": -0.8988445647770797,
+    "radius": 0.22,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 0.5235987755982988,
+    "lat": -0.5585053606381855,
+    "radius": 0.30000000000000004,
+    "omega": 1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 1.1519173063162575,
+    "lat": -0.9162978572970231,
+    "radius": 0.2,
+    "omega": -1.8899999999999997,
+    "ascent": 1.0,
+    "age": 0.7
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 1.7802358370342162,
+    "lat": -0.5759586531581288,
+    "radius": 0.31000000000000005,
+    "omega": 1.08,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.4085543677521746,
+    "lat": -0.8726646259971648,
+    "radius": 0.17,
+    "omega": -0.99,
+    "ascent": 1.0,
+    "age": 0.3
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 3.036872898470133,
+    "lat": -0.5934119456780721,
+    "radius": 0.32,
+    "omega": 1.32,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": -0.6981317007977318,
+    "lat": 0.2617993877991494,
+    "radius": 0.05,
+    "omega": 12.5,
+    "ascent": 1.6,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": 2.2689280275926285,
+    "lat": 0.20943951023931956,
+    "radius": 0.058,
+    "omega": 10.8,
+    "ascent": 1.6,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": 1.2217304763960306,
+    "lat": -0.24434609527920614,
+    "radius": 0.052,
+    "omega": -11.5,
+    "ascent": 1.6,
+    "age": 1.0
+   }
+  ],
+  "dtype_chain": "p float64: d2, exp, the comma head and the eye are float64 per vortex; each vortex term is cast to float32 and accumulated in float32, in vortex order (float64 math per vortex, float32 accumulation). The output is float32."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    1591,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 38184
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    1591
+   ],
+   "offset": 38184,
+   "nbytes": 6364,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f03e01181ee1f74f0366e23391ccaa17e0de2ee4927a4fb68909ccf6cc4f239e"
+}

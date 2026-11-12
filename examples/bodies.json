@@ -1,0 +1,36 @@
+{
+  "note": "Example bodies for bake.py and gen.py --surface. Published bulk values [measured]; scale heights R T / (M g) at the surface [derived]. Only water-cloud bodies bake (cloudgen/climate.py is_bakeable). Schema: cloudgen/bodies.py.",
+  "bodies": [
+    {
+      "key": "earth",
+      "rotationPeriodDays": 0.99727,
+      "radiusKm": 6371,
+      "gravityMps2": 9.81,
+      "scaleHeightKm": 8.4,
+      "cloudRegime": "water",
+      "measured": false,
+      "surface": null,
+      "surfaceNote": "no land mask shipped: point `surface` at your own land and elevation grids (see README)"
+    },
+    {
+      "key": "fast-rotator",
+      "rotationPeriodDays": 0.4,
+      "radiusKm": 6371,
+      "gravityMps2": 9.81,
+      "scaleHeightKm": 8.0,
+      "cloudRegime": "water",
+      "surface": null,
+      "surfaceNote": "a made-up Earth-sized world spinning in 9.6 h: narrower bands, more of them"
+    },
+    {
+      "key": "mars",
+      "rotationPeriodDays": 1.02596,
+      "radiusKm": 3389.5,
+      "gravityMps2": 3.721,
+      "scaleHeightKm": 11.1,
+      "cloudRegime": "thin water ice",
+      "surface": null,
+      "surfaceNote": "skipped by the bake: not a water-cloud body"
+    }
+  ]
+}

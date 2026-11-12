@@ -1,0 +1,58 @@
+{
+ "format": 1,
+ "id": "comma_ascent.age_sweep",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow._comma_ascent",
+ "doc": "The cloud-producing ascent of a mid-latitude low (lon 20, lat 50, radius 0.2) for the ages of inputs.ages (0 a flat wave, 1 mature, 1 + 1e-9, 1.2, 1.45, then 2 and 3 beyond what build_flow draws): the head shifts from 0.8 east to 0.3 east + 0.5 poleward and stops moving at age 1; the envelope radius grows as 1 + 0.3 age; the dry slot 2 (age - 1) exp(-d2 / (0.45 r)^2) is subtracted for age > 1 only. Output row i is ages[i]. Float64 directions: float64 output, rtol 1e-9. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "vortex": {
+   "lon": 0.3490658503988659,
+   "lat": 0.8726646259971648,
+   "radius": 0.2,
+   "omega": 3.0,
+   "ascent": 1.0
+  },
+  "dtype_chain": "p float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 40344
+  },
+  {
+   "name": "ages",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 40344,
+   "nbytes": 80
+  }
+ ],
+ "outputs": [
+  {
+   "name": "g",
+   "dtype": "f64",
+   "shape": [
+    10,
+    1681
+   ],
+   "offset": 40424,
+   "nbytes": 134480,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0bf4869f009dab402ace0f7c675b721b4b7a7577a0b7480a274c00b8163f593b"
+}

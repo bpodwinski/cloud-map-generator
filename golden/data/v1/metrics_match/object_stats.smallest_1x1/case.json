@@ -1,0 +1,65 @@
+{
+ "format": 1,
+ "id": "object_stats.smallest_1x1",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.object_stats",
+ "doc": "Cloud objects of a patch: mask = patch > 0.5 (strict), scipy.ndimage.label with its default structure, 4-CONNECTIVITY (edge neighbours only: two texels that touch diagonally are two objects; no wraparound), area = texel count * patch_px_km^2 (77.0252 km^2 per texel); returns (share of the cloudy area held by objects larger than 1e5 km^2, median object area in km^2), and (0.0, 0.0) when there is no object. The smallest patch: one texel above the threshold, one object of one texel (77 km^2): big = 0, median = its area. Diagnostics recomputed by the case through the same label call, not returned by the function: n_objects and areas_km2 (in ndimage.label order: by the raster position of each object's first texel); a port's labelling must produce the same multiset of areas. Integer counts times a float64 constant: exact up to the rounding of a product and a sum, 1e-9. ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "stats",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 8,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "n_objects",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 24,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "areas_km2",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "11ce82a671e94042ac5f2eb21b7d183563a51a749d4b54e4912db152d88c68e2"
+}

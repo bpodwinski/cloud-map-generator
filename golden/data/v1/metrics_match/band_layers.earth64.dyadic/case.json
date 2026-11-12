@@ -1,0 +1,66 @@
+{
+ "format": 1,
+ "id": "band_layers.earth64.dyadic",
+ "group": "metrics_match",
+ "function": "cloudgen.match.band_layers",
+ "doc": "Band-pass layers G(s_{k-1}) - G(s_k) with G(s_-1) the image and G = _blur (scipy.ndimage.gaussian_filter(img, sigma, mode=(\"nearest\", \"wrap\")): truncate 4.0 (radius int(4 sigma + 0.5), taps exp(-x^2 / (2 sigma^2)) normalized to sum 1, computed in float64), axis 0 (rows: \"nearest\" = clamp at the poles) THEN axis 1 (columns: \"wrap\" = periodic, folded as many times as the radius needs, also when it exceeds the width), each pass accumulating in float64 and rounding to the input dtype (so a float32 image is rounded to float32 between the two passes); sigma <= 1e-15 returns a copy, a radius that rounds to 0 (sigma < 0.125) is the identity.), and the low-pass residual G(s_last) (the image itself for no sigma); the layers and the residual sum back to the image (telescoping, up to float32 rounding). Layers are stacked in one array (shape (len(sigmas), h, w)). The 64x32 Earth reference, a dyadic ladder 1, 2, 4, 8 (the sigmas match_to_earth builds for Earth itself). Float32 chain (each blur rounds to float32 between its passes, a layer is a float32 difference): a float64-promoted result differs by <= 9e-8 in absolute value (a layer is a small difference, so its relative error is meaningless); the golden float32 tolerance.  Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "sigmas": [
+   1.0,
+   2.0,
+   4.0,
+   8.0
+  ],
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "layers",
+   "dtype": "f32",
+   "shape": [
+    4,
+    32,
+    64
+   ],
+   "offset": 2048,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "residual",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 34816,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "63082f4a9f602f20024b8ba5dedf2ba2aa1810cdfa50979eb27a0da07bb18f6b"
+}

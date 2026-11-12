@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "ascent.tropical.north",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "Ascent of a northern tropical storm (radius 0.06, weight 1.6): a dense ring gaussian of radius 0.6 r = 0.036 minus a clear eye 1.6 exp(-d2 / (0.12 r)^2), on a 41 x 41 float32 patch whose central texel is exactly the center, where the eye depth shows (1 - 1.6). Tolerance rtol 2e-4, atol 2e-5: the eye gaussian has a radius of 0.0072, so the float32 subtraction p - c next to the center moves the exponent: the float64-promoted computation differs by at most 6e-6 and a one-ulp nudge of the directions by 1.8e-5 (1.96 of the default band); tolerance 10 times that. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "tropical",
+    "lon": -0.6981317007977318,
+    "lat": 0.2617993877991494,
+    "radius": 0.06,
+    "omega": 12.0,
+    "ascent": 1.6,
+    "age": 1.0
+   }
+  ],
+  "dtype_chain": "p float32: a = float32 zeros; per vortex the center is cast to float32, d2, exp and the gaussians are float32 (a cyclone takes _comma_ascent, float32; a tropical subtracts its float32 eye); the term is np.float32(ascent) * g.astype(float32) and a += term accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 20172
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    1681
+   ],
+   "offset": 20176,
+   "nbytes": 6724,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0002,
+    "atol": 2e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d0a387c060af550c68b1d9e413466f3b07d2a407611edfc6f284276fcef01123"
+}

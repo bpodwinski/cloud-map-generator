@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "detail_lost_2x.generated.iso256",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.detail_lost_2x",
+ "doc": "Share of the variance lost by a 2x2 box average brought back bilinearly (rows clamp, columns wrap): the image is converted to float64 first, then every step is float64 (floor, clip, bilinear lerp, population variance), so a port is within 1e-9 (numpy against exactly rounded math.fsum sums: < 5e-16 relative). An isotropic generated map. Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lost",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3fe50db32753ee6fd087bd095d8870ff7847cbb31c6dffe73668d70330a03414"
+}

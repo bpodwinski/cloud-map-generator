@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "blur.earth128.sigma4",
+ "group": "metrics_match",
+ "function": "cloudgen.match._blur",
+ "doc": "scipy.ndimage.gaussian_filter(img, sigma, mode=(\"nearest\", \"wrap\")): truncate 4.0 (radius int(4 sigma + 0.5), taps exp(-x^2 / (2 sigma^2)) normalized to sum 1, computed in float64), axis 0 (rows: \"nearest\" = clamp at the poles) THEN axis 1 (columns: \"wrap\" = periodic, folded as many times as the radius needs, also when it exceeds the width), each pass accumulating in float64 and rounding to the input dtype (so a float32 image is rounded to float32 between the two passes); sigma <= 1e-15 returns a copy, a radius that rounds to 0 (sigma < 0.125) is the identity. The 128x64 Earth reference (stored u8, / 255 in float32), sigma 4: a realistic latitude clamp and longitude wrap. Float32 chain: a float64-promoted blur of the same image differs by at most 5.3e-8 (values in 0..1; an independent numpy re-implementation with the same float32 rounding between passes matches scipy bit for bit); the golden float32 tolerance.  Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "sigma": 4.0,
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 8192,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e43a7cc0a278baaef970f31f3ab396a87a39c960664f50c05001afadb1c0c2e6"
+}

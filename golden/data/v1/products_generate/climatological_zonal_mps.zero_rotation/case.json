@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "climatological_zonal_mps.zero_rotation",
+ "group": "products_generate",
+ "function": "cloudgen.products.climatological_zonal_mps",
+ "doc": "rotation_period_days = 0.0: `0.0 or 1.0` is 1.0, spin +1; hadley_edge_raw is infinity, no storm track, profile 0. 181 float64 latitudes -90..90 every degree. Float64 closed form (gaussians, a smoothstep, a scale): rtol 1e-9. Arguments: lat (input, rad), hadley_deg and body (params). Measured: one-ulp nudges of every float input and parameter change it by at most 0 (worst of 6 random trials); no difference was observed at all.",
+ "params": {
+  "hadley_deg": 90.0,
+  "body": {
+   "name": "zero",
+   "rotation_period_days": 0.0,
+   "radius_km": 6371.0,
+   "gravity_mps2": 9.81,
+   "scale_height_km": 8.0,
+   "cloud_regime": "water"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    181
+   ],
+   "offset": 0,
+   "nbytes": 1448
+  }
+ ],
+ "outputs": [
+  {
+   "name": "u",
+   "dtype": "f64",
+   "shape": [
+    181
+   ],
+   "offset": 1448,
+   "nbytes": 1448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7820a3c4fa61aae50e5dd2e24b783c9fc72f781e605775e2ed3a31181eacdb9a"
+}

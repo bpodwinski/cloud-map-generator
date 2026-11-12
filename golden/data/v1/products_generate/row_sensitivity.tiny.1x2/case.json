@@ -1,0 +1,87 @@
+{
+ "format": 1,
+ "id": "row_sensitivity.tiny.1x2",
+ "group": "products_generate",
+ "function": "cloudgen.generate.row_sensitivity",
+ "doc": "One row of two texels, threshold at the shield edge: the smallest legal shape. Float32 fields, streak and subtexel arrays. Arguments: s, fine, thr, streak and subtexel are the inputs of that name when listed; an unlisted streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads plus sensitivity_step. The floor 0.05 is a literal of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 5.7e-9; one-ulp nudges of every float input and parameter change it by at most 1.5e-7 (worst of 6 random trials); the tolerance is 56x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6,
+   "sensitivity_step": 0.05
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 8
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 8,
+   "nbytes": 8
+  },
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 16,
+   "nbytes": 8
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 24,
+   "nbytes": 8
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 32,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "sens",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 40,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "be59dd023c4ccb653b2af281007a90ad9da2a9dd5966569364e130d51c3364b8"
+}

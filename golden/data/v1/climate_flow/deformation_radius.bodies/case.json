@@ -1,0 +1,161 @@
+{
+ "format": 1,
+ "id": "deformation_radius.bodies",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.deformation_radius_rad",
+ "doc": "Rossby deformation radius as an angle (rad) of the named bodies (Earth, Mars, Titan, Venus, a 0.4-day fast rotator, a retrograde Earth, a 4-day slow rotator, a 2-radius super-Earth, a small moon, five bodies at the 50 degree eddy threshold) and degenerate rows (no spin as None/NaN/inf/-inf/0/-0, subnormal and huge periods, zero, negative, NaN and infinite gravity, scale height and radius, odd regime strings): 0.3 raw-edge sin(51)/sin(track); inf with no spin; negative for a negative radius. Float64 closed form (radians, sin, products): rtol 1e-9. NaN and infinities may appear in the inputs (a rotation period None is stored as NaN) and in the outputs: NaN equals NaN, an infinity equals the same infinity (sign included).",
+ "params": {
+  "names": [
+   "earth",
+   "mars",
+   "titan",
+   "venus",
+   "fast_rotator_0.4d",
+   "retrograde_earth",
+   "slow_rotator_4d",
+   "super_earth_2r",
+   "small_moon",
+   "threshold_below_50",
+   "threshold_above_50",
+   "threshold_below_1ulp_of_50",
+   "threshold_exact_50",
+   "threshold_above_1ulp_of_50",
+   "no_spin_none",
+   "no_spin_nan",
+   "no_spin_inf",
+   "no_spin_zero",
+   "no_spin_negative_zero",
+   "period_subnormal",
+   "period_huge",
+   "period_negative_huge",
+   "zero_gravity",
+   "negative_gravity",
+   "zero_scale_height",
+   "negative_scale_height",
+   "negative_radius",
+   "tiny_radius",
+   "huge_radius",
+   "regime_capital_water",
+   "regime_empty",
+   "period_negative_inf",
+   "nan_gravity",
+   "nan_scale_height",
+   "nan_radius",
+   "inf_gravity",
+   "inf_scale_height",
+   "inf_radius",
+   "negative_inf_gravity",
+   "negative_inf_scale_height",
+   "negative_inf_radius",
+   "inf_gravity_zero_scale_height",
+   "zero_gravity_inf_scale_height",
+   "nan_gravity_retrograde",
+   "nan_gravity_no_spin"
+  ],
+  "cloud_regime": [
+   "water",
+   "thin water ice",
+   "methane",
+   "sulfuric acid",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "Water",
+   "",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water"
+  ],
+  "note": "a NaN rotation period stands for None or NaN: both mean no spin"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rotation_period_days",
+   "dtype": "f64",
+   "shape": [
+    45
+   ],
+   "offset": 0,
+   "nbytes": 360
+  },
+  {
+   "name": "radius_km",
+   "dtype": "f64",
+   "shape": [
+    45
+   ],
+   "offset": 360,
+   "nbytes": 360
+  },
+  {
+   "name": "gravity_mps2",
+   "dtype": "f64",
+   "shape": [
+    45
+   ],
+   "offset": 720,
+   "nbytes": 360
+  },
+  {
+   "name": "scale_height_km",
+   "dtype": "f64",
+   "shape": [
+    45
+   ],
+   "offset": 1080,
+   "nbytes": 360
+  }
+ ],
+ "outputs": [
+  {
+   "name": "radius_rad",
+   "dtype": "f64",
+   "shape": [
+    45
+   ],
+   "offset": 1440,
+   "nbytes": 360,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "aeed3dec5d65635ecba91fcf0b6ed8be02131dff6f1d7e4900c8e66df0199c08"
+}

@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "dir_to_lonlat.edges.f64",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.dir_to_lonlat",
+ "doc": "lon = arctan2(y, x), lat = arcsin(clip(z, -1, 1)), float64. The poles (x = y = +0.0: lon 0), the antimeridian (-1, +0.0, 0: lon = +pi), z beyond +-1 (1.0000001, -1.5, 2: clipped, no NaN), vectors that are NOT unit length (arctan2 ignores the length, arcsin uses z as is), the zero vector (lon 0, lat 0), tiny and huge components, a point 1e-12 below the pole (arcsin is ill-conditioned there: the input is exact, so only the implementation matters). Closed form: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dir",
+   "dtype": "f64",
+   "shape": [
+    79,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1896
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    79
+   ],
+   "offset": 1896,
+   "nbytes": 632,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    79
+   ],
+   "offset": 2528,
+   "nbytes": 632,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c96be1cd39f3edb6a008e8b191697d372a8ea8dd5ff47a74b7e14fc28afc1a58"
+}

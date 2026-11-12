@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "tangent_frame.poles_and_threshold",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.tangent_frame",
+ "doc": "The pole fallback: when |z x c| < 1e-9 the east vector is the fixed (0, 1, 0) and north = c x east (north pole: (-1, 0, 0); south pole: (+1, 0, 0)). Rows: exact poles, 1e-10, 3e-10 and 7.1e-10 from the axis (fallback taken), 3e-9, 2e-9, 1e-6 (normal branch, within a factor 3 of the threshold) and the equator. The exact threshold (|z x c| == 1e-9) is not a case: it depends on how the norm is rounded. The threshold itself is pinned to 1e-4 (relative) by tangent_frame.threshold_bracket. float64, rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "center",
+   "dtype": "f64",
+   "shape": [
+    9,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 216
+  }
+ ],
+ "outputs": [
+  {
+   "name": "east",
+   "dtype": "f64",
+   "shape": [
+    9,
+    3
+   ],
+   "offset": 216,
+   "nbytes": 216,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "north",
+   "dtype": "f64",
+   "shape": [
+    9,
+    3
+   ],
+   "offset": 432,
+   "nbytes": 216,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7226c3f834c1ff9c6cffb1388a395114bb097b23ae9daac1b87e55714fa38891"
+}

@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "blur.noise16x32.sigma40",
+ "group": "metrics_match",
+ "function": "cloudgen.match._blur",
+ "doc": "scipy.ndimage.gaussian_filter(img, sigma, mode=(\"nearest\", \"wrap\")): truncate 4.0 (radius int(4 sigma + 0.5), taps exp(-x^2 / (2 sigma^2)) normalized to sum 1, computed in float64), axis 0 (rows: \"nearest\" = clamp at the poles) THEN axis 1 (columns: \"wrap\" = periodic, folded as many times as the radius needs, also when it exceeds the width), each pass accumulating in float64 and rounding to the input dtype (so a float32 image is rounded to float32 between the two passes); sigma <= 1e-15 returns a copy, a radius that rounds to 0 (sigma < 0.125) is the identity. White float32 noise 16x32, sigma 40. sigma 40: radius 160 exceeds both sizes (16 rows, 32 columns): the wrap folds 5 times. Float32 chain: a float64-promoted blur of the same image differs by at most 5.3e-8 (values in 0..1; an independent numpy re-implementation with the same float32 rounding between passes matches scipy bit for bit); the golden float32 tolerance. ",
+ "params": {
+  "sigma": 40.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e3dbdd0a5b0df529c37f6cfa5e23a387ae5d68f4331f7c664d9d8dc0fb16cbe2"
+}

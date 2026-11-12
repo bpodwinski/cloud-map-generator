@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "coverage_masks.default.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.coverage_masks",
+ "doc": "The deck's three coverages on a uniform 64x64 rank field, called as coverage_masks(rank) so the DEFAULT coverages (0.3, 0.5, 0.7) are the ones used (params.coverages lists them): masks rank >= round(256 (1 - c)) = 179, 128 and 77, so about 30, 50 and 70 percent of the texels. Output (3, 64, 64) bool, exact.",
+ "params": {
+  "coverages": [
+   0.3,
+   0.5,
+   0.7
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "masks",
+   "dtype": "bool",
+   "shape": [
+    3,
+    64,
+    64
+   ],
+   "offset": 4096,
+   "nbytes": 12288,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e753aa224872e52d074f0d8c0633b4b2edbe33b6d55f10fd41dc9002941e7a29"
+}

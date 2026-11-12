@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "zonal_rate.float32_lat",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.zonal_rate",
+ "doc": "Zonal drift profile of the default flow for a float32 latitude array: the profile is evaluated in float32 and the constant prof(1.7) subtracted in float64, so the output is float64 holding float32 rounding. Tolerance rtol 2e-5, atol 2e-6: the float64-promoted computation differs by at most 1.6e-7, a one-ulp nudge of the latitudes by 2.5e-7 (0.13 of the default band, the largest relative part next to the zero crossings), tolerance 10 times that.",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "dtype_chain": "lat float32: x = |degrees(lat)| / hadley_deg stays float32 (Python floats are weak), prof(x) is float32, prof(np.float64(1.7)) is a float64 scalar and a float32 array minus a float64 scalar is FLOAT64: the stored output is float64 holding float32-rounded prof(x) minus a float64 constant."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 1444
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rate",
+   "dtype": "f64",
+   "shape": [
+    361
+   ],
+   "offset": 1448,
+   "nbytes": 2888,
+   "tol": {
+    "mode": "close",
+    "rtol": 2e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "06d1df8affccc3b26e11b98c218877dc60d1870e41c36ab50e62f1b379132621"
+}

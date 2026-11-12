@@ -1,0 +1,83 @@
+{
+ "format": 1,
+ "id": "worley3.ties.centered_lattice",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "Hand-made tables: identity permutation and every jitter 0.5, so the feature points form the lattice of cell centers and many distances tie exactly. At the center of a cell F1 = 0 and F2 = 1 (six neighbors tie at distance 1); on a cell face F1 = F2 = 0.5 (two features tie), at a corner F1 = F2 = sqrt(3)/2 (eight tie). A tie must give F2 == F1 (the second equal distance still counts as the second nearest). Tables are the inputs plan0.perm and plan0.jitter (seed null). Default tolerance. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": null,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": null,
+    "custom": true
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f32",
+   "shape": [
+    40,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 480
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 480,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 8672,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    40
+   ],
+   "offset": 20960,
+   "nbytes": 160,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    40
+   ],
+   "offset": 21120,
+   "nbytes": 160,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2eb20dfb9ed31e1c39ef6f248172cd075052d8059192a030a8fb98511e09eb3f"
+}

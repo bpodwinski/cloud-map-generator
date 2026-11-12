@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "sample_equirect.f32_dirs",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "float32 DIRECTIONS (the current callers pass float64; float32 is what grid_dirs() returns by default): lon, lat and the fractional pixel position fx, fy are computed in float32 (resolution 4e-6 at fx = 32), while the weights mix with the int64 pixel index and the output is float64. 16x32 float32 noise image, 600 unit directions including the poles. The value is a continuous function of the direction, so a pixel-index flip near a texel edge costs nothing; measured against float64 directions: 1.5e-6, and 2.3e-6 with the directions nudged by one float32 ulp (poles and axes excluded: at a pole one ulp changes the longitude by any amount); the error grows with the width (4e-6 at 64 columns, 6.5e-6 at 128). Tolerance 3e-5 abs + 1e-5 rel (10x).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  },
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    600,
+    3
+   ],
+   "offset": 2048,
+   "nbytes": 7200
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    600
+   ],
+   "offset": 9248,
+   "nbytes": 4800,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 3e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "716b0aaac3b544eb7185f05fa2f3eb328adc42a86960584f026db2ab2d6fc982"
+}

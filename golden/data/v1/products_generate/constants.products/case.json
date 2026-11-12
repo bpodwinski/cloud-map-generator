@@ -1,0 +1,76 @@
+{
+ "format": 1,
+ "id": "constants.products",
+ "group": "products_generate",
+ "function": "cloudgen.products.constants",
+ "doc": "PIN CASE, not a function: \"cloudgen.products.constants\" is a synthetic name for the module constants of products.py (no such function exists), and the OUTPUT arrays are the reference table, not a computed result. A port feeds them to nothing: its test asserts that its own constants equal these arrays. Contents: the MODIS high-share table (high_base_x, high_base_share), the type levels [closed, open, street, broken], [ADVECTION_DAYS, WIND_STEP_MPS, HIGH_COMMA_ASCENT, HIGH_DEEP_CORE] and the four Earth anchors of climate.py that zonal_wind_scale reads, [EARTH_ROTATION_DAYS, EARTH_RADIUS_KM, EARTH_GRAVITY, EARTH_SCALE_HEIGHT_KM]. Exact: they are literals, so the float outputs are compared bit for bit. The other cases of this group read these constants from the source (none is swept, none is repeated in their params).",
+ "params": {},
+ "tags": [
+  "pin"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "high_base_x",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "high_base_share",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 64,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "type_levels",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 128,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "scalars",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 160,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "earth",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 192,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1c76c3df434a0ad913a63f27e62bfaf387666fc976ffaa9f5050fe4f3043d81b"
+}

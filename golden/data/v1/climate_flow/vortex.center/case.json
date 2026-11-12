@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "vortex.center",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Vortex.center",
+ "doc": "The unit direction of a vortex center from its (lon, lat) in radians: both poles, longitudes +pi and -pi (the antimeridian: cos is -1 and sin is +-1.2e-16), signed zeros, longitudes beyond +-pi. Float64 libm cos and sin (correctly rounded to 1 ulp): rtol 1e-9, atol 1e-14 for the 6e-17 of cos(pi/2). Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN). A pseudo-function name: there is nothing to call, the port maps it by hand. (a property: the port maps it to its own center function).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    18
+   ],
+   "offset": 0,
+   "nbytes": 144
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    18
+   ],
+   "offset": 144,
+   "nbytes": 144
+  }
+ ],
+ "outputs": [
+  {
+   "name": "center",
+   "dtype": "f64",
+   "shape": [
+    18,
+    3
+   ],
+   "offset": 288,
+   "nbytes": 432,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-14
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f6c7d68472ffc9772dadb97dc8d14aff5cf15e69af10aff3e9405959f90be565"
+}

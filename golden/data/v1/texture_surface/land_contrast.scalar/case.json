@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "land_contrast.scalar",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.land_contrast",
+ "doc": "A 0-d x at the equator (the value the tests pin: -0.08 + 0.12*0 + 0.04*gauss(0, 0.8, 0.25)). 1e-9. Output `contrast` is 0-d: shape [] in case.json, one item of data.bin. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "constants": {
+   "LAND_CONTRAST_CONVERGENCE": -0.08,
+   "LAND_CONTRAST_EXTRATROPICS": 0.12,
+   "LAND_CONTRAST_DESERT": 0.04,
+   "convergence_gauss_mu_s": [
+    0.0,
+    0.3
+   ],
+   "extratropics_rise": [
+    0.35,
+    0.7
+   ],
+   "extratropics_fade": [
+    2.2,
+    2.8
+   ],
+   "desert_gauss_mu_s": [
+    0.8,
+    0.25
+   ]
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 0,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "contrast",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 8,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "381b7a2d00b446bcaa70ea051d1dd445ecb63dfb4f93179580b84da863adfd0d"
+}

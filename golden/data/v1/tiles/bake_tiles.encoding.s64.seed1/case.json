@@ -1,0 +1,99 @@
+{
+ "format": 1,
+ "id": "bake_tiles.encoding.s64.seed1",
+ "group": "tiles",
+ "function": "bake_tiles.main",
+ "doc": "The encodings for size 64, seed 1, version v2 (the flags written out, equal to the defaults but for the size): the tile is build_tile(64, 1). bake_tiles.py is a script: function names its main() (the encodings, not an importable core), run here as __main__ with a __file__ in a temporary folder (its output root) and sys.argv = [bake_tiles.py] + params.argv (the flags are --version, --seed and --size, with the defaults v2, 1 and TILE_SIZE = 1024) and the files it wrote decoded; their compressed bytes are not frozen. Input `tile`: the (size, size, 4) uint8 tile that build_tile returned (data here, not re-derived: raw_channels and build_tile have their own cases). Outputs: rgba = the gunzipped cloud_cell_tiles_<size>_<version>.rgba.gz, RGBA8 rows in order (row 0 first, the tile has no north), 4 bytes a texel in R heaps, G closed, B open, A sheet order = tile.reshape(-1); preview = the 8-bit grey PNG decoded, (4 size, 4 size): one band of `size` rows a channel in CHANNELS order, each band = [the channel rank | the coverage mask at 0.3 | 0.5 | 0.7, as 0 or 255]; sidecar_json = the .json the script writes, as canonical JSON bytes (parsed then re-dumped with sorted keys and separators , and :, ASCII; a port compares the parsed values, the script writes indent 2 and the platform line ending); files = the sorted paths written under the output root, one a line, with / separators (output/tiles/<version>/<stem>.rgba.gz, _preview.png and .json, stem = cloud_cell_tiles_<size>_<version>); build_args = (size, seed) as bake_tiles passed them to build_tile, int64 (2,). Pure byte layout and text: exact.",
+ "params": {
+  "argv": [
+   "--version",
+   "v2",
+   "--seed",
+   "1",
+   "--size",
+   "64"
+  ],
+  "size": 64,
+  "seed": 1,
+  "version": "v2"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "tile",
+   "dtype": "u8",
+   "shape": [
+    64,
+    64,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgba",
+   "dtype": "u8",
+   "shape": [
+    16384
+   ],
+   "offset": 16384,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "preview",
+   "dtype": "u8",
+   "shape": [
+    256,
+    256
+   ],
+   "offset": 32768,
+   "nbytes": 65536,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "sidecar_json",
+   "dtype": "u8",
+   "shape": [
+    514
+   ],
+   "offset": 98304,
+   "nbytes": 514,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "files",
+   "dtype": "u8",
+   "shape": [
+    141
+   ],
+   "offset": 98824,
+   "nbytes": 141,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "build_args",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 98968,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "73316e7b193a213e4fcb4be3779759f8f451bc4f481850268691ba781daf5823"
+}

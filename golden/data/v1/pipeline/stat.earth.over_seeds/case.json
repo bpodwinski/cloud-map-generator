@@ -1,0 +1,433 @@
+{
+ "format": 1,
+ "id": "stat.earth.over_seeds",
+ "group": "pipeline",
+ "function": "pipeline.stat.metrics_over_seeds",
+ "doc": "Mean and sample standard deviation (ddof 1) of every metric of stat.earth.seed1..8 (Earth, 1024x512, seeds 1 to 8). A port that draws its own random tables must land inside mean +- 3 std on every scalar metric and every component of the vectors (zonal, hist, coherence_by_lat, pole_std): params.n_sigma (zonal_lat is the band centers: exact, std 0). The Python mean and std themselves are held to the per-seed tolerances (means) and 5 % (std: 8 seeds estimate a std to about 25 %, so a port must not read it as tighter than that).",
+ "params": {
+  "body": {
+   "rotation_period_days": 0.99727,
+   "radius_km": 6371.0,
+   "gravity_mps2": 9.81,
+   "scale_height_km": 8.0,
+   "cloud_regime": "water"
+  },
+  "width": 1024,
+  "height": 512,
+  "gen_params": {
+   "structure_width": 512,
+   "a_moisture": 1.0,
+   "a_ascent": 0.5,
+   "a_mid": 0.3,
+   "a_fine": 0.6,
+   "moisture_noise": 0.45,
+   "advect_mid": 0.6,
+   "advect_fine": 0.25,
+   "mid_frequency": 6.0,
+   "fine_frequency": 48.0,
+   "cumulus_cell_km": 1.4,
+   "fine_top": 0.95,
+   "fine_gain": 0.65,
+   "fine_billow": false,
+   "fine_min_texels": 2.0,
+   "shield_ramp": 0.35,
+   "cumulus_depth": 1.6,
+   "cumulus_max": 0.5,
+   "shield_texture": 0.3,
+   "threshold_smooth_deg": 2.0,
+   "regime_texture": true,
+   "isotropic": false,
+   "allow_any_regime": false,
+   "surface_terms": true,
+   "sensitivity_step": 0.05
+  },
+  "reference": "data/earth_cloud_fraction_bluemarble_2048.png",
+  "reference_sha256": "6ce88a6446612de058b6f37f3afc66609af7c9b4d2d0a313d0ab570317d5d969",
+  "resampling": "none: measure.load box-averages maps WIDER than 2048 down to the reference; the 1024 map is measured as generated (patches are bilinear samples of it)",
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8
+  ],
+  "n_sigma": 3,
+  "ddof": 1
+ },
+ "tags": [
+  "stat",
+  "slow"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "mean.global_mean",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.00015,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "mean.zonal_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 8,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "mean.zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 296,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "mean.hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 584,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.001,
+    "atol": 0.006
+   }
+  },
+  {
+   "name": "mean.coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 664,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "mean.coherence_by_lat",
+   "dtype": "f64",
+   "shape": [
+    7
+   ],
+   "offset": 672,
+   "nbytes": 56,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 2e-05
+   }
+  },
+  {
+   "name": "mean.spectral_slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 728,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "mean.big_object_share",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 736,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.002,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "mean.median_object_km2",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 744,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 80.0
+   }
+  },
+  {
+   "name": "mean.seam_ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 752,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0003,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "mean.pole_std",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 760,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0003,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "mean.compare.zonal_rmse",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 776,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0003,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "mean.compare.hist_l1",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 784,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0002,
+    "atol": 4e-05
+   }
+  },
+  {
+   "name": "std.global_mean",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 792,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.zonal_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 800,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 1088,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 1376,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1456,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.coherence_by_lat",
+   "dtype": "f64",
+   "shape": [
+    7
+   ],
+   "offset": 1464,
+   "nbytes": 56,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.spectral_slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1520,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.big_object_share",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1528,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.median_object_km2",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1536,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.seam_ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1544,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.pole_std",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 1552,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.compare.zonal_rmse",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1568,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  },
+  {
+   "name": "std.compare.hist_l1",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 1576,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.05,
+    "atol": 0.0001
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "bbbe2e6c59449d7f573158a7661c1c45a6d3d2bbb83ea686e343ee2de8d8353e"
+}

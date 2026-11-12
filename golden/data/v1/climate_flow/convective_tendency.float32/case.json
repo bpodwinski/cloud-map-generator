@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "convective_tendency.float32",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.convective_tendency",
+ "doc": "Convective tendency with a float32 latitude array: numpy keeps the whole chain in float32 (a Python float does not promote it), so the output is float32. Hadley edge 30. Tolerance rtol 1e-5, atol 1e-6 (the default): measured against the float64-promoted computation (max abs 1.4e-7) and a one-ulp nudge of the latitudes (max abs 2.4e-7, 0.06 of the default band).",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float32: x, the gaussians, the smoothstep and the clip are float32 (Python floats are weak): the output is float32."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f32",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 1444
+  }
+ ],
+ "outputs": [
+  {
+   "name": "c",
+   "dtype": "f32",
+   "shape": [
+    361
+   ],
+   "offset": 1448,
+   "nbytes": 1444,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1315b01da132f5feb96f93d11462cb7772bab93fe3b1bda37cad6a814258f897"
+}

@@ -1,0 +1,30 @@
+{
+ "format": 1,
+ "id": "patch_px_km",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.patch_px_km",
+ "doc": "Kilometres per texel of a gnomonic patch: 2 tan(10 deg) 6371 / 256 (params.px_km_hex is Python's exact bit pattern; spectral_slope.bound_ties depends on those bits). A float64 closed form: 1e-12.",
+ "params": {
+  "px_km_hex": "0x1.18d844b74dbeap+3"
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "px_km",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 0.0
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e41aa0693717e209a05740cf94dd73ed4aa04a59a4e5872fd71a580eeb8acd5e"
+}

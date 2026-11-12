@@ -1,0 +1,69 @@
+{
+ "format": 1,
+ "id": "worley.dense.s4.f16",
+ "group": "tiles",
+ "function": "cloudgen.tiles.tileable_worley",
+ "doc": "More cells than texels (freq 16 on 4 texels): every texel center lands exactly on a cell edge (x = 4i + 2 is an integer): floor and the neighbor window must still find F1/F2 (the 3x3 window around the floor cell covers the true neighbors). The jitter grid the seed draws is the input plan0.jitter (freq, freq, 2: [row][col][x, y] offset inside the cell). Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 7.1e-15 over the seven worley cases (6.7e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute; F1 and F2 are continuous in the jitter, no tie flips.",
+ "params": {
+  "size": 4,
+  "freq": 16,
+  "seed": 6,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.worley",
+    "size": 4,
+    "freq": 16,
+    "seed": 6
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.jitter",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 4096,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 4224,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4d085eb951453f7f816b3e171c99aa6498a1fca8b906efb03615544a3d307b90"
+}

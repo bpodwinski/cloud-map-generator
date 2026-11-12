@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = ["cloud-map-generator-golden", "cloud-map-generator-core", "cloud-map-generator-gpu", "cloud-map-generator-service", "cloud-map-generator-cli", "cloud-map-generator-mcp", "cloud-map-generator-wasm"]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "MIT"
+
+[workspace.dependencies]
+serde_json = "1"
+num-traits = "0.2"
+rustfft = "6"
+# cloud-map-generator-core, behind its `rayon` feature: the multi-threaded CPU engine (off by default there so the core builds for wasm32)
+rayon = "1"
+# cloud-map-generator-cli only: the command line and the container I/O (the core stays dependency-light)
+png = "0.18"
+flate2 = "1"
+clap = { version = "4", features = ["derive"] }
+# cloud-map-generator-mcp only: the Model Context Protocol server (stdio and local streamable HTTP)
+rmcp = { version = "3.9", default-features = false, features = ["server", "transport-io", "transport-streamable-http-server"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "net", "io-std", "io-util", "signal"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+base64 = "0.22"
+
+# The golden cases run whole maps: an unoptimized build is too slow to be useful.
+[profile.dev]
+opt-level = 2
+[profile.test]
+opt-level = 2

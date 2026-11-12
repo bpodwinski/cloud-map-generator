@@ -1,0 +1,68 @@
+{
+ "format": 1,
+ "id": "surface_contrasts.odd_rows.equator",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.surface_contrasts",
+ "doc": "surface_contrasts(img, land, deck): area-weighted (cos lat, float64) means of the map over masks with |lat| < 60: land (land > 0.5, strict, in the dtype of land), ocean, 15..35 degree land and ocean, north, south, 40..60 north and south, the ocean-only north-minus-south pairs, the differences, and itcz_lat = the mean latitude of the 2.5-degree zonal-mean bands (|lat| < 20) whose mean is >= max - 0.02; with a deck: ocean 8..35 degrees under a deck (deck > 0.3) and with none (deck < 0.05), both strict, compared in the deck's own dtype (a float32 deck against 0.3 compares float32(0.3): a texel equal to it is NOT under a deck). A mask with no texel gives 0 (the 1e-12 floor). The values come back in the order of params.keys. Maps are stored u8 and divided by 255 in float32 (land and deck as Surface.load does) unless the doc says otherwise. An ODD number of rows (73 x 16, float32 map and land): the middle row sits exactly on the equator (latitude 0.0, which the code builds as pi / 2 - 36.5 (pi / 73) = 0.0 in float64: a port must get exactly 0.0 here too). That row belongs to neither north (lat > 0, strict) nor south (lat < 0, strict), nor to the pairs built from them, but it is inside |lat| < 60 and counts for land / ocean (it is bright, 1.0, and all ocean) and falls in the [0, 2.5) band of the zonal mean (>= 0 side): itcz_lat is the center of that band, 1.25. Float64 formula on float32 or float64 inputs, summed by numpy (pairwise): against exactly rounded sums it differs by 2.7e-16 relative, so 1e-9. The itcz_lat crest picks bands by a hard threshold on float32 row means; params.itcz_threshold_margin is the smallest gap between a 2.5-degree band mean and the max - 0.02 threshold, > 1e-5 (a float32 rounding is 1e-7), so the selection is stable. ",
+ "params": {
+  "keys": [
+   "land",
+   "ocean",
+   "subtropics_land",
+   "subtropics_ocean",
+   "north",
+   "south",
+   "midlat_north",
+   "midlat_south",
+   "ocean_north_minus_south",
+   "ocean_midlat_north_minus_south",
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat"
+  ],
+  "itcz_threshold_margin": 0.02
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    73,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 4672
+  },
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    73,
+    16
+   ],
+   "offset": 4672,
+   "nbytes": 4672
+  }
+ ],
+ "outputs": [
+  {
+   "name": "values",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 9344,
+   "nbytes": 120,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0b74466c230934acc35563ad5b2caaa222093a36f20131b93d7889c66e58c785"
+}

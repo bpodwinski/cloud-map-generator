@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "smoothstep.f32.cell_closed",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._smoothstep",
+ "doc": "smoothstep(a=0.03, b=0.30, x) on a float32 2-D array (the closed-cell edge ramp): a and b are weak python floats, so the arithmetic is float32 and the result float32. The sweep includes float32(a), float32(b), 0, -0 and +-1e30. Tolerance 1e-5/1e-6 (default): measured worst difference against the float64 evaluation of the same inputs 9e-8 (a chain of 6 float32 operations).",
+ "params": {
+  "a": 0.03,
+  "b": 0.3
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    7,
+    18
+   ],
+   "offset": 0,
+   "nbytes": 504
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    7,
+    18
+   ],
+   "offset": 504,
+   "nbytes": 504,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "30765dc9f60b8cd6b3f43c1c82130355d7b4d513b0062339226ae0cf406fa7b6"
+}

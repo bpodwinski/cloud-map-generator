@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "from_elevation.sea_zero",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.from_elevation",
+ "doc": "Elevation (float64 in) to land = (e > 0) and elevation = max(e, 0), both float32. The input is cast to float32 FIRST: 1e-50 is a positive float64 but rounds to 0 in float32, so it is sea; -0 and 0 are sea (strictly greater than 0 is land). Exact: one float32 conversion and a comparison.",
+ "params": {
+  "sea_level_km": 0.0,
+  "source": "basic"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_in_km",
+   "dtype": "f64",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 128,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 192,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e0558f1ede1c72315bd67d85ca690a47bf2264b17f4e3e483ffd5973f1edda9c"
+}

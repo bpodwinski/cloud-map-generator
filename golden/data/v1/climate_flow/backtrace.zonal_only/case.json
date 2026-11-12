@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "backtrace.zonal_only",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.backtrace",
+ "doc": "Back-trace (48 midpoint steps over time 1) in the default zonal flow of 322 float32 directions: pure shear, longitude displaced by the latitude-dependent rate, the poles fixed. Integrated in float64 (all the loop math is float64 whatever the input dtype), rounded to float32. Tolerance rtol 4e-5, atol 4e-6: the loop is float64, so reversing the vortex order changes nothing at float32 (0 observed); a one-ulp nudge of the float32 directions moves the output by at most 1.8e-6 over the steps and time variants (0.37 of the default band; the shear of the flow stretches the nudge a few times), tolerance 10 times that. An integration done entirely in float32 (numpy, same loop) stays inside it (max 2.2e-6), so a float32 port can be checked against this case. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "steps": 48,
+  "time": 1.0,
+  "dtype_chain": "p float32: the integration is float64 whatever the input dtype (q = p.astype(float64); velocity, normalize and the steps are float64); only the returned array is cast to float32."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    322,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 3864
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    322,
+    3
+   ],
+   "offset": 3864,
+   "nbytes": 3864,
+   "tol": {
+    "mode": "close",
+    "rtol": 4e-05,
+    "atol": 4e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b96ede5242ecd97ddd469860d7f3dbf3d001ae664361f88c1303308f2ba1d999"
+}

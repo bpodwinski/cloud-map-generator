@@ -1,0 +1,121 @@
+{
+ "format": 1,
+ "id": "surface_regime_weights.fast_rotator.hadley12",
+ "group": "products_generate",
+ "function": "cloudgen.generate.surface_regime_weights",
+ "doc": "The same fields with a Hadley edge of 12 degrees (a fast rotator): x = |lat| / 12 reaches 7.5, the deck window (0.3 .. 1.25) covers a narrow band, and everything poleward is past it. Tolerance as surface_regime_weights.earth.hadley30. Arguments: the weights (w_closed, w_open, w_street = the dict entries closed, open, street), continentality and deck_strength (the two SurfaceTerms fields the function reads; the others are not read) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does); hadley_deg is in params. Outputs closed, open, street (float32). Dtype chain to reproduce: sea = 1 - continentality and closed = w_closed sea are float32; deck = deck_window(x) deck_strength is float64 (x from the float64 latitudes); in closed + (1 - closed) deck the factor (1 - closed) is rounded to float32 BEFORE it meets the float64 deck, so closed (float64 from there on) can land a few 1e-8 above 1 and the scale (1 - closed) / rest then comes out slightly NEGATIVE (down to about -2.3e-8 on the open and street shares); the source does not clamp it and the stored outputs keep it. A float64 end-to-end port, or one that clamps the scale at 0, differs from this by at most that much (2.3e-8 on the stored cases), inside the tolerance: the negative shares are an artifact of that float32 rounding, not a contract. Measured: promoting the float32 inputs to float64 changes the output by at most 6.0e-8; one-ulp nudges of every float input and parameter change it by at most 1.4e-7 (worst of 6 random trials); the tolerance is 14x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 12.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 8192
+  },
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24576,
+   "nbytes": 8192
+  },
+  {
+   "name": "deck_strength",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 8192
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 40960,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "closed",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 41216,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "open",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 49408,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 2e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "street",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 57600,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 2e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7810458bc8b6159cb4769d23be389e13b431ca74476927aec1aa25984a0f5524"
+}

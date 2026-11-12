@@ -1,0 +1,31 @@
+[package]
+name = "cloud-map-generator-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "cloudgen: the command-line tools (gen, measure, bake, tiles, serve) of the Rust port, replacing gen.py, measure.py, bake.py, bake_tiles.py and ui/server.py"
+build = "build.rs"
+
+[[bin]]
+name = "cloud-map-generator"
+path = "src/main.rs"
+
+[features]
+# The GPU compute kernels (wgpu): `serve` probes the adapter for its capabilities and runs the `gpu` compute mode
+# on them (the service crate's feature). Default on; `--no-default-features` builds a binary without wgpu (the CPU
+# engine only).
+default = ["gpu", "rayon"]
+# Multi-threaded CPU engine (the service crate's feature, default on).
+rayon = ["cloud-map-generator-service/rayon"]
+gpu = ["cloud-map-generator-service/gpu"]
+
+[dependencies]
+cloud-map-generator-core = { path = "../cloud-map-generator-core" }
+cloud-map-generator-service = { path = "../cloud-map-generator-service", default-features = false, features = ["clap"] }
+clap = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+cloud-map-generator-golden = { path = "../cloud-map-generator-golden" }
+flate2 = { workspace = true }
+png = { workspace = true }

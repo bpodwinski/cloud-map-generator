@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "sample_equirect.patch_rgb",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "A (11, 11, 3) gnomonic patch of directions (lon pi, lat 80 degrees, half angle 14 degrees: it crosses the antimeridian AND the north pole) on a (16, 32, 3) float32 image: the leading shape of the directions is kept, the longitude wraps and the latitude clamps in the same call. float64 output, rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 6144
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    11,
+    11,
+    3
+   ],
+   "offset": 6144,
+   "nbytes": 2904
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    11,
+    11,
+    3
+   ],
+   "offset": 9048,
+   "nbytes": 2904,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e302c2c077eb7858d83cc5e9e7eea1919b9c4da93ac665899933e2539eeaddde"
+}

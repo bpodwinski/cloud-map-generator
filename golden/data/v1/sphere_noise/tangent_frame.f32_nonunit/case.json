@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "tangent_frame.f32_nonunit",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.tangent_frame",
+ "doc": "float32 centers: np.cross promotes with the float64 z axis, so the frame is float64 computed from the float32 values (outputs float64). The last three centers are NOT unit length: east is still unit (it is normalized) but north = c x east then has the length of c (2, 5, 5 here). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "center",
+   "dtype": "f32",
+   "shape": [
+    7,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 84
+  }
+ ],
+ "outputs": [
+  {
+   "name": "east",
+   "dtype": "f64",
+   "shape": [
+    7,
+    3
+   ],
+   "offset": 88,
+   "nbytes": 168,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "north",
+   "dtype": "f64",
+   "shape": [
+    7,
+    3
+   ],
+   "offset": 256,
+   "nbytes": 168,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "04327ca6b4a34326fa23a6c6d044ec2077b8b08043d36aeb5ba9c17278c890bb"
+}

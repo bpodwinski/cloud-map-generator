@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "id": "high_share.earth.hadley30",
+ "group": "products_generate",
+ "function": "cloudgen.products.high_share",
+ "doc": "The conditional high-cloud share: np.interp of the MODIS zonal table at x = |lat| / 30 (the table and the two coefficients are the constants pinned in constants.products), plus the deep-core and comma terms scaled by shield / max(coverage, 0.05). Pipeline dtypes (float64 shield and latitudes, float32 ascent clipped at 0 and 1 over a -1..1.6 field, float32 coverage), latitudes shifted 3 degrees; output float32. Tolerance is the golden float32 default. Arguments: shield, ascent, coverage and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The MODIS table and the two coefficients it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "ascent",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 8192
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 24576,
+   "nbytes": 256
+  },
+  {
+   "name": "coverage",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "16e9bb483104bf01096fbc54a65e1a886d82296f8e12937a19130dd2b842f996"
+}

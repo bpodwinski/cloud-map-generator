@@ -1,0 +1,99 @@
+{
+ "format": 1,
+ "id": "bake_tiles.flags.s32.seed3.v9",
+ "group": "tiles",
+ "function": "bake_tiles.main",
+ "doc": "Every flag NON-default (version v9, seed 3, size 32): the version reaches the folder, the file stem, the sidecar and the cdn path, the seed reaches build_tile AND the sidecar, the size reaches both, and a script that ignores a flag fails here (the s64 case, whose flags equal the defaults, cannot tell). The tile is build_tile(32, 3). bake_tiles.py is a script: function names its main() (the encodings, not an importable core), run here as __main__ with a __file__ in a temporary folder (its output root) and sys.argv = [bake_tiles.py] + params.argv (the flags are --version, --seed and --size, with the defaults v2, 1 and TILE_SIZE = 1024) and the files it wrote decoded; their compressed bytes are not frozen. Input `tile`: the (size, size, 4) uint8 tile that build_tile returned (data here, not re-derived: raw_channels and build_tile have their own cases). Outputs: rgba = the gunzipped cloud_cell_tiles_<size>_<version>.rgba.gz, RGBA8 rows in order (row 0 first, the tile has no north), 4 bytes a texel in R heaps, G closed, B open, A sheet order = tile.reshape(-1); preview = the 8-bit grey PNG decoded, (4 size, 4 size): one band of `size` rows a channel in CHANNELS order, each band = [the channel rank | the coverage mask at 0.3 | 0.5 | 0.7, as 0 or 255]; sidecar_json = the .json the script writes, as canonical JSON bytes (parsed then re-dumped with sorted keys and separators , and :, ASCII; a port compares the parsed values, the script writes indent 2 and the platform line ending); files = the sorted paths written under the output root, one a line, with / separators (output/tiles/<version>/<stem>.rgba.gz, _preview.png and .json, stem = cloud_cell_tiles_<size>_<version>); build_args = (size, seed) as bake_tiles passed them to build_tile, int64 (2,). Pure byte layout and text: exact.",
+ "params": {
+  "argv": [
+   "--version",
+   "v9",
+   "--seed",
+   "3",
+   "--size",
+   "32"
+  ],
+  "size": 32,
+  "seed": 3,
+  "version": "v9"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "tile",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgba",
+   "dtype": "u8",
+   "shape": [
+    4096
+   ],
+   "offset": 4096,
+   "nbytes": 4096,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "preview",
+   "dtype": "u8",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 8192,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "sidecar_json",
+   "dtype": "u8",
+   "shape": [
+    514
+   ],
+   "offset": 24576,
+   "nbytes": 514,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "files",
+   "dtype": "u8",
+   "shape": [
+    141
+   ],
+   "offset": 25096,
+   "nbytes": 141,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "build_args",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 25240,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2db6a60c6ede9705b64fb44a81c605abb8e3a091b5b7735be203cd6660eecd0f"
+}

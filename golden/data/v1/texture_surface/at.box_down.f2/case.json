@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "at.box_down.f2",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "128x64 pattern down to 64x32: width divides the surface width and half of it divides the height, so each output cell is the mean of a 2x2 block (float32 mean of float32 values, cast to float32). Default tolerance 1e-5/1e-6: measured worst difference against a float64 block mean 4.7e-8 (the float32 mean is a pairwise float32 sum).",
+ "params": {
+  "width": 64
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 65536,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 73728,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "16dc994a7a2da493eb9c2ced4d1647000380f5d6ca3daa156d85ab3955b21eed"
+}

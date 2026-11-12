@@ -1,0 +1,99 @@
+{
+ "format": 1,
+ "id": "wind_map.seam_vortex.minus_pi.64",
+ "group": "products_generate",
+ "function": "cloudgen.products.wind_map",
+ "doc": "A single cyclone exactly on the antimeridian (lon = -pi, lat 0.2 rad, radius 0.2, omega 3) on a body with no storm track (no zonal wind), width 64: the field is mirror-symmetric about the seam, east component of column 0 equal to that of column 63 and the north components opposite (checked exactly when the case was written), and +pi and -pi give the same map to within the 1.2e-16 of the center. Conventions as wind_map.earth.128 (float32 output computed in float64; the jet, trades and polar_easterlies of the flow are non-zero but ignored by wind_map). Tolerance is the golden float32 default: the field is computed in float64 and rounded to float32 once, so a different but equivalent float64 order of operations moves a texel by one float32 ulp at most (a port that computes in float32 throughout needs its own tolerance). The float64 intermediates are closed forms (exp, cross products, sums over the vortices): zonal rtol 1e-9 atol 1e-12, vortex_east and vortex_north rtol 1e-9 atol 1e-11 (an absolute floor in m/s for the texels where the vortices cancel). Arguments (all in params): width, hadley_deg, jet, trades, polar_easterlies, vortices (a list of {kind, lon, lat, radius, omega, ascent, age}: the Flow is rebuilt from them) and body (rotation_period_days, radius_km, gravity_mps2, scale_height_km, cloud_regime). Outputs: wind (the function result) and three intermediates that localize an error: zonal (h,), the climatological zonal profile of the grid rows in m/s (climatological_zonal_mps at the row latitudes, float64); vortex_east and vortex_north (h, w), the vortices' own flow projected on the local east and north in m/s (float64, before the zonal part is added to the east component). wind east = vortex_east + zonal[:, None] and wind north = vortex_north, cast to float32 (checked bit for bit when the case was frozen). Measured: one-ulp nudges of the float parameters change the outputs (the float32 wind and the float64 intermediates) by at most 2.5e-14 (worst of 6 random trials); the tightest tolerance band (rtol 1e-5 on the float32 wind, 1e-9 on the intermediates, with their atol) is 9.4e+04x that change.",
+ "params": {
+  "width": 64,
+  "hadley_deg": 90.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": -3.141592653589793,
+    "lat": 0.2,
+    "radius": 0.2,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   }
+  ],
+  "body": {
+   "name": "venus-like retrograde",
+   "rotation_period_days": -243.0,
+   "radius_km": 6051.8,
+   "gravity_mps2": 8.87,
+   "scale_height_km": 15.9,
+   "cloud_regime": "water"
+  }
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "zonal",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 16384,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "vortex_east",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-11
+   }
+  },
+  {
+   "name": "vortex_north",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-11
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "02ce3954d43394f1feda1f8eb65f31e0e183d48c3c01c4d8f6e317ac02499ce1"
+}

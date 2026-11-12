@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "global_mean.f64",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.global_mean",
+ "doc": "Float64 image: every sum is float64, 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    24,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 3072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 3072,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5dc8c9723dfb54763bf5cc4b2c416bba1ca3b33f1157fd4978e77f8b07eb4fd0"
+}

@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "gauss.f64.street",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._gauss",
+ "doc": "exp(-((x - mu)/s)^2) in float64 with the street weight's mu=0.55, s=0.3: a sweep including mu itself (1 exactly) and +-1e3 (underflow to 0). Closed form: 1e-9 (measured against math.exp scalars: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp)).",
+ "params": {
+  "mu": 0.55,
+  "s": 0.3
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    145
+   ],
+   "offset": 0,
+   "nbytes": 1160
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    145
+   ],
+   "offset": 1160,
+   "nbytes": 1160,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7cac2e51e2f9cfc8ed156af657cae7a0b6902b4a853f535dbf04d516020cfb2f"
+}

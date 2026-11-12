@@ -1,0 +1,87 @@
+{
+ "format": 1,
+ "id": "row_sensitivity.step0p01",
+ "group": "products_generate",
+ "function": "cloudgen.generate.row_sensitivity",
+ "doc": "sensitivity_step = 0.01 (read from GenParams, not a constant): the central difference is over +-0.01. Pipeline dtypes; the division by 0.02 sets the amplification of the float32 roundings, hence the measured tolerance. Arguments: s, fine, thr, streak and subtexel are the inputs of that name when listed; an unlisted streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads plus sensitivity_step. The floor 0.05 is a literal of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 3.9e-9; one-ulp nudges of every float input and parameter change it by at most 2.2e-7 (worst of 6 random trials); the tolerance is 18x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6,
+   "sensitivity_step": 0.01
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 8192
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "sens",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 33024,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4ddddb82d29387b0f1961db7722090a39e64de2b2b054c04c4bce229811aafd8"
+}

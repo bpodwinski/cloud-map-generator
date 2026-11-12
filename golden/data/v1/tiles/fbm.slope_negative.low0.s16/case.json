@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.slope_negative.low0.s16",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "slope -2 and low 0: a rising spectrum (amplitude = radius), and the DC mode gets the guarded radius 1e-9 instead of 0 (amplitude 1e-9, removed again by the mean). Exercises the negative exponent and the DC guard together. low <= 0 with a positive slope is NOT a case: the DC amplitude 3e13 makes the result numerically meaningless (error 8e-3). The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 16,
+  "low": 0.0,
+  "slope": -2.0,
+  "seed": 29,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 16,
+    "low": 0.0,
+    "slope": -2.0,
+    "seed": 29
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4df98508a3906ea1a4d169749c6dfbd62a11c8fde24cfb9f5405aee9df82d713"
+}

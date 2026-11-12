@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.south_pole.n9",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "The south pole: fallback east (0, 1, 0), north = (+1, 0, 0): row 0 points toward +x there. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 1.0,
+  "lat0": -1.5707963267948966,
+  "half_angle": 0.4,
+  "n": 9
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1944,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "65895bb67c6272fd9f07b6e5eef99b10ac104a1ad0a8f8763bb10e1ef3ea3896"
+}

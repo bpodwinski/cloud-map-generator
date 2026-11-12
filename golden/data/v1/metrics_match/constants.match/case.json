@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "constants.match",
+ "group": "metrics_match",
+ "function": "cloudgen.match (module constants)",
+ "doc": "QUANTILES = linspace(0.0005, 0.9995, 1024) (float64, start + k * step) and the scalars [ZONE_DEG, EARTH_CAP_DEG]. The scalars are literals of the source (close with rtol 0 and atol 0: bit-identical), 1e-12 on the quantiles (an ulp from the evaluation order).",
+ "params": {},
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "quantiles",
+   "dtype": "f64",
+   "shape": [
+    1024
+   ],
+   "offset": 0,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "scalars",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 8192,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.0
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1e294b41c496769ab56912d63ff889ce5475d25ff2cca6dd275a218d285f3ea5"
+}

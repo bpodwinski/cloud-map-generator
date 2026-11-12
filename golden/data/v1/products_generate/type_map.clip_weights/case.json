@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "type_map.clip_weights",
+ "group": "products_generate",
+ "function": "cloudgen.products.type_map",
+ "doc": "Out-of-contract weights on purpose, to take the final clip at both ends (the pipeline's weights are in [0, 1] with a sum <= 1, where it never triggers): closed = 5 pushes the cumulus level below 0, open = 3 above 1. Float64 shield 0 and 0.4, float32 weights; the clip is exact, so the tolerance is the golden float32 default. Arguments: shield, the weights (w_closed, w_open, w_street = the dict entries closed, open, street) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The four type levels and the other constants it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 1.2e-7; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is 76x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 64
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 64,
+   "nbytes": 16
+  },
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 80,
+   "nbytes": 32
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 112,
+   "nbytes": 32
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 144,
+   "nbytes": 32
+  }
+ ],
+ "outputs": [
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4
+   ],
+   "offset": 176,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "03cf23e4c3e0ac4c0f859e1976dd8b58de8b03305b452fc621bd94c439f77b55"
+}

@@ -1,0 +1,86 @@
+{
+ "format": 1,
+ "id": "orographic_anomaly.calm_lee.speed_floor",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.orographic_anomaly",
+ "doc": "Coverage anomaly of decision record 3: 0.25 tanh(w / 0.05 m/s) for the uplift, w = u dh/dx + v dh/dy from centered differences (wrap in longitude, dx = 2 pi R / w max(cos lat, 1e-3), dh/dy zero at the two pole rows), minus 0.2 x the rain shadow: the strongest uplift sampled 0.15, 0.35, 0.6 and 1.0 x 800 km upwind weighted by (1 - 0.5 frac) and by smoothstep(0.2, 1.0 km) of the descent from the upwind ground, times (1 - the local uplift). Only the elevation of the surface is read (a surface of another width than the wind is resampled by `at` first). Tolerance: the field is float64 sampling of float32 arrays and a tanh of slope 20 per m/s; measured worst difference 4.7e-8 against an all-float64 evaluation and 1.9e-7 when the elevation and the wind move by one float32 ulp: atol 2e-6, rtol 1e-5 (10x). THE WIND-SPEED FLOOR max(speed, 1e-3 m/s): a 128x64 world with a 3 km meridional ridge (gaussian of 6 degrees of longitude around longitude 0, |lat| < 65) and a wind of 10 m/s from the west up to longitude 6 degrees (the ridge and its windward side) and, on the lee side, a NEAR-CALM wind blowing toward 14.5 degrees north of east (v / speed = 0.25) whose speed is row-dependent: SPEED_FLOOR_SPEEDS[row % 8] = 3e-4, 0.995e-3, 1.005e-3, 5e-3, 5e-2, 2e-1, 5e-4, 0.7e-3 m/s (params.lee_speeds_mps). Below 1e-3 the direction vector (u, v) / speed is divided by the FLOOR, so it is shorter than a unit vector (0.3 for 3e-4: the upwind lookups move 0.3 of the 800 km); the speeds 0.995e-3 and 1.005e-3 sit 0.5 percent either side of the floor, 5e-3, 5e-2 and 2e-1 are above it. The lee rows read their upwind uplift from the ridge. Measured by mutating the floor in a scratch copy: 1e-4 changes the anomaly by up to 0.07, 1e-2 and 1e-1 by up to 0.084 (39 to 50 cells outside the tolerance), 0.99e-3 by up to 1.4e-3 (16 cells) and 1.01e-3 by up to 2.8e-3 (28 cells). The wind speed is float32 (hypot of float32 components, 0.5 percent from the floor: no rounding can cross it). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "wind_width": 128,
+  "surface_width": 128,
+  "lee_speeds_mps": [
+   0.0003,
+   0.000995,
+   0.001005,
+   0.005,
+   0.05,
+   0.2,
+   0.0005,
+   0.0007
+  ],
+  "lee_v_over_speed": 0.25,
+  "constants": {
+   "OROGRAPHIC_AMPLITUDE": 0.25,
+   "RAIN_SHADOW_AMPLITUDE": 0.2,
+   "OROGRAPHIC_W0_MPS": 0.05,
+   "RAIN_SHADOW_KM": 800.0,
+   "SHADOW_DESCENT_KM": [
+    0.2,
+    1.0
+   ],
+   "shadow_fractions": [
+    0.15,
+    0.35,
+    0.6,
+    1.0
+   ],
+   "shadow_weight_per_fraction": 0.5,
+   "dx_cos_floor": 0.001,
+   "speed_floor_mps": 0.001,
+   "backtrace_cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128,
+    2
+   ],
+   "offset": 32768,
+   "nbytes": 65536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "anomaly",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 98304,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a2b7dc2e555926b1d2fcb4798a40aaecd80530ede9f2693dee4ec8e84c124bc4"
+}

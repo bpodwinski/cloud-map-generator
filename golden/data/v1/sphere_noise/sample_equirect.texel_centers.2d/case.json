@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "sample_equirect.texel_centers.2d",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "The texel-center convention: sampling an 8x16 float32 image at the grid_dirs of its own size returns the image itself (column i is at longitude -pi + (i + 0.5) 2pi/W, row j at pi/2 - (j + 0.5) pi/H, so fx = i, fy = j exactly up to 1e-13). The output is float64 even for a float32 image. rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 512
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 512,
+   "nbytes": 3072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 3584,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "20d1607b2be1a968c0eafd1bb1ff49f7f6669912dbeac7050921a6ffc302cb64"
+}

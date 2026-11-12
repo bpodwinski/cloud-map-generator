@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.open_channel.plateau.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "The real open channel of raw_channels(32, seed 2): float64, about 2% of the texels are exact zeros (clear centers) that must share one byte, the rest distinct. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   32,
+   32
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b96f34aa423d570febaa7d54b8c192a1e100c311cb416cec552b799d18d3659f"
+}

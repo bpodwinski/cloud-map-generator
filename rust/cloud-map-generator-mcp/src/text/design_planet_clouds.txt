@@ -1,0 +1,12 @@
+Design the global cloud cover of this planet with the cloud-map-generator tools:
+
+@@DESC@@
+
+Work as a loop and show your reasoning from the numbers, not from guesses:
+
+1. Translate the description into physics: rotation period in days (negative = retrograde), radius in km, surface gravity in m/s^2, atmospheric scale height in km, and what the clouds are made of. Convert hours to days (36 h = 1.5). Start from the closest preset (list_presets) and override what differs. If the clouds are not water (methane, sulfuric acid, thin water ice), say so: the model only has Earth's cloud amount, so those need experiment=true and the result is an experiment, not a prediction.
+2. Call derive_physics with the preset and overrides. Check the Hadley edge, the storm track, the number of cyclones per hemisphere and the warnings. Fix the physics if the planet is not what was described.
+3. Call generate_map at width 512 with a fixed seed. Look at the preview, then call view_map with view='globe' from at least three viewpoints (for example lon 0 / lat 20, lon 120 / lat -35, and a pole at lat 90, the north pole seen from above) and once with product='type' or product='high_share'. To compare the cyclone sense of two planets, read derived.cyclone_spin_north / cyclone_spin_south and look at both globes from the same pole.
+4. Read the metrics rows against Earth (relative_gap, hint; rows with comparable=false need width 2048) and the zonal profile. Explain what is expected to differ from Earth for THIS planet and what is a defect. Adjust the overrides, or try match_earth / a different seed, and regenerate. Change one thing per iteration.
+5. When the map is right, generate it at a larger width with start_generation, poll get_generation until it is done, and report the id and the saved file paths (16-bit master, preview, type, high-cloud share, wind, raw south-up gzip).
+6. Finish with a short summary: the final physics, the derived numbers, three things the map does well, and the known limits that apply (call explain_model if unsure).

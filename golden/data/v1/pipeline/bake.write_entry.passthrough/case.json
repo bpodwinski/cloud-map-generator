@@ -1,0 +1,154 @@
+{
+ "format": 1,
+ "id": "bake.write_entry.passthrough",
+ "group": "pipeline",
+ "function": "bake.write_entry",
+ "doc": "One bake entry (inputs cov and extras.*), files decoded: hires = round(clip(cov) * 255) south-up (gunzipped), slice = round(box_downsample(cov, SLICE_WIDTH) * 255) (no clip: cov must be in [0, 1]), highShare = round(clip(box(high_share)) * 254), type = round(clip(box(type)) * 255), wind = encode_wind at its own grid. SLICE_WIDTH is the real 2048: the 32x64 map is narrower, so slice, highShare and type are the map itself (box_downsample returns it). The inputs are dyadic (multiples of 1/512, block means exact in float32), with blocks whose mean is a rounding tie (0.5 x 255 = 127.5 -> 128, 0.25 x 254 = 63.5 -> 64, 0.75 x 254 = 190.5 -> 190). Exact: integers. params.record is the manifest record (file names are part of the contract).",
+ "params": {
+  "slice_width": 2048,
+  "record": {
+   "seed": 7,
+   "hires": {
+    "url": "baked/v1/e_coverage_64x32.r8.gz",
+    "width": 64,
+    "height": 32
+   },
+   "slice": "baked/v1/e_coverage_2048.png",
+   "highShare": "baked/v1/e_high_share_2048.png",
+   "type": "baked/v1/e_type_2048.png",
+   "wind": "baked/v1/e_wind_16x8.png"
+  },
+  "files": {
+   "hires": "e_coverage_64x32.r8.gz",
+   "slice": "e_coverage_2048.png",
+   "highShare": "e_high_share_2048.png",
+   "type": "e_type_2048.png",
+   "wind": "e_wind_16x8.png",
+   "meta": "e.json"
+  },
+  "encoding": {
+   "hires": "R8 cloud fraction 0..255, rows SOUTH-up, gzip",
+   "slice": "gray 8-bit fraction, north-up, box downsample of hires",
+   "highShare": "gray 8-bit, conditional share above 440 hPa, 0..254 = 0..1 (255 reserved: none)",
+   "type": "gray 8-bit, 0 stratiform .. 255 convective",
+   "wind": "RGB, R east / G north, m/s = (byte - 128) x 0.5"
+  },
+  "prefix": "baked/v1",
+  "stem": "e",
+  "seed": 7
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "cov",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "extras.high_share",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "extras.type",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 8192
+  },
+  {
+   "name": "extras.wind",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    2
+   ],
+   "offset": 24576,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "hires_south_up",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 25600,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "slice",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 27648,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "high_share_png",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 29696,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "type_png",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 31744,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "wind_png",
+   "dtype": "u8",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 33792,
+   "nbytes": 384,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6c720833395e8ffee25217566d59e863526c06df83b5a16bc702a48605b258ee"
+}

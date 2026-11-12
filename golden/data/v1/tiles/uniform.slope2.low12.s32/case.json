@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "uniform.slope2.low12.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles._uniform",
+ "doc": "The same with the closed-cell texture settings (low 12, slope 2 passed explicitly). Slope 2.0. The fBm white noise is the input plan0.white. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 6.7e-16, so 1e-9 relative / 1e-10 absolute (ndtr is a contraction: its slope is at most 0.4).",
+ "params": {
+  "size": 32,
+  "low": 12.0,
+  "seed": 109,
+  "slope": 2.0,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 12.0,
+    "slope": 2.0,
+    "seed": 109
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "cd737875f450b6c045afc8c7badcc6197a1a59a16a050d9f9ab6c32b4b6aa307"
+}

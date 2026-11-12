@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "octaves_below.fragile",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.octaves_below",
+ "doc": "max_frequency set to frequency * 2.03^k computed in Python (pow): the loop compares frequency * 2.03^k < frequency * 2.03^k, which is False, so n = k (3 and 4 here). A port that raises to the power with repeated multiplication (Rust powi) instead of libm pow can round the other way and get k + 1. Tagged fragile: it pins the Python result, which depends on pow being the same function in both places. Integer output: exact.",
+ "params": {},
+ "tags": [
+  "fragile"
+ ],
+ "inputs": [
+  {
+   "name": "frequency",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  },
+  {
+   "name": "max_frequency",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 16,
+   "nbytes": 16
+  },
+  {
+   "name": "lacunarity",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 32,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "n",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 48,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5a6ae333ce8407fa30c5bdc0d1cb9782114c954f2056fe298001b0d9f14893e7"
+}

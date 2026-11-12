@@ -1,0 +1,59 @@
+{
+ "format": 1,
+ "id": "backtrace.tropical_core",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.backtrace",
+ "doc": "Back-trace through one tight tropical storm (omega 12, radius 0.05, no zonal flow) of a 25 x 25 patch covering three radii: the strongest winding the generator draws (omega 12 rad, nearly two turns at the core, with a steep shear around it). Tolerance rtol 4e-5, atol 4e-6: the loop is float64, so reversing the vortex order changes nothing at float32 (0 observed); a one-ulp nudge of the float32 directions moves the output by at most 1.8e-6 over the steps and time variants (0.37 of the default band; the shear of the flow stretches the nudge a few times), tolerance 10 times that. An integration done entirely in float32 (numpy, same loop) stays inside it (max 2.2e-6), so a float32 port can be checked against this case. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.0,
+  "trades": 0.0,
+  "polar_easterlies": 0.0,
+  "vortices": [
+   {
+    "kind": "tropical",
+    "lon": 0.4363323129985824,
+    "lat": 0.2617993877991494,
+    "radius": 0.05,
+    "omega": 12.0,
+    "ascent": 1.6,
+    "age": 1.0
+   }
+  ],
+  "steps": 48,
+  "time": 1.0,
+  "dtype_chain": "p float32: the integration is float64 whatever the input dtype (q = p.astype(float64); velocity, normalize and the steps are float64); only the returned array is cast to float32."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    625,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 7500
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    625,
+    3
+   ],
+   "offset": 7504,
+   "nbytes": 7500,
+   "tol": {
+    "mode": "close",
+    "rtol": 4e-05,
+    "atol": 4e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ab2f5c68100e40a85779bc6b94640873ff866a1918d43696ee47f3c36007a741"
+}

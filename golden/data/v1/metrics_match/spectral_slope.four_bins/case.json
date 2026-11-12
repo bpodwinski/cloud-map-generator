@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "spectral_slope.four_bins",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.spectral_slope",
+ "doc": "Log-log slope of the radially averaged power spectrum: (patch - mean) * Hann (np.hanning(n) outer itself, symmetric, 0.5 - 0.5 cos(2 pi i / (n - 1))), np.fft.fft2 (unnormalized, complex128), fftshift, |F|^2, radius r = int(hypot(x, y)) with x, y counted from n // 2 (truncation), radial[r] = mean of the power at integer radius r (np.bincount), wavelength of bin k = n * patch_px_km() / k km; bins with lo <= wavelength <= hi (inclusive) and radial > 0 enter np.polyfit(log k, log radial, 1), whose slope is returned; fewer than 4 bins give NaN. n = patch.shape[0] (square patches only). Band 50..150 km keeps exactly 4 bins on n = 32 (k = 2..5: 140.4, 93.6, 70.2, 56.2 km; k = 1 is 280.8 and k = 6 is 46.8): the smallest fit that is accepted. The whole chain is float64 (the Hann window is float64 even for a float32 patch): an independent float64 reimplementation agrees to 9e-16 with np.fft and to 1.4e-13 with an explicit DFT-matrix product (a different operation order; measured on Earth patches, noise and smooth fields), a float64 one-ulp nudge of the texels moves the slope by <= 1.7e-15; tolerance 1e-9. ",
+ "params": {
+  "lo_km": 50.0,
+  "hi_km": 150.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8192,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "46123241d3d5afbdd34ee4f44abe3becab0200b6a4ed74330a9e065fa2b52ebb"
+}

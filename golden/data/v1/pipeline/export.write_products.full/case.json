@@ -1,0 +1,102 @@
+{
+ "format": 1,
+ "id": "export.write_products.full",
+ "group": "pipeline",
+ "function": "cloudgen.export.write_products",
+ "doc": "write_products with type, high_share and wind: type = round(clip(a, 0, 1) * 255) as an L PNG, high_share the same x 254 (255 means \"none authored\" in the engine, so 1.0 maps to 254), wind an RGB PNG through encode_wind (R east, G north, B 0). The inputs are rounding ties, clip edges and infinities (see write_map); wind sits on odd quarters (128 + v / 0.5 is an exact .5). Exact: integers. params.products is the sidecar text.",
+ "params": {
+  "products": {
+   "type": "gray 8-bit, 0 = stratiform bottom type .. 255 = convective top type (weather map B)",
+   "high_share": "gray 8-bit, share of cloud with tops above 440 hPa, 0..1 x 254 (255 = none)",
+   "wind": "RGB, R east / G north, m/s = (byte - 128) x 0.5, B unused",
+   "files": {
+    "type": "case_type_24x20.png",
+    "high_share": "case_high_share_24x20.png",
+    "wind": "case_wind_20x12.png"
+   }
+  },
+  "scales": {
+   "type": 255,
+   "high_share": 254
+  },
+  "stem": "case"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 1920
+  },
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 1920,
+   "nbytes": 1920
+  },
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    12,
+    20,
+    2
+   ],
+   "offset": 3840,
+   "nbytes": 1920
+  }
+ ],
+ "outputs": [
+  {
+   "name": "type_png",
+   "dtype": "u8",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 5760,
+   "nbytes": 480,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "high_share_png",
+   "dtype": "u8",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 6240,
+   "nbytes": 480,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "wind_png",
+   "dtype": "u8",
+   "shape": [
+    12,
+    20,
+    3
+   ],
+   "offset": 6720,
+   "nbytes": 720,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0605bb4cd6bf403f69b2d9e58c0fbe0476b068cd7f97532dca8d2edf963e007a"
+}

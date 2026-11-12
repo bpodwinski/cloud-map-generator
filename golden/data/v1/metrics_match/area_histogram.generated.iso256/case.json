@@ -1,0 +1,44 @@
+{
+ "format": 1,
+ "id": "area_histogram.generated.iso256",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.area_histogram",
+ "doc": "The same histogram on an isotropic generated map (256x128, seed 42, its 8-bit preview): texels at exactly 0 and 1 fill the first bin and the closed last bin. np.histogram bins [edge_k, edge_k+1), the last bin closed, edges = linspace(0, 1, bins + 1) computed in float64 (k * (1 / bins)) and rounded to the IMAGE dtype (float32 edges for a float32 image); values outside [0, 1] are dropped; weights cos(lat) in float64, normalized by their sum. Float64 sum of weights: 1e-9. Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "bins": 10,
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 32768,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3e92de4de4e5366701f2a1f4b834c72cea55d8efcfb79c90294af2645048fd69"
+}

@@ -1,0 +1,65 @@
+{
+ "format": 1,
+ "id": "grad.all_16_branches",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise._grad",
+ "doc": "The gradient selector on h & 15: for h = 0..15 with (x, y, z) = (0.3, 0.5, 0.7) the 16 results are {+-x or +-y, +-y or +-x or +-z} per the improved-Perlin table: u = x if h < 8 else y; v = y if h < 4, x if h in {12, 14}, else z; the sign of u flips on bit 0 of h and the sign of v on bit 1. The following rows use h = 16..47 and 240..255 (the mask & 15 must wrap them) with random coordinates. One float32 addition of two selected, possibly negated inputs: bit-identical in any float32 implementation; the tolerance (1e-6 rel) is only slack for a port that computes in float64.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "h",
+   "dtype": "i32",
+   "shape": [
+    53
+   ],
+   "offset": 0,
+   "nbytes": 212
+  },
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    53
+   ],
+   "offset": 216,
+   "nbytes": 212
+  },
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    53
+   ],
+   "offset": 432,
+   "nbytes": 212
+  },
+  {
+   "name": "z",
+   "dtype": "f32",
+   "shape": [
+    53
+   ],
+   "offset": 648,
+   "nbytes": 212
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    53
+   ],
+   "offset": 864,
+   "nbytes": 212,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-07
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b26bbb0e79ac7207ffdb17d0e8af034c7ffb6c26c18ead8c89b6d5c9f4732fbc"
+}

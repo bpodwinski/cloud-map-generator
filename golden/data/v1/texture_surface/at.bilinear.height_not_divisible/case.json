@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "at.bilinear.height_not_divisible",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "A 64x30 surface (not 2:1) to width 32: 64 % 32 == 0 but 30 % 16 != 0, so the box branch is refused by its SECOND test and the bilinear branch runs, output 32x16. Default tolerance.",
+ "params": {
+  "width": 32
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    30,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 7680
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    30,
+    64
+   ],
+   "offset": 7680,
+   "nbytes": 7680
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 15360,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 17408,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2474b971ddb4aa8951ac966a5c6d55ef7f6b897c227864d9d4b4f79ab88be9b3"
+}

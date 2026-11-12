@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "earth_lat.hadley60",
+ "group": "metrics_match",
+ "function": "cloudgen.match._earth_lat",
+ "doc": "Earth-equivalent |latitude| (degrees) per row: min(|degrees(lat)| / hadley_deg * 30, 65) where 65 = EARTH_CAP_DEG - ZONE_DEG / 2 (past it the zones of Earth's ice-contaminated caps are replaced by the 62.5..67.5 zone). A slow rotator (edge at 60 degrees): the zones cover half the globe's span, none reach the cap. Rows: a 64-row grid then the poles pulled in by 1e-3 rad (|lat| = 90 would sit exactly on a zone edge for this edge), the equator, +-0.0, 1e-9, 0.5, 1.2, 1.5 rad. Float64 closed form: 1e-9.",
+ "params": {
+  "hadley_deg": 60.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "earth_lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 608,
+   "nbytes": 608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "854f781a464f1fe98744611894b4bf4406eec7e9e77de8035c7c223f20f1ea4e"
+}

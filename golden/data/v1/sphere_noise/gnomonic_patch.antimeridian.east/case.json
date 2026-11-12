@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.antimeridian.east",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Centered on lon +pi at lat 0.5 rad: the patch straddles the antimeridian, the directions are plain 3D vectors so there is no seam (x < 0 throughout, y changes sign). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 3.141592653589793,
+  "lat0": 0.5,
+  "half_angle": 0.3,
+  "n": 9
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1944,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a145fe83475f70daccf3db8fd7fd1bd6374d454386560f847b56682de6d5ad73"
+}

@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.from_1x1_to_4x2",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "Smallest coarse grid, one vector: every target sample interpolates that vector with itself and the result is the vector renormalized, everywhere (shape (2, 4, 3)); spread 7e-9, same tolerance.",
+ "params": {
+  "width": 4,
+  "height": 2
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 12
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    2,
+    4,
+    3
+   ],
+   "offset": 16,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "697aa3c15f1e4b4b410c530374ca086a017d8199686a9e5594e427d3febf432a"
+}

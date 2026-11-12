@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "gauss.f32.street",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._gauss",
+ "doc": "The same gaussian on a float32 2-D array: the whole expression is float32 (weak scalars), a float32 exp. Default tolerance 1e-5/1e-6: measured worst difference against float64 1e-7 (a float32 exp is within 1-2 ulp, and the argument carries a float32 rounding that exp amplifies by |2 arg|); +-1e3 underflows to 0 in float32 too.",
+ "params": {
+  "mu": 0.55,
+  "s": 0.3
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    6,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 576
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    6,
+    24
+   ],
+   "offset": 576,
+   "nbytes": 576,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "70018415649aefcbe8ce2d80c17c411d5c6a4be846ed37acc252e106fc40edb2"
+}

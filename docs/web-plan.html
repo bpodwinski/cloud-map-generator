@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web version plan</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1f21; --muted:#5f6368; --line:#dadce0; --card:#ffffff; --accent:#1a5fb4; --ok:#1e7b34; --warn:#9a6200; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; } }
+body { background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; margin:0; padding:24px 16px 64px; }
+main { max-width:920px; margin:0 auto; }
+h1 { font-size:1.8rem; margin:0 0 4px; } h2 { font-size:1.25rem; margin:36px 0 8px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.status { color:var(--muted); margin:0 0 24px; }
+table { border-collapse:collapse; width:100%; margin:8px 0 16px; font-size:.95rem; display:block; overflow-x:auto; }
+th, td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+th { background:var(--card); }
+code { font-family:ui-monospace, Consolas, monospace; font-size:.9em; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0; }
+.warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+<h1>Web version: GitHub Pages, the visitor's CPU and GPU</h1>
+<p class="status">Status (2026-11-12): built, not yet deployed. The site is in <code>web/</code> (<code>web/README.md</code> says how it works and what was measured): the CPU engine as a pool of Web Workers over <code>rust/cloud-map-generator-wasm</code> (a map cut in bands, equal to the one-piece map to float rounding), the GPU through <code>cloud-map-generator-gpu</code> compiled to wasm32 on wgpu's WebGPU backend, the page of <code>ui/static</code> unchanged behind an engine adapter, and <code>.github/workflows/pages.yml</code>. Driven in headed Chromium; not yet run on a fork, Safari or Firefox. Not built: the hybrid scheduler. The phases below keep their original numbering and scope (W4 here is the GPU in the browser; the scheduler stays open).</p>
+
+<h2>What it is</h2>
+<p>A static site served by GitHub Pages: no server, no upload, nothing leaves the visitor's machine. The same sober interface as the local tool (daisyUI), with the engine running in the browser: the Rust core compiled to WebAssembly on the CPU, the per-texel stages as WGSL compute shaders on the GPU (WebGPU), and a scheduler that keeps both busy.</p>
+
+<h2>Constraints that shape the design</h2>
+<table>
+<tr><th>Constraint</th><th>Consequence</th></tr>
+<tr><td>GitHub Pages is static and cannot set response headers</td><td>No cross-origin isolation, so no <code>SharedArrayBuffer</code> and no WebAssembly threads (no rayon in the browser). CPU parallelism is a pool of Web Workers, each with its own WASM instance, exchanging bands of the map by message passing (transferable buffers). No service-worker header trick is needed.</td></tr>
+<tr><td>WGSL has no float64</td><td>The GPU path is float32 end to end. It matches the CPU path within float32 tolerances and statistically, not bit for bit. The back-trace (Python integrates it in float64) is checked for accuracy in float32 first; global sums (mean and standard deviation of the synoptic field) use hierarchical reductions.</td></tr>
+<tr><td>WebGPU availability</td><td>Chromium browsers and recent Safari have it; Firefox is rolling it out <span class="warn">[unverified: check caniuse before the launch text is written]</span>. Without WebGPU the page runs the CPU path only and says so.</td></tr>
+<tr><td>Buffer and memory limits</td><td>A 4096x2048 float32 field is 32 MiB, an 8192x4096 one 128 MiB, a 16384x8192 one 512 MiB. The GPU works in row bands within the adapter's limits; the default cap is 4096 wide (8192 on desktop GPUs that report enough memory).</td></tr>
+<tr><td>One code path to test</td><td>The GPU code is Rust with <code>wgpu</code> and WGSL: the same code runs natively (Vulkan, DX12, Metal) where it is tested against the golden cases, and in the browser through wgpu's WebGPU backend. Not a second JavaScript implementation.</td></tr>
+</table>
+
+<h2>Architecture</h2>
+<table>
+<tr><th>Piece</th><th>Where</th><th>Job</th></tr>
+<tr><td>UI</td><td>main thread</td><td>the daisyUI page of <code>ui/static</code>, with an engine adapter in place of the HTTP calls (the same contract: derive, generate, results)</td></tr>
+<tr><td>Scheduler</td><td>engine worker</td><td>draws the random plans once from the seed, cuts the map into row bands, hands each band to whichever device is free (GPU queue or a CPU worker) and measures their throughput to rebalance</td></tr>
+<tr><td>CPU workers</td><td><code>hardwareConcurrency - 1</code> Web Workers</td><td>the WASM core on a band; also the stages the GPU is bad at (Poisson tiles, FFT metrics, PNG encoding), in parallel with the GPU</td></tr>
+<tr><td>GPU</td><td>WebGPU</td><td>fBm and Worley noise, flow back-trace and ascent, regime blend, compose, the per-row threshold bisection, the products</td></tr>
+</table>
+<p>Both devices consume the same plans, so a band computed by either is the same map to within float32 rounding (about 1e-6): the join between bands is invisible.</p>
+
+<h2>Phases and gates</h2>
+<table>
+<tr><th>#</th><th>Phase</th><th>Gate</th></tr>
+<tr><td>W0</td><td>Rust CPU core complete and reviewed (in progress), then native parallelism (rayon behind a feature)</td><td>all golden cases pass; timing table against Python</td></tr>
+<tr><td>W1</td><td>GPU kernels in <code>cloud-map-generator-gpu</code>: noise and flow first (the heaviest), then compose, thresholds, texture, products</td><td>each kernel against its golden cases with a documented float32 tolerance tier; GPU vs CPU field difference on the traced pipeline; a measured speedup</td></tr>
+<tr><td>W2</td><td>Full GPU pipeline <code>generate_gpu</code></td><td>statistics of 8 seeds inside the Python bands; no seam, no stripes (looked at, not assumed)</td></tr>
+<tr><td>W3</td><td><code>cloud-map-generator-wasm</code>: wasm-bindgen API (derive, band stages, plans, encoders), built by a script</td><td>golden cases run in the WASM build (node) with the same results as native</td></tr>
+<tr><td>W4</td><td>Engine worker, CPU worker pool, hybrid scheduler, adapter for the UI</td><td>same maps from CPU-only, GPU-only and hybrid runs (to float32 rounding); throughput measured per device</td></tr>
+<tr><td>W5</td><td>The page: engine adapter, capability banner (WebGPU yes/no, cores), progress per band, downloads of the PNG and R8 files generated client side</td><td>driven in a real browser with WebGPU; desktop and phone layouts; no console errors</td></tr>
+<tr><td>W6</td><td>GitHub Actions: build wasm, assemble <code>dist/</code>, deploy to Pages</td><td>the workflow green on a fork; the deployed page loads from <code>https://&lt;user&gt;.github.io/cloud-map-generator/</code></td></tr>
+</table>
+
+<h2>What stays out of the browser</h2>
+<p>The MCP server, the Python tool and the HTTP API are local tools for developers and their AI agents; the web page is the visitor-facing demo. Baking whole catalogs stays a command-line job. The web page can export the maps it generates (16-bit PNG, raw R8) so a visitor can use them anywhere.</p>
+
+<h2>Hosting notes</h2>
+<ul>
+<li>Pages needs a public repository on the free plan. The repository and the first push are the owner's call: nothing is published by the agents.</li>
+<li>No cookies, no analytics, no third-party requests except the CDN that serves daisyUI and Tailwind (vendored copies in <code>dist/</code> can replace it: decide at W5).</li>
+<li>The WASM and shader files are cache-busted by content hash in the build.</li>
+</ul>
+</main>
+</body>
+</html>

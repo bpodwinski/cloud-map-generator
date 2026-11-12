@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "at.box_down.smallest_1x2",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "The smallest result: an 8x4 pattern to width 2 (a 1x2 map): 8 % 2 == 0 and 4 % 1 == 0, a 4x4 block mean per cell. Default tolerance (measured as the other box cases).",
+ "params": {
+  "width": 2
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 128
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 128,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 256,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 264,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ff7ff745c7e401fb7f47d8de364e68afd749fa556ffe9777803df090d32d6b7c"
+}

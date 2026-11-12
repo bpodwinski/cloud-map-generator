@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "normalize.f64.ndim3",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.normalize",
+ "doc": "The same on a (3, 4, 3) array: the norm is taken along the last axis only (keepdims), so every one of the 12 vectors becomes unit length independently. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f64",
+   "shape": [
+    3,
+    4,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    3,
+    4,
+    3
+   ],
+   "offset": 288,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4a7deaa61e03444b42909637481fe458e4c2be1b3ea581fa62b76a71b5a2bc05"
+}

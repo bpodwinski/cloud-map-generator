@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "continentality.moon_synthetic64",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.continentality",
+ "doc": "The same on a 64x32 land of a 1737 km body: 170 km texels make the 300 km smoothing 1.8 px, so the field is much sharper than on Earth. Default tolerance (measured 4.2e-8). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 1737.4,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8c66bc82e8766a6c134065c579ca676e6752c80200b423f66b678f9a240f6335"
+}

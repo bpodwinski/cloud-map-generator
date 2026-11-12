@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "from_elevation.sea_level_float32_trap",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.from_elevation",
+ "doc": "sea_level_km = 0.3: e - 0.3 is computed in FLOAT32 (elevation cast first, sea level np.float32(0.3)). The float64 value 0.3 and float32(0.3) both give e - s = 0, i.e. sea, although float64(float32(0.3)) is 1.2e-8 above float64 0.3 (a float64 subtraction would call it land); the next float32 above is land. Exact.",
+ "params": {
+  "sea_level_km": 0.3,
+  "source": "raised sea"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_in_km",
+   "dtype": "f64",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 128,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 192,
+   "nbytes": 64,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "047504334004a40f1f1cf7b16db134dd004c5db15d70e09e999a92b894ddf977"
+}

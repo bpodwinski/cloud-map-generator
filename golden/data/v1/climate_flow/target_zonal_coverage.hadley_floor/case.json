@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.hadley_floor",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction of a latitude set of 1e-5 .. 10 degrees for the tiny, zero, negative, NaN and infinite Hadley edges of inputs.hadley_deg and the ITCZ shifts of inputs.itcz_shift_deg (0, +-5e-4, 2e-3 and 3.7 degrees): max(1e-3, hadley) is the divisor of x and of x_itcz and the scale (0.5 max(1e-3, hadley)) of the shift fade, three places a floor other than 1e-3 would show in, because the latitudes and the shifts are of the size of the floor (the 0.5 degree sweeps elsewhere never see it). NaN is the floor (Python max(1e-3, NaN) returns 1e-3, as Rust f64::max would), +inf gives x = 0 and a fade of 1. Output [i, j, k] is hadley[i], shift[j], lat[k]. Float64: rtol 1e-9. NaN and infinities may appear in the inputs (a rotation period None is stored as NaN) and in the outputs: NaN equals NaN, an infinity equals the same infinity (sign included).",
+ "params": {
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 0,
+   "nbytes": 312
+  },
+  {
+   "name": "hadley_deg",
+   "dtype": "f64",
+   "shape": [
+    13
+   ],
+   "offset": 312,
+   "nbytes": 104
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 416,
+   "nbytes": 40
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    13,
+    5,
+    39
+   ],
+   "offset": 456,
+   "nbytes": 20280,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "84f9d59e6655c6c55b179feb20ff03bb2fa20fcf1612debaab6ec3e10ad41b77"
+}

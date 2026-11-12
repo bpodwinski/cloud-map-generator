@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.nonfinite_shift",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction at Hadley edge 30 with a NaN, +inf and -inf ITCZ shift (inputs.itcz_shift_deg, rows in that order) on the latitudes of inputs.lat_deg: a NaN shift makes every output NaN; an infinite shift sends x_itcz to infinity, the ITCZ gaussian to 0, and the profile is the one without the ITCZ bump (finite, the same for both signs). Float64: rtol 1e-9. NaN and infinities may appear in the inputs (a rotation period None is stored as NaN) and in the outputs: NaN equals NaN, an infinity equals the same infinity (sign included).",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 64,
+   "nbytes": 24
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    3,
+    8
+   ],
+   "offset": 88,
+   "nbytes": 192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "01c22b5b9870cc9ec18f5f90c848b908a41cc2da37d2dc72584238b1170e1ecb"
+}

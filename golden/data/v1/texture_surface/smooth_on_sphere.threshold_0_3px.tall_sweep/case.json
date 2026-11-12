@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "smooth_on_sphere.threshold_0_3px.tall_sweep",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.smooth_on_sphere",
+ "doc": "Semantics a port must reproduce (verified by an independent direct convolution with no scipy: it agrees to 5.8e-8 on every smoothing case): each row is filtered along longitude with its own sigma s = min(w/4, sigma_km / (px_km max(cos lat, 1e-3))) pixels, px_km = 2 pi R / w, only when s > 0.3 (otherwise the row is copied); then every column is filtered with sigma_km / px_km. scipy gaussian_filter1d: kernel taps -r..r with r = int(4 s + 0.5), weights exp(-0.5 x^2 / s^2) normalized to sum 1, accumulated in float64 and rounded to float32 once per pass; mode \"wrap\" is periodic (indices modulo w, even when r >= w), mode \"nearest\" repeats the edge row. THE ROW-FILTER THRESHOLD `s > 0.3`, pinned from both sides: an 8-column x 2000-row random field on Earth with sigma 1494.25 km, so the row sigma s = sigma / (px_km cos lat) is 0.2988 / cos(lat): it rises from 0.2988 px at the equator through 0.3 at |lat| = 5.2 degrees to the quarter-width cap (2 px) at the poles, adjacent rows differing by about 1.4e-4 relative. Rows 939..1060 (the 122 rows with s <= 0.3, |lat| < 5.2 degrees) are COPIED, the others filtered; 94 rows have s in (0.3, 0.303] and filter, the closest row to the threshold is 7.2e-05 (relative) away from it, so float64 rounding cannot move a row across. A threshold of 0.2995, 0.3005 or 0.303 (or 0.297) filters or copies rows that this field tells apart by about 4e-3 of their neighbors (the kernel weight of one pixel at sigma 0.3 is 3.9e-3). The column pass has sigma 0.299 px (radius 1). Default tolerance: measured worst difference against the float64 direct convolution 5.8e-8. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "sigma_km": 1494.25,
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    2000,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64000
+  }
+ ],
+ "outputs": [
+  {
+   "name": "smoothed",
+   "dtype": "f32",
+   "shape": [
+    2000,
+    8
+   ],
+   "offset": 64000,
+   "nbytes": 64000,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "bf18df49fa9d01c6fb95a35bbed2df4d4c8683885e81b8cea72f663b559b4ec7"
+}

@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "type_map.tiny.1x1",
+ "group": "products_generate",
+ "function": "cloudgen.products.type_map",
+ "doc": "One texel (1, 1) at 20 degrees, Hadley 30, shield 0.5, weights (0.3, 0.2, 0.1): the smallest legal shape. Pipeline dtypes; tolerance is the golden float32 default. Arguments: shield, the weights (w_closed, w_open, w_street = the dict entries closed, open, street) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The four type levels and the other constants it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 3.0e-8; one-ulp nudges of every float input and parameter change it by at most 3.0e-8 (worst of 6 random trials); the tolerance is about 2e2x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 8
+  },
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 16,
+   "nbytes": 4
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 24,
+   "nbytes": 4
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 32,
+   "nbytes": 4
+  }
+ ],
+ "outputs": [
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 40,
+   "nbytes": 4,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fc42542533e2bc383653cb5f0fa146fb49e083722116e7948af09783439c5ef9"
+}

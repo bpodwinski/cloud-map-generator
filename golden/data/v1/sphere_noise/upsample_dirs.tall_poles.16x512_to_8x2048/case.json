@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.tall_poles.16x512_to_8x2048",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "A coarse 16x512 float32 grid (512 rows: the height of the production back-trace grid at structure_width 1024) upsampled to a tall, narrow 8x2048 target: the target grid MUST be built in float64 (grid_dirs(width, height, float64), as the function does). With a float32 target the latitude comes from arcsin of a z that is quantized at 6e-8, which is ill-conditioned in the rows just outside the pole clamp (d lat = d z / cos lat, and one coarse row is only 6e-3 rad): measured, the all-float32 target pipeline misses this output by 5.3e-04 and 6709 of 49152 components fall outside the tolerance, while a float64 pipeline without the final rounding to float32 differs by 3.0e-08 (half a float32 ulp). Tolerance 1e-5 relative + 1e-6 absolute (the golden.store default: at least 30x the float64 spread, and 300x for components near 1, and well below the float32-target error). The other upsample cases are too small to tell the two apart (their coarse grids have at most 16 rows).",
+ "params": {
+  "width": 8,
+  "height": 2048
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    512,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 98304
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    2048,
+    8,
+    3
+   ],
+   "offset": 98304,
+   "nbytes": 196608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "cdb54ded58fb87b94d45d856279a7a0a87f3fa855cd4ab286bee0162fa8e631e"
+}

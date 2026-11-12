@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.f32.array",
+ "group": "products_generate",
+ "function": "cloudgen.generate._smoothstep",
+ "doc": "Smoothstep on a float32 x (the python floats a = -1.6 and b = 0 stay weak, so the whole chain is float32), x from -3 to 3. Tolerance is the golden float32 default. Measured: promoting the float32 inputs to float64 changes the output by at most 1.1e-7; one-ulp nudges of every float input and parameter change it by at most 2.4e-7 (worst of 6 random trials); the tolerance is 23x the larger of the two spreads.",
+ "params": {
+  "a": -1.6,
+  "b": 0.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    241
+   ],
+   "offset": 0,
+   "nbytes": 964
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    241
+   ],
+   "offset": 968,
+   "nbytes": 964,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "221b2db8a9c1e1dc2367c490bb247d010343f1cdfdd009ce6b87b9f59d42ef42"
+}

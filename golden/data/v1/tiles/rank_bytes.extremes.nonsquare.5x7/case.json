@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.extremes.nonsquare.5x7",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "A non-square 5x7 field with -inf, +inf, -1e300, 1e300, and ties: -0.0 and two +0.0 are EQUAL (np.unique groups them: one mean rank shared, a total-order compare would split them) and two -3.5. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   5,
+   7
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    5,
+    7
+   ],
+   "offset": 0,
+   "nbytes": 280
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    5,
+    7
+   ],
+   "offset": 280,
+   "nbytes": 35,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3026ca23d8ea87232c73207637ed32ca3c22ab9a1eb2b077432589778c366507"
+}

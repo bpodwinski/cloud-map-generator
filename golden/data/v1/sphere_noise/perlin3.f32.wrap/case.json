@@ -1,0 +1,75 @@
+{
+ "format": 1,
+ "id": "perlin3.f32.wrap",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Perlin3.__call__",
+ "doc": "The lattice index wraps by & 255 (two's complement for negatives: -1 & 255 = 255): 80 base points with cells in 0..255 and fractions that are multiples of 1/64 (so the float32 coordinates are exact up to +-71000), repeated shifted by multiples of 256 on each axis (both signs, up to 70656), and once shifted into negative cells. Outputs are bit-identical across the three copies of a point (asserted when building the case). Same tolerance as perlin3.f32.random. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 8,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 8
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    240
+   ],
+   "offset": 0,
+   "nbytes": 960
+  },
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    240
+   ],
+   "offset": 960,
+   "nbytes": 960
+  },
+  {
+   "name": "z",
+   "dtype": "f32",
+   "shape": [
+    240
+   ],
+   "offset": 1920,
+   "nbytes": 960
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 2880,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    240
+   ],
+   "offset": 3904,
+   "nbytes": 960,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1.5e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "718fab7fd350514e1ebab983bbd7535f11677ef4980d303beb715d8adfa57734"
+}

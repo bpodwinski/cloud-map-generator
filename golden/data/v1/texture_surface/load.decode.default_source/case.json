@@ -1,0 +1,83 @@
+{
+ "format": 1,
+ "id": "load.decode.default_source",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.load",
+ "doc": "Decode of the two raw files of a bodies-file record (written to a temporary directory by the case builder, 12x5; the files hold exactly the input arrays, little-endian): land = u8 / 255 as float32, elevation = max(int16 / 1000, 0) as float32 (a float32 division by 1000, correctly rounded; -32768..32767 and 0, +-1 included, negative metres become +0). Extra record keys (dem, seaFrom) are ignored. The output `source_utf8` holds the resulting Surface.source as UTF-8 bytes (a string cannot be an output array; params.expected_source repeats it): the land file NAME (not the path) when `source` is absent: \"land.u8\". The arrays are (height, width), row 0 north. The record names the files land.u8 and elev.i16, which exist only as the input arrays land_u8 and elevation_i16: a port decodes these arrays (or writes them to files of those names in a temporary directory and calls its own load). Tolerance: a single correctly-rounded float32 division of an integer: exact.",
+ "params": {
+  "record": {
+   "width": 12,
+   "height": 5,
+   "land": "land.u8",
+   "elevation": "elev.i16",
+   "dem": "x.f16",
+   "seaFrom": "test"
+  },
+  "expected_source": "land.u8"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land_u8",
+   "dtype": "u8",
+   "shape": [
+    5,
+    12
+   ],
+   "offset": 0,
+   "nbytes": 60
+  },
+  {
+   "name": "elevation_i16",
+   "dtype": "i16",
+   "shape": [
+    5,
+    12
+   ],
+   "offset": 64,
+   "nbytes": 120
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    5,
+    12
+   ],
+   "offset": 184,
+   "nbytes": 240,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    5,
+    12
+   ],
+   "offset": 424,
+   "nbytes": 240,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "source_utf8",
+   "dtype": "u8",
+   "shape": [
+    7
+   ],
+   "offset": 664,
+   "nbytes": 7,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3fe65c07ea6a2166e1b1b56ae2b41a9a99be747cec1ab605d26e4c9efacf5eca"
+}

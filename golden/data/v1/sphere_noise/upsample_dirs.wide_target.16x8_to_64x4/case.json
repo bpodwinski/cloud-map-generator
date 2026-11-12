@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.wide_target.16x8_to_64x4",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "A target with FEWER rows than the coarse grid (16x8 -> 64x4: the north-south axis is decimated, the east-west axis upsampled): the function does not require an upsampling in both directions. Measured spread 3e-8 / 8.9e-7; same tolerance.",
+ "params": {
+  "width": 64,
+  "height": 4
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    4,
+    64,
+    3
+   ],
+   "offset": 1536,
+   "nbytes": 3072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8b70a8bed86be1e4f9abef2f970ebc6c824ef902d40ef108b5a9d7c61d0cd3ac"
+}

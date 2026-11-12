@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "resample.same_width.float64_passthrough",
+ "group": "texture_surface",
+ "function": "cloudgen.surface._resample",
+ "doc": "width equal to the array width returns the array object itself, NOT converted: a float64 input stays float64 (the other branch always returns float32). Exact.",
+ "params": {
+  "width": 64
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "593ffcb4f13c9536d2ef0556953871b70bb85bf5ac40d670829ccce46a6062af"
+}

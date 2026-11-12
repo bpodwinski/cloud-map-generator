@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.n2",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "n = 2: the four corners of the patch (linspace(-1, 1, 2) = [-1, 1]); row 0 north, column 0 west. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 0.7,
+  "lat0": 0.4,
+  "half_angle": 0.3,
+  "n": 2
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "115c87ae1df3ac5c9d293f87bf49a6b7d786daf48f515b21bebe27ab6dd5a86e"
+}

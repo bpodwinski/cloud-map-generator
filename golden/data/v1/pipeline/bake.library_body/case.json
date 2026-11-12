@@ -1,0 +1,79 @@
+{
+ "format": 1,
+ "id": "bake.library_body",
+ "group": "pipeline",
+ "function": "bake.library_body",
+ "doc": "The library bodies at the four class centers and at edge cases: below the minimum edge (5 -> clamped to 10), above the maximum (120 -> 90), a zero center (no spin: edge 90) and a negative one (retrograde: the edge uses |period|). Outputs the body (period, radius, gravity, scale height) and the Hadley edge it lands on (equal to the center inside [10, 90]). Closed-form float64: rtol 1e-9. The class table, LIBRARY_SCALE_HEIGHT_KM and SLICE_WIDTH are module constants a port reads from bake.py (params.classes).",
+ "params": {
+  "classes": [
+   [
+    0.0,
+    25.0,
+    20.0
+   ],
+   [
+    25.0,
+    35.0,
+    30.0
+   ],
+   [
+    35.0,
+    50.0,
+    42.5
+   ],
+   [
+    50.0,
+    91.0,
+    70.0
+   ]
+  ],
+  "library_scale_height_km": 11.1,
+  "slice_width": 2048,
+  "list_max_width": 8192
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "centers",
+   "dtype": "f64",
+   "shape": [
+    14
+   ],
+   "offset": 0,
+   "nbytes": 112
+  }
+ ],
+ "outputs": [
+  {
+   "name": "body",
+   "dtype": "f64",
+   "shape": [
+    14,
+    4
+   ],
+   "offset": 112,
+   "nbytes": 448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "hadley_edge_deg",
+   "dtype": "f64",
+   "shape": [
+    14
+   ],
+   "offset": 560,
+   "nbytes": 112,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "bc920ddad6f0e1ba0bc9286712d6fb8213c5558eba49f63259a9abb6ed11bbd4"
+}

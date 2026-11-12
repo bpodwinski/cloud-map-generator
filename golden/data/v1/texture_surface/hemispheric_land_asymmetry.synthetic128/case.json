@@ -1,0 +1,37 @@
+{
+ "format": 1,
+ "id": "hemispheric_land_asymmetry.synthetic128",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.hemispheric_land_asymmetry",
+ "doc": "Area-weighted (cos lat) land fraction north minus south of the synthetic 128x64 world (land is 0 or 1 there, so the float32 row means are exact). Float64 sums: 1e-9. Output `asymmetry` is 0-d: shape [] in case.json, one item of data.bin.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "asymmetry",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "bc2dac6d570d234369824ab66d7ed0bf29f94ed54f40e745626420e9c852f1a7"
+}

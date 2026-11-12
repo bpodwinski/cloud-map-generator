@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "detail_lost_2x.constant",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.detail_lost_2x",
+ "doc": "Share of the variance lost by a 2x2 box average brought back bilinearly (rows clamp, columns wrap): the image is converted to float64 first, then every step is float64 (floor, clip, bilinear lerp, population variance), so a port is within 1e-9 (numpy against exactly rounded math.fsum sums: < 5e-16 relative). A flat map (0.25, exactly representable so the variance is exactly 0 in any summation order) has no variance: the 0 branch, not 0 / 0.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    4,
+    6
+   ],
+   "offset": 0,
+   "nbytes": 96
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lost",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 96,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9da6b144fcb9f477c5c1aa0b284b61b286c76af8026b528c4ce59dce7211f471"
+}

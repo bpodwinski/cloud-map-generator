@@ -1,0 +1,786 @@
+{
+ "format": 1,
+ "id": "generate.regime_texture_off",
+ "group": "pipeline",
+ "function": "cloudgen.generate.generate",
+ "doc": "regime_texture=False with fine_billow=True: the fine texture is one fBm of billow octaves read 0.25 of the way back along the flow (no regime weights in the trace). Same seed and flow as earth.seed1.w128, so back, the noise fields, s, streak and wind are not repeated. Frozen: coverage, fine, high_share, meta.fine_octaves, meta.flow_scalars, meta.hadley_edge_deg, meta.vortex_lat_deg, meta.vortex_lon_deg, target_zonal, thr, thr_raw, type. Not frozen here, to stay inside the size budget (a function of frozen fields, or the same stage frozen in earth.seed1.w128 and the other scenarios): ascent, back, back_coarse, lat_back, mid_noise, moisture_noise, offset, s, s_raw, shield, streak, subtexel, target, wind. Every field's definition is in params.glossary, the literals of generate.py that no input carries in params.literals, and each tolerance with the largest measured difference it is 10x of in params.tolerance (float32-vs-float64 shadow pipeline and one-ulp nudges of the inputs); target_zonal and the Hadley edge are float64 closed forms. params.plans names the generate() field each recorded draw feeds, params.meta pins the sidecar dict generate() returns.",
+ "params": {
+  "body": {
+   "rotation_period_days": 0.99727,
+   "radius_km": 6371.0,
+   "gravity_mps2": 9.81,
+   "scale_height_km": 8.0,
+   "cloud_regime": "water"
+  },
+  "seed": 1,
+  "width": 128,
+  "height": 64,
+  "gen_params": {
+   "structure_width": 512,
+   "a_moisture": 1.0,
+   "a_ascent": 0.5,
+   "a_mid": 0.3,
+   "a_fine": 0.6,
+   "moisture_noise": 0.45,
+   "advect_mid": 0.6,
+   "advect_fine": 0.25,
+   "mid_frequency": 6.0,
+   "fine_frequency": 48.0,
+   "cumulus_cell_km": 1.4,
+   "fine_top": 0.95,
+   "fine_gain": 0.65,
+   "fine_billow": true,
+   "fine_min_texels": 2.0,
+   "shield_ramp": 0.35,
+   "cumulus_depth": 1.6,
+   "cumulus_max": 0.5,
+   "shield_texture": 0.3,
+   "threshold_smooth_deg": 2.0,
+   "regime_texture": false,
+   "isotropic": false,
+   "allow_any_regime": false,
+   "surface_terms": true,
+   "sensitivity_step": 0.05
+  },
+  "extras": true,
+  "has_surface": false,
+  "flow": {
+   "hadley_deg": 30.0,
+   "jet": 0.35,
+   "trades": 0.05,
+   "polar_easterlies": 0.25,
+   "n_vortices": 26,
+   "explicit": false
+  },
+  "vortex_kind_codes": {
+   "cyclone": 0,
+   "anticyclone": 1,
+   "tropical": 2
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 1798679648,
+    "stage": "permutation table of the next note (fbm): moisture_noise: fbm(back, 1.5, 3 octaves)"
+   },
+   {
+    "index": 1,
+    "kind": "fbm",
+    "seed": 2,
+    "perlin_seed": 1798679648,
+    "frequency": 1.5,
+    "octaves": 3,
+    "gain": 0.5,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 3.242464936641789,
+    "stage": "moisture_noise: fbm(back, 1.5, 3 octaves)"
+   },
+   {
+    "index": 2,
+    "kind": "perlin3",
+    "seed": 1742692732,
+    "stage": "permutation table of the next note (fbm): mid_noise: fbm(along(p, back, advect_mid), mid_frequency, 2 octaves)"
+   },
+   {
+    "index": 3,
+    "kind": "fbm",
+    "seed": 3,
+    "perlin_seed": 1742692732,
+    "frequency": 6.0,
+    "octaves": 2,
+    "gain": 0.5,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 3.3225378566118717,
+    "stage": "mid_noise: fbm(along(p, back, advect_mid), mid_frequency, 2 octaves)"
+   },
+   {
+    "index": 4,
+    "kind": "perlin3",
+    "seed": 1560023975,
+    "stage": "permutation table of the next note (fbm): fine texture: the generic fBm of regime_texture (regime_texture off: the fine fBm itself)"
+   },
+   {
+    "index": 5,
+    "kind": "fbm",
+    "seed": 4,
+    "perlin_seed": 1560023975,
+    "frequency": 9.676620539987237,
+    "octaves": 1,
+    "gain": 0.65,
+    "lacunarity": 2.03,
+    "billow": true,
+    "norm": 6.485084306095979,
+    "stage": "fine texture: the generic fBm of regime_texture (regime_texture off: the fine fBm itself)"
+   },
+   {
+    "index": 6,
+    "kind": "perlin3",
+    "seed": 1440510676,
+    "stage": "permutation table of the next note (fbm): streak: fbm(back, fine ladder, gain 0.7)"
+   },
+   {
+    "index": 7,
+    "kind": "fbm",
+    "seed": 5,
+    "perlin_seed": 1440510676,
+    "frequency": 9.676620539987237,
+    "octaves": 1,
+    "gain": 0.7,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 3.7147102526002973,
+    "stage": "streak: fbm(back, fine ladder, gain 0.7)"
+   }
+  ],
+  "subtexel": "subtexel = subtexel_white / float32(sqrt(max(1, (2 pi radius_km / width / cumulus_cell_km)^2))) when cumulus_cell_km > 0, else absent",
+  "meta_rounding": {
+   "land_fraction": 4,
+   "itcz_shift_deg": 2,
+   "anomaly_range": 3
+  },
+  "literals": {
+   "bisection": "per row, 36 halvings of the bracket [-10, 10] on t (mid = (lo + hi) / 2; the row mean of compose(s, fine, mid + offset) above the target moves lo up, else hi down); the answer is the final (lo + hi) / 2, so an unreachable target ends 10 / 2^36 inside the bound (-10 or +10).",
+   "row_sensitivity": "max((mean compose at t - e - mean compose at t + e) / (2 e), 0.05), e = GenParams.sensitivity_step, per row, at thr0 (the floor 0.05 stops a saturated row from dividing by zero).",
+   "offset": "float32(-(target_local - target[:, None]) / sensitivity[:, None])",
+   "target_clip": [
+    0.01,
+    0.99
+   ],
+   "fine_top_divisor": 0.95,
+   "regime_texture_fmax": "fmax * fine_top / 0.95, fmax = map_max_frequency(width, fine_min_texels)",
+   "threshold_smoothing": "scipy.ndimage.gaussian_filter1d(thr, sigma, mode=\"nearest\"), sigma = threshold_smooth_deg / (180 / height) rows, default truncate 4.0 (radius int(4 sigma + 0.5)), on the 1-D row vector",
+   "standardization": "s = (s_raw - s_raw.mean()) / s_raw.std() over all texels, population std (ddof 0)",
+   "fbm_seeds": "moisture seed + 1, mid seed + 2, fine (generic fBm) seed + 3, streak seed + 4, street seed + 5, cell edges seed + diameter in km (15, 30, 60, 120); sub-texel white noise default_rng(seed + 7)",
+   "back_trace": "Flow.backtrace: 48 midpoint steps over time 1 on a min(structure_width, width) x half-width grid of float64 directions, upsample_dirs to the map when that grid is narrower",
+   "wind_grid_width": "min(2 * structure_width, width) columns, half as many rows (products.wind_map)",
+   "itcz": "the target and the type and high-share latitudes use the ITCZ shift of the surface terms (0 without)",
+   "surface_used": "surface terms run when a surface is given AND surface_terms is true AND isotropic is false",
+   "extras": "type, high_share, wind exist only when generate() is given an extras dict (params.extras)"
+  },
+  "meta": {
+   "keys": [
+    "body",
+    "fine_octaves",
+    "flow",
+    "hadley_edge_deg",
+    "height",
+    "orientation",
+    "params",
+    "seconds",
+    "seed",
+    "width"
+   ],
+   "seed": 1,
+   "width": 128,
+   "height": 64,
+   "orientation": "north-up, column 0 at longitude -180, east to the right",
+   "body": {
+    "rotation_period_days": 0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   "params": {
+    "structure_width": 512,
+    "a_moisture": 1.0,
+    "a_ascent": 0.5,
+    "a_mid": 0.3,
+    "a_fine": 0.6,
+    "moisture_noise": 0.45,
+    "advect_mid": 0.6,
+    "advect_fine": 0.25,
+    "mid_frequency": 6.0,
+    "fine_frequency": 48.0,
+    "cumulus_cell_km": 1.4,
+    "fine_top": 0.95,
+    "fine_gain": 0.65,
+    "fine_billow": true,
+    "fine_min_texels": 2.0,
+    "shield_ramp": 0.35,
+    "cumulus_depth": 1.6,
+    "cumulus_max": 0.5,
+    "shield_texture": 0.3,
+    "threshold_smooth_deg": 2.0,
+    "regime_texture": false,
+    "isotropic": false,
+    "allow_any_regime": false,
+    "surface_terms": true,
+    "sensitivity_step": 0.05
+   },
+   "flow_scalars": [
+    "jet",
+    "trades",
+    "polar_easterlies"
+   ],
+   "vortex_kinds": [
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "tropical",
+    "tropical",
+    "tropical",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "cyclone",
+    "anticyclone",
+    "tropical",
+    "tropical",
+    "tropical"
+   ],
+   "vortex_fields": "meta.flow.vortices[i] = {kind, radius, omega, ascent, age} (the vortex.* inputs) + lon_deg, lat_deg (outputs meta.vortex_lon_deg and meta.vortex_lat_deg)",
+   "seconds": "wall-clock seconds, round(., 1): not frozen",
+   "rounded_not_pinned": []
+  },
+  "glossary": {
+   "fine": "fine[h, w]: the fine texture, unit variance: regime_texture (regime-weighted blend of fBm, street fBm and Worley cell edges) or, with regime_texture off, an fBm read advect_fine of the way back.",
+   "target_zonal": "target_zonal[h]: climate.target_zonal_coverage at the row latitudes (hadley edge, ITCZ shift), float64, one value per row.",
+   "thr_raw": "thr_raw[h]: the per-row threshold t with mean(compose(s, fine, t + offset)) = target, by 36-step bisection on [-10, 10], before smoothing.",
+   "thr": "thr[h]: thr_raw smoothed along the rows by gaussian_filter1d (see literals.threshold_smoothing).",
+   "coverage": "coverage[h, w]: compose(s, fine, thr[:, None] + offset, params, streak, subtexel) as float32: the generate() return value.",
+   "type": "type[h, w]: products.type_map(shield, weights, latitude of each row less the ITCZ shift, hadley), float32 in [0, 1].",
+   "high_share": "high_share[h, w]: products.high_share(shield, ascent, latitude less the ITCZ shift, hadley, coverage), float32 in [0, 1].",
+   "meta.hadley_edge_deg": "meta.hadley_edge_deg[1]: climate.hadley_edge_deg(body) as the meta dict reports it.",
+   "meta.fine_octaves": "meta.fine_octaves[1]: the octave count of the fine ladder, octave_ladder(fine_frequency, fmax, top=fine_top)[1].",
+   "meta.flow_scalars": "meta.flow_scalars[3]: meta[\"flow\"][\"jet\"], [\"trades\"], [\"polar_easterlies\"] (the Flow the scenario ran with).",
+   "meta.vortex_lon_deg": "meta.vortex_lon_deg[n]: degrees(vortex.lon), as meta[\"flow\"][\"vortices\"] lists them.",
+   "meta.vortex_lat_deg": "meta.vortex_lat_deg[n]: degrees(vortex.lat), as above."
+  },
+  "tolerance": {
+   "fine": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.002,
+    "measured_max_diff": 0.00019,
+    "why": "an fBm adds a random offset of up to 256 to a float32 position, where one float32 ulp is 3e-5: any float32 port carries about 1e-4 of noise here (a float64 port is closer, and also passes)"
+   },
+   "target_zonal": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0,
+    "why": "a float64 closed form of the rows, evaluated by the same formula: no float32 stage"
+   },
+   "thr_raw": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0005,
+    "measured_max_diff": 4e-05,
+    "why": "a 36-step bisection of a row mean of compose(): it moves with the fields above, a saturated row sits on its bracket bound exactly, and the 2-degree smoothing mixes neighbouring rows"
+   },
+   "thr": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0005,
+    "measured_max_diff": 4e-05,
+    "why": "a 36-step bisection of a row mean of compose(): it moves with the fields above, a saturated row sits on its bracket bound exactly, and the 2-degree smoothing mixes neighbouring rows"
+   },
+   "coverage": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0015,
+    "measured_max_diff": 0.000135,
+    "why": "compose() or a function of it, a float32 composition of the fields above with no hard threshold (the shield ramp is continuous), so the difference stays proportional to theirs"
+   },
+   "type": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.001,
+    "measured_max_diff": 9.7e-05,
+    "why": "compose() or a function of it, a float32 composition of the fields above with no hard threshold (the shield ramp is continuous), so the difference stays proportional to theirs"
+   },
+   "high_share": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0015,
+    "measured_max_diff": 0.00013,
+    "why": "compose() or a function of it, a float32 composition of the fields above with no hard threshold (the shield ramp is continuous), so the difference stays proportional to theirs"
+   },
+   "meta.hadley_edge_deg": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0,
+    "why": "a float64 closed form of the rows, evaluated by the same formula: no float32 stage"
+   },
+   "meta.fine_octaves": {
+    "mode": "exact",
+    "why": "an integer: exact"
+   },
+   "meta.flow_scalars": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09,
+    "why": "float64 constants of the flow"
+   },
+   "meta.vortex_lon_deg": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09,
+    "why": "a float64 closed form of the rows, evaluated by the same formula: no float32 stage"
+   },
+   "meta.vortex_lat_deg": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09,
+    "why": "a float64 closed form of the rows, evaluated by the same formula: no float32 stage"
+   }
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 0,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan1.amp",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 1024,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.freq",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 1048,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3,
+    3
+   ],
+   "offset": 1072,
+   "nbytes": 108
+  },
+  {
+   "name": "plan1.off",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 1184,
+   "nbytes": 36
+  },
+  {
+   "name": "plan2.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 1224,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan3.amp",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 2248,
+   "nbytes": 16
+  },
+  {
+   "name": "plan3.freq",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 2264,
+   "nbytes": 16
+  },
+  {
+   "name": "plan3.rot",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3,
+    3
+   ],
+   "offset": 2280,
+   "nbytes": 72
+  },
+  {
+   "name": "plan3.off",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 2352,
+   "nbytes": 24
+  },
+  {
+   "name": "plan4.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 2376,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan5.amp",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 3400,
+   "nbytes": 8
+  },
+  {
+   "name": "plan5.freq",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 3408,
+   "nbytes": 8
+  },
+  {
+   "name": "plan5.rot",
+   "dtype": "f32",
+   "shape": [
+    1,
+    3,
+    3
+   ],
+   "offset": 3416,
+   "nbytes": 36
+  },
+  {
+   "name": "plan5.off",
+   "dtype": "f32",
+   "shape": [
+    1,
+    3
+   ],
+   "offset": 3456,
+   "nbytes": 12
+  },
+  {
+   "name": "plan6.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 3472,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan7.amp",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 4496,
+   "nbytes": 8
+  },
+  {
+   "name": "plan7.freq",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 4504,
+   "nbytes": 8
+  },
+  {
+   "name": "plan7.rot",
+   "dtype": "f32",
+   "shape": [
+    1,
+    3,
+    3
+   ],
+   "offset": 4512,
+   "nbytes": 36
+  },
+  {
+   "name": "plan7.off",
+   "dtype": "f32",
+   "shape": [
+    1,
+    3
+   ],
+   "offset": 4552,
+   "nbytes": 12
+  },
+  {
+   "name": "vortex.kind",
+   "dtype": "i32",
+   "shape": [
+    26
+   ],
+   "offset": 4568,
+   "nbytes": 104
+  },
+  {
+   "name": "vortex.lon",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 4672,
+   "nbytes": 208
+  },
+  {
+   "name": "vortex.lat",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 4880,
+   "nbytes": 208
+  },
+  {
+   "name": "vortex.radius",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 5088,
+   "nbytes": 208
+  },
+  {
+   "name": "vortex.omega",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 5296,
+   "nbytes": 208
+  },
+  {
+   "name": "vortex.ascent",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 5504,
+   "nbytes": 208
+  },
+  {
+   "name": "vortex.age",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 5712,
+   "nbytes": 208
+  },
+  {
+   "name": "subtexel_white",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 5920,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 38688,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.002
+   }
+  },
+  {
+   "name": "target_zonal",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 71456,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "thr_raw",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 71968,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0005
+   }
+  },
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 72480,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0005
+   }
+  },
+  {
+   "name": "coverage",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 72992,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0015
+   }
+  },
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 105760,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.001
+   }
+  },
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 138528,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0015
+   }
+  },
+  {
+   "name": "meta.hadley_edge_deg",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 171296,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "meta.fine_octaves",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 171304,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "meta.flow_scalars",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 171312,
+   "nbytes": 24,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "meta.vortex_lon_deg",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 171336,
+   "nbytes": 208,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "meta.vortex_lat_deg",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 171544,
+   "nbytes": 208,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f86d9a897927aaa2e27834f9841fc2de8cbb2a38674eb6d87820672776afb907"
+}

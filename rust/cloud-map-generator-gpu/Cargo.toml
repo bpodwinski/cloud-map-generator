@@ -1,0 +1,29 @@
+[package]
+name = "cloud-map-generator-gpu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "WGSL compute kernels of the cloud map generator, run through wgpu (native Vulkan/DX12/Metal and browser WebGPU)"
+
+[dependencies]
+wgpu = "27"
+pollster = "0.4"
+bytemuck = { version = "1", features = ["derive"] }
+# The kernels take the CPU port's plan structs in their public API (noise: FbmPlan, CellEdgesPlan, Perlin3, Worley3).
+cloud-map-generator-core = { path = "../cloud-map-generator-core" }
+
+[dev-dependencies]
+cloud-map-generator-golden = { path = "../cloud-map-generator-golden" }
+# The test glue of tests/support_pipeline reads the golden cases' JSON parameters.
+serde_json = { workspace = true }
+
+# The browser build (wasm32): wgpu's WebGPU backend needs the page to await every GPU readback, so the few functions
+# that read the GPU back (the moments, the thresholds, the finished rows) are written once with `maybe-async`: plain
+# blocking functions natively (the `is_sync` feature strips `async` and `.await`, the code is the same as before), async
+# functions in the browser. `web-time` is `std::time::Instant` on a platform where that one panics.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+maybe-async = { version = "0.2", features = ["is_sync"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+maybe-async = "0.2"
+web-time = "1"

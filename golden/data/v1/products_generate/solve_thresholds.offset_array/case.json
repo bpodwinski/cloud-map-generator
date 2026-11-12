@@ -1,0 +1,96 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.offset_array",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "With a (h, w) float32 per-texel offset (the surface terms' anomaly over the row sensitivity): compose is evaluated at mid[:, None] + offset, a float64 sum of a float32 array. Same dtypes and tolerance reasoning as solve_thresholds.typical.128x64. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 1.7e-8; one-ulp nudges of every float input and parameter change it by at most 6.4e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 65536,
+   "nbytes": 512
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 66048,
+   "nbytes": 32768
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 98816,
+   "nbytes": 32768
+  },
+  {
+   "name": "offset",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 131584,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 164352,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "90d516c83b211c338f0a745831efe3578d6478badb55e6a3a64ead7f85dcc597"
+}

@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.window_0p25_0p65",
+ "group": "tiles",
+ "function": "cloudgen.tiles._smoothstep",
+ "doc": "_smoothstep(0.25, 0.65, x) (the open-crack window of raw_channels) over a grid that sits below the window (clipped to 0), inside it (the cubic k^2 (3 - 2k)) and above it (clipped to 1), plus x exactly at both edges and +-1e300. A float64 closed form of a few operations: 1e-9 relative, 1e-12 absolute.",
+ "params": {
+  "a": 0.25,
+  "b": 0.65
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    246
+   ],
+   "offset": 0,
+   "nbytes": 1968
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    246
+   ],
+   "offset": 1968,
+   "nbytes": 1968,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "278027671ad083ce346bc200788457b8e516929fc2b3b4f1f9a312a1c979923c"
+}

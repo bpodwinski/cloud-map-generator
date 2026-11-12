@@ -1,0 +1,62 @@
+{
+ "format": 1,
+ "id": "cell_size.closed.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.cell_size_field",
+ "doc": "Closed-cell size field (8 to 32 km, a factor 4 in size) on 64x64: values between 0.0334 and 0.1317 tile units (bounds 0.0333 and 0.1333), log-uniform and smooth. exp(log(km0/240) + (log(km1/240) - log(km0/240)) u), with u = _uniform(size, 1.0, seed) (slope 3); REFERENCE_TILE_KM = 240 is read from the source. The fBm white noise is the input plan0.white. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max relative |diff| 1.1e-15 (5.3e-15 on the 5-decade case), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 64,
+  "km": [
+   8.0,
+   32.0
+  ],
+  "seed": 102,
+  "constants": {
+   "REFERENCE_TILE_KM": 240.0,
+   "u_low": 1.0,
+   "u_slope": 3.0
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 64,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 102
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "db5bbc98be712b2fb2197dbad3e3e6bad46efa03346b517fe8143bf64e391b89"
+}

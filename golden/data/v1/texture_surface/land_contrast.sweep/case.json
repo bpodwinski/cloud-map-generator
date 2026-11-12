@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "land_contrast.sweep",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.land_contrast",
+ "doc": "Ocean-minus-land contrast over x = |lat| / phi_H from 0 to 4 (the convergence dip, the extratropical plateau, the desert dip under the highs, the fade past 2.2), the knees, a polar x of 1e6 and a negative x (the gaussians are even, the ramps clip). Constants -0.08, 0.12, 0.04 are read from the source. Float64 closed form: 1e-9 (measured against math-module scalars: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp)). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "constants": {
+   "LAND_CONTRAST_CONVERGENCE": -0.08,
+   "LAND_CONTRAST_EXTRATROPICS": 0.12,
+   "LAND_CONTRAST_DESERT": 0.04,
+   "convergence_gauss_mu_s": [
+    0.0,
+    0.3
+   ],
+   "extratropics_rise": [
+    0.35,
+    0.7
+   ],
+   "extratropics_fade": [
+    2.2,
+    2.8
+   ],
+   "desert_gauss_mu_s": [
+    0.8,
+    0.25
+   ]
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    169
+   ],
+   "offset": 0,
+   "nbytes": 1352
+  }
+ ],
+ "outputs": [
+  {
+   "name": "contrast",
+   "dtype": "f64",
+   "shape": [
+    169
+   ],
+   "offset": 1352,
+   "nbytes": 1352,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1c2ce9a941e51ebc3b2b82e3637b68f42e75e1f0f5ec5c0f252ff06522b4f16c"
+}

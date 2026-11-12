@@ -1,0 +1,62 @@
+{
+ "format": 1,
+ "id": "cell_size.wide_range.s8",
+ "group": "tiles",
+ "function": "cloudgen.tiles.cell_size_field",
+ "doc": "A huge dynamic range (1 km to 100 000 km: sizes from 0.0044 to 373 tile units, bounds 0.0042 and 417): the log/exp mapping over five decades. exp(log(km0/240) + (log(km1/240) - log(km0/240)) u), with u = _uniform(size, 1.0, seed) (slope 3); REFERENCE_TILE_KM = 240 is read from the source. The fBm white noise is the input plan0.white. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max relative |diff| 1.1e-15 (5.3e-15 on the 5-decade case), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 8,
+  "km": [
+   1.0,
+   100000.0
+  ],
+  "seed": 4,
+  "constants": {
+   "REFERENCE_TILE_KM": 240.0,
+   "u_low": 1.0,
+   "u_slope": 3.0
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 8,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 4
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 512,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "02216260a781023ad4e0f7c8dda925aca78be90f441a19c7d38a9bcde65c0317"
+}

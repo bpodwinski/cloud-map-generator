@@ -1,0 +1,121 @@
+{
+ "format": 1,
+ "id": "surface_regime_weights.tiny_rest",
+ "group": "products_generate",
+ "function": "cloudgen.generate.surface_regime_weights",
+ "doc": "The remainder rest = open + street from 9.9e-10 to 2e-3 against the room 1 - closed the decks and the land leave it, to pin the guard `rest > 1e-9` and the floor max(rest, 1e-9) of the denominator between 1e-9 and 1e-3, where an implementation with another constant (1e-6, 1e-3...) would pass every other case of this group: scale = min(1, (1 - closed) / rest) when rest > 1e-9 and 1 otherwise, so a remainder over the guard that closed leaves no room for is cut (to 0 when 1 - closed = 0) and a remainder under it is left alone. Two latitude rows (0 and 21 degrees; Hadley 30: the deck window is 0 at the equator, so closed = w_closed (1 - continentality), and exactly 1 at 21 degrees, so closed = c + (1 - c) deck_strength) share the 19 columns; column 0: rest 9.9e-10, just under the guard: scale 1; column 1: rest 1.02e-9, just over the guard: scale 0; column 2: rest 3e-9: scale 0; column 3: rest 1.5e-8 (open + street): scale 0; column 4: rest 1e-7: scale 0; column 5: rest 1e-6: scale 0; column 6: rest 1e-5: scale 0; column 7: rest 1e-4: scale 0; column 8: rest 5e-4: scale 0; column 9: rest 2e-3, over every threshold: scale 0; column 10: 1 - closed 6e-8 (1 ulp), rest 8e-8: scale 0.745; column 11: 1 - closed 1.2e-7, rest 5e-7: scale 0.238; column 12: 1 - closed 2.4e-6, rest 5e-6: scale 0.477; column 13: 1 - closed 2e-5, rest 5e-5: scale 0.399; column 14: 1 - closed 2e-4, rest 5e-4 (open 3e-4 + street 2e-4): scale 0.4; column 15: 1 - closed 1e-3, rest 1.3e-3 (just over 1e-3): scale 0.769; column 16: deck: closed 0.5 filled to 1 - 3e-8, rest 5e-8: scale 0.596 on the deck row; column 17: deck: 1 - closed 3e-9, rest 8e-9: scale 0.373 on the deck row; column 18: land: continentality 2^-13 = 1.2e-4, 1 - closed 1.2e-4, rest 2.4e-4: scale 0.508. The closed weights are exactly representable in float32 (closed = 1 - n 2^-24) and so is 1 - continentality (2^-13), so 1 - closed is exact whatever the precision; only the deck columns reach a 1 - closed under one float32 ulp, which needs closed in float64 (the dtype chain below: a float32 closed would give 0 or 6e-8 there). Oracle outputs are tiny (down to 2e-9) and several are exactly 0, so open and street are compared relatively with a 1e-12 floor: rtol 1e-5 (the golden float32 default), atol 1e-12. Tolerance experiment: the case is recomputed with every weight promoted to float64 (rest summed in float64 instead of float32, the only operation that differs); a one-ulp nudge of the inputs is NOT a valid experiment here, since it moves 1 - closed by 100% when closed is within an ulp of 1, which is the point of the case. Arguments: the weights (w_closed, w_open, w_street = the dict entries closed, open, street), continentality and deck_strength (the two SurfaceTerms fields the function reads; the others are not read) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does); hadley_deg is in params. Outputs closed, open, street (float32). Dtype chain to reproduce: sea = 1 - continentality and closed = w_closed sea are float32; deck = deck_window(x) deck_strength is float64 (x from the float64 latitudes); in closed + (1 - closed) deck the factor (1 - closed) is rounded to float32 BEFORE it meets the float64 deck, so closed (float64 from there on) can land a few 1e-8 above 1 and the scale (1 - closed) / rest then comes out slightly NEGATIVE (down to about -2.3e-8 on the open and street shares); the source does not clamp it and the stored outputs keep it. A float64 end-to-end port, or one that clamps the scale at 0, differs from this by at most that much (2.3e-8 on the stored cases), inside the tolerance: the negative shares are an artifact of that float32 rounding, not a contract. Measured: promoting every weight to float64 changes closed by 0 and the open and street shares by at most 9.1e-8 relative (5.8e-11 absolute, none moves off a zero); the tolerance (rtol 1e-5) is 110x that relative spread.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 0,
+   "nbytes": 152
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 152,
+   "nbytes": 152
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 304,
+   "nbytes": 152
+  },
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 456,
+   "nbytes": 152
+  },
+  {
+   "name": "deck_strength",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 608,
+   "nbytes": 152
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 760,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "closed",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 776,
+   "nbytes": 152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "open",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 928,
+   "nbytes": 152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "street",
+   "dtype": "f32",
+   "shape": [
+    2,
+    19
+   ],
+   "offset": 1080,
+   "nbytes": 152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "debb7df79af47db5157327266f581ac232d247cdac5d50eba9079baf33bad6ae"
+}

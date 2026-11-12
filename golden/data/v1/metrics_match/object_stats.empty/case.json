@@ -1,0 +1,65 @@
+{
+ "format": 1,
+ "id": "object_stats.empty",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.object_stats",
+ "doc": "Cloud objects of a patch: mask = patch > 0.5 (strict), scipy.ndimage.label with its default structure, 4-CONNECTIVITY (edge neighbours only: two texels that touch diagonally are two objects; no wraparound), area = texel count * patch_px_km^2 (77.0252 km^2 per texel); returns (share of the cloudy area held by objects larger than 1e5 km^2, median object area in km^2), and (0.0, 0.0) when there is no object. No object (every value exactly 0.5, and the mask is strict): the (0.0, 0.0) branch.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "stats",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 2048,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "n_objects",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 2064,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "areas_km2",
+   "dtype": "f64",
+   "shape": [
+    0
+   ],
+   "offset": 2072,
+   "nbytes": 0,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ba0bad732fdab1cb98e8eb5819f380dbd08ee0e086e53b6acdcfae36dc4a7853"
+}

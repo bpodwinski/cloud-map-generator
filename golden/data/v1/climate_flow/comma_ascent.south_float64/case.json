@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "comma_ascent.south_float64",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow._comma_ascent",
+ "doc": "The comma ascent of a southern low (lat -50, age 0.9): the poleward shift flips sign with the hemisphere. Float64: rtol 1e-9. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "vortex": {
+   "lon": 0.3490658503988659,
+   "lat": -0.8726646259971648,
+   "radius": 0.2,
+   "omega": -3.0,
+   "ascent": 1.0,
+   "age": 0.9
+  },
+  "dtype_chain": "p float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 40344
+  }
+ ],
+ "outputs": [
+  {
+   "name": "g",
+   "dtype": "f64",
+   "shape": [
+    1681
+   ],
+   "offset": 40344,
+   "nbytes": 13448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a9fe48d3ec92e6b8caf017c5931d930aac956187da25513ea3a9535e23ffa938"
+}

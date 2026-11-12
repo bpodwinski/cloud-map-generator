@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.hadley_sweep",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction for each Hadley edge of inputs.hadley_deg (10 and 90, the clamp bounds; 5; 1e-3 and 0 and -5, the max(1e-3, h) floor) and each ITCZ shift of inputs.itcz_shift_deg (0, +8, -8), on a 0.5 degree sweep. Output [i, j] is hadley[i], shift[j]. Float64: rtol 1e-9.",
+ "params": {
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 2888
+  },
+  {
+   "name": "hadley_deg",
+   "dtype": "f64",
+   "shape": [
+    9
+   ],
+   "offset": 2888,
+   "nbytes": 72
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 2960,
+   "nbytes": 24
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    9,
+    3,
+    361
+   ],
+   "offset": 2984,
+   "nbytes": 77976,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "cf7e3646b851ba3c409d85a9a6cf64c74b93bccb32046d41092c0984f352b713"
+}

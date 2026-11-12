@@ -1,0 +1,183 @@
+{
+ "format": 1,
+ "id": "velocity.stress.float32",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.velocity",
+ "doc": "The stress flow with float32 directions (pole, antimeridian and signed-zero vortices, a 0.02 and a 1.5 radius). Output float32. Tolerance rtol 1e-4, atol 1e-5: the float64-promoted computation differs by at most 3.5e-7 (0.28 of the default band), a one-ulp nudge of the directions by 1.1e-6 (0.91; the cross product next to a vortex center cancels), reversing the vortex order by 1.2e-7; tolerance 10 times the worst. Values reach 1. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 21.2,
+  "jet": 0.3,
+  "trades": 0.1,
+  "polar_easterlies": 0.0,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": 0.3,
+    "lat": 1.5707963267948966,
+    "radius": 0.2,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 0.6
+   },
+   {
+    "kind": "cyclone",
+    "lon": -1.0,
+    "lat": -1.5707963267948966,
+    "radius": 0.2,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 1.3
+   },
+   {
+    "kind": "cyclone",
+    "lon": 1.0,
+    "lat": 1.5707963267938965,
+    "radius": 0.18,
+    "omega": 3.3,
+    "ascent": 1.0,
+    "age": 1.1
+   },
+   {
+    "kind": "cyclone",
+    "lon": -2.0,
+    "lat": 1.5707953267948966,
+    "radius": 0.18,
+    "omega": 2.7,
+    "ascent": 1.0,
+    "age": 0.9
+   },
+   {
+    "kind": "cyclone",
+    "lon": 3.141592653589793,
+    "lat": 0.7853981633974483,
+    "radius": 0.2,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 1.1
+   },
+   {
+    "kind": "cyclone",
+    "lon": -3.141592653589793,
+    "lat": -0.7853981633974483,
+    "radius": 0.2,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 0.4
+   },
+   {
+    "kind": "cyclone",
+    "lon": 1.0471975511965976,
+    "lat": 0.0,
+    "radius": 0.17,
+    "omega": 2.0,
+    "ascent": 1.0,
+    "age": 0.8
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.0943951023931953,
+    "lat": -0.0,
+    "radius": 0.17,
+    "omega": -2.0,
+    "ascent": 1.0,
+    "age": 0.8
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -1.0471975511965976,
+    "lat": 0.3490658503988659,
+    "radius": 0.02,
+    "omega": -1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 1.7453292519943295,
+    "lat": -0.17453292519943295,
+    "radius": 1.5,
+    "omega": -1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -2.0943951023931953,
+    "lat": 0.5235987755982988,
+    "radius": 0.2,
+    "omega": 0.0,
+    "ascent": 1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "cyclone",
+    "lon": 0.3490658503988659,
+    "lat": 0.4363323129985824,
+    "radius": 0.2,
+    "omega": 2.5,
+    "ascent": -1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.6179938779914944,
+    "lat": 0.6981317007977318,
+    "radius": 0.2,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": 0.17453292519943295,
+    "lat": 0.2617993877991494,
+    "radius": 0.05,
+    "omega": 12.0,
+    "ascent": 1.6,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 0.17453292519943295,
+    "lat": 0.2617993877991494,
+    "radius": 0.3,
+    "omega": -1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   }
+  ],
+  "dtype_chain": "p float32: lat = arcsin(clip(p_z)) float32; zonal_rate(lat) is float64 (see zonal_rate, float32 lat) and is cast to float32; z = (0, 0, 1) float32; cross(z, p) float32; each vortex center is the float64 direction cast to float32; d2, exp and the omega weight are float32; v accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    667,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 8004
+  }
+ ],
+ "outputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    667,
+    3
+   ],
+   "offset": 8008,
+   "nbytes": 8004,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f59f7353b232265d917e447a5538636444eb244e67ec3c8754a8b60710e03fb1"
+}

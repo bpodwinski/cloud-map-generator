@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "global_mean.saturated_poles",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.global_mean",
+ "doc": "Bright polar rows (weight cos(lat) is smallest there) over a dark globe. Area-weighted mean: row means (float32 pairwise accumulation for a float32 image) weighted by cos(lat) in float64. A float64 accumulation of the same image differs by 2.3e-8 relative, so a port is within the float32 default. ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    16,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 512,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4405d0f37d8204b1e76ca3544f49a84309af9fd2e0eb225601a993baef9a6bed"
+}

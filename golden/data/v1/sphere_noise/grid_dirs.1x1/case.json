@@ -1,0 +1,34 @@
+{
+ "format": 1,
+ "id": "grid_dirs.1x1",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_dirs",
+ "doc": "Smallest legal grid, 1x1 float32: the single direction is (1, 0, 0) exactly (lon = lat = 0.0 exactly, see grid_lonlat.1x1). Absolute floor 2e-6.",
+ "params": {
+  "width": 1,
+  "height": 1,
+  "dtype": "float32"
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 12,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "480376c6bf738a0227f2bbf2b3506b7cde209152c0ba9a9077e5527169eb292e"
+}

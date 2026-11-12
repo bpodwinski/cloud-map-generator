@@ -1,0 +1,8 @@
+Bake the cloud maps of a set of bodies for a renderer that loads files and never runs the generator.
+
+Bodies file: @@PATH@@
+
+1. The file must sit inside the server's output folder (its path is output_folder in list_presets) or a directory given with --read-dir. Its format is JSON: {"bodies": [{"key", "rotationPeriodDays", "radiusKm", "gravityMps2", "scaleHeightKm", "cloudRegime", "measured" (true = skip, a real map exists), "surface" (optional land and relief grids)}]}, camelCase (the resource cloud-map-generator://docs/bodies-format has the full format). At most 32 bodies. Only water-cloud bodies are baked; the others are skipped. Without land and relief grids you can also pass the same bodies inline to bake_bodies (bodies=[...], snake_case keys).
+2. For each body, call derive_physics with its numbers first and report any warning. Generate one body at width 512 with generate_map and look at it (view_map) before committing to a long bake.
+3. Call bake_bodies with the file, a version label (for example "v1") and, if the paths in the manifest must start with a URL prefix (the folder your files will be served from), url_prefix. The defaults are small (1024 px, one seed per climate class): a quick draft. When the draft is right, repeat with list_width=2048 or 4096 and k=4 (4096 needs the server to run with --max-width 4096 and takes minutes per map).
+4. Report the manifest (list entries per body, library classes by Hadley edge), the folder that holds the files, the encodings (16-bit north-up master, raw R8 gzip with rows SOUTH-up, cloud type, high-cloud share, wind) and what the renderer needs to load. Measure a few baked coverage PNGs with measure_map and report anything far from Earth.

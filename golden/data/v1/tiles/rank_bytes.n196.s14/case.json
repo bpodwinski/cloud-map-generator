@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.n196.s14",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "n = 196 distinct values: here rank * (256 / 196) is off by one from floor(rank * 256 / 196) at 3 ranks (float rounding of the pre-divided factor). A port must multiply first (rank * 256) then divide, or use integer arithmetic floor(256 rank / n); the case fails the other order. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   14,
+   14
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    14,
+    14
+   ],
+   "offset": 0,
+   "nbytes": 1568
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    14,
+    14
+   ],
+   "offset": 1568,
+   "nbytes": 196,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "07f5049f35874fc251562a22a556e41f99e8665801e259b12278fbd190966370"
+}

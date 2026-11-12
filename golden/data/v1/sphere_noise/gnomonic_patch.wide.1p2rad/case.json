@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.wide.1p2rad",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "A wide patch, half angle 1.2 rad (tan = 2.57): the edge midpoints are 1.2 rad from the center and the corners 1.30 rad; directions are renormalized from the tangent plane, so the samples bunch toward the corners. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 1.0,
+  "lat0": -0.7,
+  "half_angle": 1.2,
+  "n": 9
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1944,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "235ab5a1e411a4bb9a0733da2b091be16c2627b3c36bec90cfa880e75c66809b"
+}

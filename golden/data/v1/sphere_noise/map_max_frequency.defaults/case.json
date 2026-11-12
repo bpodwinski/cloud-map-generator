@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "map_max_frequency.defaults",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.map_max_frequency",
+ "doc": "The function called WITHOUT min_texels: the Python default 4.0 (4 texels per wavelength at the equator), so fmax = width / (8 pi): widths 0 (gives 0), 1, 7, 64, 256, 512, 1000, 4096, 8192, 16384, 65536 and 1e9. A default of 3 or 2 changes every nonzero row by 33% or 100%. Closed-form float64: rtol 1e-9.",
+ "params": {
+  "omitted_arguments": [
+   "min_texels"
+  ],
+  "defaults": {
+   "min_texels": 4.0
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "width",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 0,
+   "nbytes": 96
+  }
+ ],
+ "outputs": [
+  {
+   "name": "fmax",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 96,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4d19bd8c80e01047ef2fa2f9ab316457a7c9c7362ad8112407f9045af7b006cd"
+}

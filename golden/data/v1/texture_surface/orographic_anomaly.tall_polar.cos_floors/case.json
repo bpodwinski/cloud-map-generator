@@ -1,0 +1,75 @@
+{
+ "format": 1,
+ "id": "orographic_anomaly.tall_polar.cos_floors",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.orographic_anomaly",
+ "doc": "Coverage anomaly of decision record 3: 0.25 tanh(w / 0.05 m/s) for the uplift, w = u dh/dx + v dh/dy from centered differences (wrap in longitude, dx = 2 pi R / w max(cos lat, 1e-3), dh/dy zero at the two pole rows), minus 0.2 x the rain shadow: the strongest uplift sampled 0.15, 0.35, 0.6 and 1.0 x 800 km upwind weighted by (1 - 0.5 frac) and by smoothstep(0.2, 1.0 km) of the descent from the upwind ground, times (1 - the local uplift). Only the elevation of the surface is read (a surface of another width than the wind is resampled by `at` first). Tolerance: the field is float64 sampling of float32 arrays and a tanh of slope 20 per m/s; measured worst difference 4.7e-8 against an all-float64 evaluation and 1.9e-7 when the elevation and the wind move by one float32 ulp: atol 2e-6, rtol 1e-5 (10x). THE TWO cos(lat) FLOORS of 1e-3 (dx_km and the longitude of the back-trace): an 8-column x 1600-row field (1600 > 1570 rows, so cos(lat) of the pole rows is 9.8e-4 < 1e-3: the floor binds on the first and the last row, and rows 1..4 from each pole have cos(lat) between 2.9e-3 and 1e-2). The elevation depends on longitude only (0.55 km (1 + sin(2 pi 2 (j + 0.3) / 8))) and the wind is a uniform weak (0.2, 0.05) m/s, so that w = u dh/dx stays inside the unsaturated part of the tanh where dx_km is a few km (a strong wind would saturate the uplift to 1 and hide the dx floor). The longitude of the upwind point is shifted by d frac / cos(lat) = 18 to 125 rad at the pole rows (wrapping the 8 columns many times): the case is as sensitive to it as to the first. Measured by mutating each floor in a scratch copy: dx floor 1.01e-3 or 0.99e-3 changes the anomaly by up to 8.5e-4, 1e-2 by 8e-2, removed by 1.6e-3; back-trace floor 1e-2 by 1.3e-2, 1.01e-3 by 6e-3, 0.99e-3 by 2e-3, removed by 4e-3. dh/dy is zero (the elevation is constant along a meridian). The surface is not 2:1 (the case is on the wind grid: `at` returns it unchanged). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "wind_width": 8,
+  "surface_width": 8,
+  "constants": {
+   "OROGRAPHIC_AMPLITUDE": 0.25,
+   "RAIN_SHADOW_AMPLITUDE": 0.2,
+   "OROGRAPHIC_W0_MPS": 0.05,
+   "RAIN_SHADOW_KM": 800.0,
+   "SHADOW_DESCENT_KM": [
+    0.2,
+    1.0
+   ],
+   "shadow_fractions": [
+    0.15,
+    0.35,
+    0.6,
+    1.0
+   ],
+   "shadow_weight_per_fraction": 0.5,
+   "dx_cos_floor": 0.001,
+   "speed_floor_mps": 0.001,
+   "backtrace_cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    1600,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 51200
+  },
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    1600,
+    8,
+    2
+   ],
+   "offset": 51200,
+   "nbytes": 102400
+  }
+ ],
+ "outputs": [
+  {
+   "name": "anomaly",
+   "dtype": "f32",
+   "shape": [
+    1600,
+    8
+   ],
+   "offset": 153600,
+   "nbytes": 51200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a6b868fee209406a711147a843dc908c928ef64bfec49de8e8698cea2ab27006"
+}

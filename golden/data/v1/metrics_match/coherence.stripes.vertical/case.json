@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "coherence.stripes.vertical",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. Parallel vertical bands: gy = 0, so the tensor is rank one and the coherence is 1 (to rounding). Float64 chain with no data-dependent branch: an independent float64 reimplementation (explicit reflect-padded kernel sums) agrees to 2.2e-16, a float64 one-ulp nudge of every texel moves the value by <= 4.4e-16; tolerance 1e-9. ",
+ "params": {
+  "sigma": 4.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8192,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7567b4c5a9bb6e78587fa284bd47f16ab70b4dbfb9bc166e4c3daac1fb9d65ad"
+}

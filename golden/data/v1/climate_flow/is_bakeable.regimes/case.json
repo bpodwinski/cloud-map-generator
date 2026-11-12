@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "is_bakeable.regimes",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.is_bakeable",
+ "doc": "is_bakeable on the cloud_regime strings of params.regimes (one body, only the regime varies): true for the exact string \"water\" only; a different case, a trailing or leading space, an empty string or a prefix is false. Boolean, exact.",
+ "params": {
+  "regimes": [
+   "water",
+   "thin water ice",
+   "methane",
+   "sulfuric acid",
+   "Water",
+   "water ",
+   " water",
+   "WATER",
+   "",
+   "water-ice",
+   "wat"
+  ]
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "bakeable",
+   "dtype": "bool",
+   "shape": [
+    11
+   ],
+   "offset": 0,
+   "nbytes": 11,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fd1b99579c88a4f533613a38dd643f7bd7e6cf97feeac1c95a0d90e68d7ae3db"
+}

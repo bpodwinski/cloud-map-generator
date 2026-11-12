@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.s2.low_half",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "size 2 (k = [0, -1]): the DC mode is dropped (0 < 0.5), the three others pass: the smallest nonzero field, a 2x2 checkerboard-like pattern at the Nyquist radii 1, 1 and 1.41. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 2,
+  "low": 0.5,
+  "slope": 3.0,
+  "seed": 27,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 2,
+    "low": 0.5,
+    "slope": 3.0,
+    "seed": 27
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 32
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 32,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0dd114c2c82456fd2c3bc368c7500f676eaeeeec806bfa87e43d72857bf650b1"
+}

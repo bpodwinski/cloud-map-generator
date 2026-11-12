@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.low_on_ring.s16",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "low = 5.0 on size 16: the modes (3, 4), (4, 3), (5, 0) and their signs have radius exactly 5.0 (hypot of integers is exact), and `kk >= low` keeps them: the cut is inclusive. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 16,
+  "low": 5.0,
+  "slope": 3.0,
+  "seed": 23,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 16,
+    "low": 5.0,
+    "slope": 3.0,
+    "seed": 23
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "68c4c0308242c193299d2858678e6cc8a71a5261d1729def4f8d5bcd769d3a00"
+}

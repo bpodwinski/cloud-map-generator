@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "continentality.clip_bounds",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.continentality",
+ "doc": "A land field outside [0, 1] (1.5 in the northern half, -0.5 in the southern: not a real land fraction, chosen to engage both clips): the smoothing keeps 1.5 and -0.5 away from the boundary, and the clip returns exactly 1.0 and 0.0 there. A constant 1 or 0 field smooths to exactly itself, so only an out-of-range field shows the clip. Default tolerance (the clip makes the interior exact). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "07521da1ea208ab69b75796e788689c74d0fd0b28baaa900313842c37d840f4a"
+}

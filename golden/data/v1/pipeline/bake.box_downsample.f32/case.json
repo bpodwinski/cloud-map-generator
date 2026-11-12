@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "bake.box_downsample.f32",
+ "group": "pipeline",
+ "function": "bake.box_downsample",
+ "doc": "Box average of a 64x128 float32 map to width 32 (factor 4 -> 16x32). The mean stays float32. float32 mean of 16 values: rtol 1e-6.",
+ "params": {
+  "width": 32
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 32768,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-07
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0bf4f31cb4a8eeb75078e04b034364860afe9e3c2ba293404a9ae3ebcf88a0bf"
+}

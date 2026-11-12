@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "ndtr.grid",
+ "group": "tiles",
+ "function": "scipy.special.ndtr",
+ "doc": "The normal CDF that _uniform applies to a unit fBm: x from -8.5 to 8.5, and far tails down to -37 (5.7e-300) where 1 - 0.5 erfc(x / sqrt 2) would lose everything: a port must use the erfc form for negative x. Only the main range |x| < 5 matters to the tiles (the fBm is unit variance); the tails pin the erfc. scipy returns an accurate-to-the-ulp value, so 1e-9 relative with an absolute floor of 1e-300 (the tail is compared relatively).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    348
+   ],
+   "offset": 0,
+   "nbytes": 2784
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    348
+   ],
+   "offset": 2784,
+   "nbytes": 2784,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-300
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9f14bae0d62d11e00a92fa25d9c8d3b01bfd8c1c097431ce5ebcc824a286d892"
+}

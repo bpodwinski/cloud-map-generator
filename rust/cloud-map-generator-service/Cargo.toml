@@ -1,0 +1,27 @@
+[package]
+name = "cloud-map-generator-service"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "The engine-facing layer of cloud-map-generator shared by `cloud-map-generator serve` and `cloud-map-generator-mcp`: presets, physics limits, derive, generation over the CPU and GPU engines, metrics, result files"
+
+[features]
+# The GPU compute kernels (wgpu): the probe, the engine and its slot. Default on; `--no-default-features` builds
+# the CPU engine only, with no wgpu in the build.
+default = ["gpu", "rayon"]
+# Multi-threaded CPU engine: the core's `rayon` feature (default on).
+rayon = ["cloud-map-generator-core/rayon"]
+gpu = ["dep:cloud-map-generator-gpu"]
+# `TestBody` as a `clap` value enum, for the command line.
+clap = ["dep:clap"]
+
+[dependencies]
+cloud-map-generator-core = { path = "../cloud-map-generator-core" }
+cloud-map-generator-gpu = { path = "../cloud-map-generator-gpu", optional = true }
+clap = { workspace = true, optional = true }
+flate2 = { workspace = true }
+png = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+cloud-map-generator-golden = { path = "../cloud-map-generator-golden" }

@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "random_rotation.recorded_orthonormal",
+ "group": "sphere_noise",
+ "function": "property.cloudgen.noise._random_rotation",
+ "doc": "A PROPERTY case (it never calls _random_rotation: the function field has the prefix property.; a port checks its own drawn rotations against the same two outputs). The 48 octave rotations recorded from two fbm calls (24 octaves each, seeds 101 and 102; float32, the inputs) are orthonormal with determinant +1: rot rot^T equals the identity and det(rot) = 1, both computed here in float64 from the float32 matrices (so they deviate by the float32 rounding: 7.3e-8 in the Gram matrix, 6.9e-8 in the determinant; the expected outputs are the identity and 1 to within 1e-6). A port that draws its own rotations must satisfy the same two outputs on them.",
+ "params": {
+  "kind": "property",
+  "source": "plan1.rot of two 24-octave fbm calls (seeds 101, 102), concatenated",
+  "checks": "rot @ rot^T == I (3x3) and det(rot) == 1, per matrix, computed in float64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rot",
+   "dtype": "f32",
+   "shape": [
+    48,
+    3,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1728
+  }
+ ],
+ "outputs": [
+  {
+   "name": "gram",
+   "dtype": "f64",
+   "shape": [
+    48,
+    3,
+    3
+   ],
+   "offset": 1728,
+   "nbytes": 3456,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "det",
+   "dtype": "f64",
+   "shape": [
+    48
+   ],
+   "offset": 5184,
+   "nbytes": 384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7db2117ef207ddc52f3e79cd24685e34e9e2bb8ea7d45f28c2cd9ba5d9b4c5f9"
+}

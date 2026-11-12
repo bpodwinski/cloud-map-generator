@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "spectral_slope.tiny8.nan",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.spectral_slope",
+ "doc": "Log-log slope of the radially averaged power spectrum: (patch - mean) * Hann (np.hanning(n) outer itself, symmetric, 0.5 - 0.5 cos(2 pi i / (n - 1))), np.fft.fft2 (unnormalized, complex128), fftshift, |F|^2, radius r = int(hypot(x, y)) with x, y counted from n // 2 (truncation), radial[r] = mean of the power at integer radius r (np.bincount), wavelength of bin k = n * patch_px_km() / k km; bins with lo <= wavelength <= hi (inclusive) and radial > 0 enter np.polyfit(log k, log radial, 1), whose slope is returned; fewer than 4 bins give NaN. n = patch.shape[0] (square patches only). n = 8: only k = 1 has a wavelength in 40..400 km (70 / k), NaN.",
+ "params": {
+  "lo_km": 40.0,
+  "hi_km": 400.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 512,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ce7deb21b0a1f81f6f5bff766719d7b60bac8943401e5d2ccbd53533ab546187"
+}

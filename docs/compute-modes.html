@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Compute modes</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1f21; --muted:#5f6368; --line:#dadce0; --card:#ffffff; --code-bg:#f3f4f6; --accent:#1a5fb4; --ok:#1e7b34; --warn:#9a6200; --bad:#b3261e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --code-bg:#23272c; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; --bad:#f2958e; } }
+:root[data-theme="dark"] { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --code-bg:#23272c; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; --bad:#f2958e; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; margin:0; padding:24px 16px 80px; }
+main { max-width:960px; margin:0 auto; }
+h1 { font-size:1.8rem; margin:0 0 4px; }
+h2 { font-size:1.25rem; margin:40px 0 8px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+h3 { font-size:1.05rem; margin:24px 0 6px; }
+a { color:var(--accent); }
+.status { color:var(--muted); margin:0 0 24px; }
+table { border-collapse:collapse; width:100%; margin:8px 0 16px; font-size:.93rem; display:block; overflow-x:auto; }
+th, td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+th { background:var(--card); }
+code { font-family:ui-monospace, Consolas, "SFMono-Regular", monospace; font-size:.9em; }
+pre { background:var(--code-bg); border:1px solid var(--line); border-radius:6px; padding:10px 14px; overflow-x:auto; font-size:.86rem; line-height:1.45; margin:8px 0 16px; }
+pre code { font-size:inherit; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0; }
+.card p { margin:6px 0; }
+.ok { color:var(--ok); } .warn { color:var(--warn); } .bad { color:var(--bad); }
+.toc { columns:2; column-gap:32px; padding-left:20px; margin:8px 0 0; }
+.toc li { break-inside:avoid; margin:2px 0; }
+ul.check { list-style:none; padding-left:0; }
+ul.check li { padding-left:26px; position:relative; margin:5px 0; }
+ul.check li::before { content:"\2610"; position:absolute; left:0; color:var(--muted); }
+.note { color:var(--muted); font-size:.92rem; }
+@media (max-width: 640px) { .toc { columns:1; } body { padding:16px 16px 64px; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Compute modes: choosing CPU or GPU</h1>
+<p class="status">Status (2026-11-12): the contract. The Rust native engine (CPU and GPU) implements it end to end (service layer, local web API, MCP server); the Python reference engine it was ported from is kept in the git tag <code>python-reference</code>. The WebAssembly engine is built against this page: it says what each must advertise, accept and report, and how to test it. Where an engine and this page disagree, the engine has a bug or this page needs a reviewed change.</p>
+
+<ol class="toc">
+<li><a href="#why">Why a contract</a></li>
+<li><a href="#modes">The four modes</a></li>
+<li><a href="#rules">The rules</a></li>
+<li><a href="#capabilities">Capabilities</a></li>
+<li><a href="#request">The request</a></li>
+<li><a href="#response">The response: what was used</a></li>
+<li><a href="#interface">Interface rules</a></li>
+<li><a href="#checklist">Engine implementation checklist</a></li>
+<li><a href="#hybrid">Hybrid: how bands are scheduled</a></li>
+<li><a href="#measure">Measuring each device</a></li>
+<li><a href="#parity">Float32 parity</a></li>
+<li><a href="#tests">Conformance tests</a></li>
+<li><a href="#reference">Reference implementation</a></li>
+<li><a href="#decisions">Decisions beyond the contract</a></li>
+</ol>
+
+<h2 id="why">Why a contract</h2>
+<p>There will be three engines behind one set of front ends: the Python reference (one CPU thread), a Rust native engine (every CPU core, and a GPU through wgpu), and a WebAssembly build for a static site (a pool of Web Workers, and the visitor's GPU through WebGPU). The owner wants to choose, in the interface, whether a map is computed on the CPU or the GPU. Four front ends need the same answer to the same questions: the web page, the local HTTP API, the MCP server (for AI agents) and, later, the command line. So the vocabulary, the validation, the discovery of what is available and the report of what was used are fixed here once, and every engine implements them.</p>
+<p>Today only the Python engine exists, so the GPU modes are listed but refused, with the reason. Nothing in a front end changes when an engine starts to offer them: only what <code>capabilities</code> says.</p>
+
+<h2 id="modes">The four modes</h2>
+<p>The key is the wire value: it is what <code>options.compute</code>, the <code>compute</code> tool argument and the <code>compute</code> field of every result carry. It is lowercase, exactly these four strings, in this order wherever they are listed.</p>
+<table>
+<tr><th>Key</th><th>Label</th><th>Meaning</th><th>Python engine</th><th>Rust native engine</th><th>WASM engine</th></tr>
+<tr><td><code>auto</code> (default)</td><td>Auto</td><td>The engine picks by capability and size: the GPU when one is available and the map is large enough for the upload to pay (the engine decides), else the CPU. Never fails for lack of a device.</td><td>Always the CPU, no note</td><td>GPU or CPU, with a note saying which and why</td><td>Same, in the browser</td></tr>
+<tr><td><code>cpu</code></td><td>CPU</td><td>Every stage on the CPU.</td><td>One thread</td><td>All cores (a thread pool)</td><td>A pool of Web Workers</td></tr>
+<tr><td><code>gpu</code></td><td>GPU</td><td>The per-texel stages (noise, flow back-trace and ascent, regime blend, compose, the per-row threshold solve) on the GPU, in float32. The stages that suit the CPU badly (random plan drawing, Poisson tiles, FFT metrics, file encoding) stay on the CPU. The map equals the CPU map to float32 rounding and statistically, not bit for bit.</td><td>Not available</td><td>WGSL compute through wgpu (Vulkan, DX12, Metal)</td><td>The same WGSL through WebGPU</td></tr>
+<tr><td><code>hybrid</code></td><td>CPU + GPU</td><td>The map is cut in row bands and each band goes to whichever of the GPU queue or a CPU worker is free; measured throughput rebalances. Only offered when both a GPU and more than one CPU thread exist.</td><td>Not available</td><td>GPU plus the thread pool</td><td>WebGPU plus the workers</td></tr>
+</table>
+<p class="note">The per-texel stages are about 90 percent of the Python time (see <code>port-plan.html</code>), which is why they are the ones that move to the GPU. <code>match_earth</code>, the metrics against Earth and the file encoding are CPU stages in every mode.</p>
+
+<h2 id="rules">The rules</h2>
+<p>These bind every engine, API, interface and tool. Each has a test in <a href="#tests">the conformance list</a>.</p>
+<ol>
+<li><strong>No silent fallback.</strong> An explicit mode that is not available is an error. It names the reason and what to do instead (HTTP 400, a service error, a tool error). The engine never answers a <code>gpu</code> request with a CPU map.</li>
+<li><strong><code>auto</code> never fails for lack of a device.</strong> It is the one mode that picks for itself, so it is always available and never raises the "no GPU" error.</li>
+<li><strong>The reply always says what was used.</strong> Every successful generate answer carries the <code>compute</code> block: what was requested, what ran, which devices, how long each worked and what share of the work each did.</li>
+<li><strong>Validate first.</strong> The mode is checked before any stage runs and before any file or result is created: a refused request costs nothing and leaves nothing behind.</li>
+<li><strong>Compute is not part of the map.</strong> It is not one of the options of the map, so it is not in the result's <code>options</code> record or in the sidecar's <code>options</code>. The same inputs and seed make the same map on any device, to the tolerance of the <a href="#parity">parity statement</a>.</li>
+<li><strong>Reasons are for acting.</strong> A refusal says what is missing, why, and which mode or engine to use (a reader may be an AI agent that cannot see the code).</li>
+<li><strong>Advertise only what runs now.</strong> A mode is <code>available</code> when the engine has just verified it can run it on this machine: an adapter was found, it passed the probe, the kernels compiled. Never on the hope that it will work.</li>
+<li><strong>Account truthfully.</strong> Shares and seconds come from the work really done, measured, not from the plan.</li>
+</ol>
+
+<h2 id="capabilities">Capabilities</h2>
+<p>Capabilities answer "what can this engine do here?". They are served by <code>GET /api/defaults</code> (the <code>compute</code> key), by the service function <code>capabilities()</code>, by the MCP resource <code>cloud-map-generator://capabilities</code> (also the <code>compute</code> key of the <code>list_presets</code> tool), and later by the command line. The Python engine answers:</p>
+<pre><code>{"default": "auto", "engine": "python",
+ "modes": [
+   {"key": "auto",   "label": "Auto",      "available": true,  "reason": null, "description": "...", "detail": null},
+   {"key": "cpu",    "label": "CPU",       "available": true,  "reason": null, "description": "...", "detail": "1 thread"},
+   {"key": "gpu",    "label": "GPU",       "available": false, "reason": "The Python engine has no GPU path. Use the Rust engine (cloud-map-generator serve) or the web version.", "description": "...", "detail": null},
+   {"key": "hybrid", "label": "CPU + GPU", "available": false, "reason": "The Python engine has no GPU path, so it cannot share the work between a GPU and the CPU. ...", "description": "...", "detail": null}],
+ "devices": {"cpu": {"name": "&lt;processor name or null&gt;", "threads": 16},
+             "gpu": null}}</code></pre>
+<table>
+<tr><th>Field</th><th>Rule</th></tr>
+<tr><td><code>default</code></td><td>The mode to preselect and to use when the request leaves <code>compute</code> out: <code>"auto"</code>.</td></tr>
+<tr><td><code>engine</code></td><td>The backend that answers: <code>"python"</code>, <code>"rust"</code> or <code>"wasm"</code>.</td></tr>
+<tr><td><code>modes</code></td><td>Always the four keys, in the order <code>auto, cpu, gpu, hybrid</code>, each with all six fields below. An unavailable mode is listed, never omitted: the interface shows it disabled with its reason.</td></tr>
+<tr><td><code>modes[].available</code></td><td>Boolean. An explicit request for a mode with <code>available: false</code> is an error.</td></tr>
+<tr><td><code>modes[].reason</code></td><td><code>null</code> exactly when <code>available</code> is true. Otherwise one or two sentences: what is missing and what to do (see <a href="#request">the request</a> for wording).</td></tr>
+<tr><td><code>modes[].label</code>, <code>description</code></td><td>For the interface: the label is exactly <code>Auto</code>, <code>CPU</code>, <code>GPU</code>, <code>CPU + GPU</code> for the four keys; the description is <strong>one sentence of at most 160 characters</strong> (the page shows it in a narrow column under the selector), a short form of the meaning in the table above. The long meaning stays on this page.</td></tr>
+<tr><td><code>modes[].detail</code></td><td>A short extra for the label, such as <code>"1 thread"</code>, <code>"16 threads"</code>, <code>"7 workers"</code>; <code>null</code> when there is none. Present on every row (a consumer must also accept it missing, as null). It states what <em>this engine uses</em> in that mode, not what the machine has.</td></tr>
+<tr><td><code>modes[].max_width</code></td><td><strong>Extension (2026-11-12, large maps).</strong> The widest map, in texels, this mode offers on this machine; <code>null</code> exactly when the mode is not available. Computed per machine, never a constant: from the free disk of the output folder (a 32768 x 16384 map writes about 1.2 GiB and needs about 2 GiB while it runs), the free memory (a banded run needs about 1.5 GiB whatever the width) and, for the GPU modes, the adapter's buffer limits (one row of the map must fit a binding). A consumer offers a width above 4096 only when the selected mode's <code>max_width</code> reaches it, and says why otherwise (<code>machine.large_widths_refused</code>).</td></tr>
+<tr><td><code>modes[].estimate_seconds</code></td><td><strong>Extension (the proposal of the decisions table, now built).</strong> Object, width (string key) to wall seconds of a whole run in this mode: MEASURED per device (the stored table of <code>cloud-map-generator-service/src/estimates.rs</code>, taken on the machine named in <code>docs/large-maps.html</code>), scaled by the speed factor of this machine that a calibration map measures at start-up (<code>machine.calibrated</code>). Only the widths measured for that mode appear, and a mode never borrows another's figures. <code>auto</code> carries the GPU's figures when a GPU exists, the CPU's otherwise.</td></tr>
+<tr><td><code>machine</code></td><td><strong>Extension.</strong> <code>{"free_ram_bytes", "free_disk_bytes", "large_widths", "large_widths_refused", "estimate_disk_bytes", "calibrated"}</code>: what the machine has free now (null when the system does not say), the widths of 8192 and above it can write (<code>[8192, 16384, 32768]</code> at most), a width-to-reason object for those it cannot ("its files need 2.0 GiB of free disk and 1.1 GiB is free"), the disk a run of each width asks, and whether the estimates were calibrated on this machine.</td></tr>
+<tr><td><code>devices.cpu</code></td><td><code>{"name", "threads"}</code>: the processor name as the system reports it (<code>null</code> when it does not: browsers never do) and the hardware threads of the machine.</td></tr>
+<tr><td><code>devices.gpu</code></td><td><code>null</code> when the engine has no usable GPU, else <code>{"name", "backend", "float64", "df64"}</code>: the adapter name (for example <code>NVIDIA GeForce RTX 5080</code>), the graphics API in use (<code>Vulkan</code>, <code>DX12</code>, <code>Metal</code>, <code>WebGPU</code>), whether the adapter exposes native 64-bit floats (informational: the WGSL kernels never use them), and the double-single (df64) configuration that the device probe found exact, or <code>null</code> when the probe has not run or found none.</td></tr>
+</table>
+<h3>Availability rules</h3>
+<table>
+<tr><th>Mode</th><th>Available when</th><th>If not, the reason says</th></tr>
+<tr><td><code>auto</code></td><td>Always.</td><td>(never refused)</td></tr>
+<tr><td><code>cpu</code></td><td>Always: an engine that cannot run on the CPU has nothing to offer.</td><td>(never refused)</td></tr>
+<tr><td><code>gpu</code></td><td>An adapter was found, it passed the df64 probe (a configuration is known), its limits allow the kernels and the pipelines compiled.</td><td>Which of these failed, in words, and where a GPU path exists: no adapter found; the browser does not expose WebGPU (<code>navigator.gpu</code> is missing); the adapter lacks a required limit or feature; the Python engine has no GPU path.</td></tr>
+<tr><td><code>hybrid</code></td><td><code>gpu</code> is available <em>and</em> the CPU side has more than one thread (the number in the <code>cpu</code> detail). The Rust engine runs it on the banded engine (<a href="large-maps.html">large-maps.html</a>): one GPU worker and one CPU worker pull row bands from one queue, the measured throughput of each decides who takes the next band, and <code>compute.devices</code> lists the seconds each worked and the share of rows (passes A to C) each completed. Detail: <code>"GPU + 15 threads"</code>.</td><td>Either the GPU reason, or that the engine has a single CPU thread here, so there is nothing to share with.</td></tr>
+</table>
+<h3>Wire types</h3>
+<p>Every number is a JSON number (never a string); every text is UTF-8; <code>null</code> is written, not left out, except where a row says a consumer must accept it missing.</p>
+<table>
+<tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+<tr><td><code>default</code>, <code>engine</code></td><td>string</td><td><code>default</code> is one of the four keys; <code>engine</code> is <code>"python"</code>, <code>"rust"</code> or <code>"wasm"</code>.</td></tr>
+<tr><td><code>modes[].key</code>, <code>label</code>, <code>description</code></td><td>string</td><td>Never empty.</td></tr>
+<tr><td><code>modes[].available</code></td><td>boolean</td><td></td></tr>
+<tr><td><code>modes[].reason</code>, <code>detail</code></td><td>string or null</td><td><code>reason</code> is null exactly when <code>available</code> is true.</td></tr>
+<tr><td><code>devices.cpu.name</code></td><td>string or null</td><td>Trimmed, single spaces (for example <code>AMD Ryzen 7 5800X3D 8-Core Processor</code>); the marketing name when the system has one, not the raw family and stepping string.</td></tr>
+<tr><td><code>devices.cpu.threads</code></td><td>integer, at least 1</td><td>Hardware threads of the machine.</td></tr>
+<tr><td><code>devices.gpu</code></td><td>object or null</td><td><code>name</code>, <code>backend</code> string; <code>float64</code> boolean; <code>df64</code> string or null.</td></tr>
+<tr><td><code>compute.requested</code>, <code>used</code></td><td>string</td><td>One of the four keys; <code>used</code> is never <code>"auto"</code>.</td></tr>
+<tr><td><code>compute.devices[]</code></td><td>array, at least 1</td><td><code>kind</code> <code>"cpu"</code> or <code>"gpu"</code>; <code>name</code> string or null; <code>seconds</code> number (absent only in the sidecar); <code>share</code> number in [0, 1]. At most one device of each kind, the one with the larger share first (the CPU first on a tie).</td></tr>
+<tr><td><code>compute.note</code></td><td>string or null</td><td>One sentence.</td></tr>
+</table>
+<p>A consumer ignores keys it does not know, and an engine adds no key without a reviewed change to this page: that is how a later engine can say more without breaking an older page.</p>
+<h3>What the other engines answer (illustrative, not measured)</h3>
+<pre><code>// Rust native, desktop with a GPU
+"engine": "rust", "modes": [auto: available, cpu: available "detail": "16 threads",
+                            gpu: available "detail": "NVIDIA GeForce RTX 5080", hybrid: available "detail": "GPU + 15 threads"],
+"devices": {"cpu": {"name": "...", "threads": 16},
+            "gpu": {"name": "NVIDIA GeForce RTX 5080", "backend": "Vulkan", "float64": false, "df64": "fma+barrier"}}
+
+// WASM, browser without WebGPU
+"engine": "wasm", "modes": [auto: available, cpu: available "detail": "7 workers",
+                            gpu: unavailable "reason": "This browser does not expose WebGPU. Use a Chromium-based browser or a recent Safari, or the native engine.",
+                            hybrid: unavailable "reason": "Needs a GPU: this browser does not expose WebGPU. ..."],
+"devices": {"cpu": {"name": null, "threads": 8}, "gpu": null}</code></pre>
+<p class="note">The <code>df64</code> string names the configuration of <code>cloud-map-generator-gpu</code>'s <code>Df64Config</code> that the device probe found exact and cheapest: <code>fma</code> (fused product, no barrier), <code>fma+barrier</code>, <code>split</code> (Veltkamp split, no barrier) or <code>split+barrier</code>. The spelling is this page's proposal: see <a href="#decisions">decisions</a>.</p>
+
+<h2 id="request">The request</h2>
+<table>
+<tr><th>Surface</th><th>Where the mode goes</th><th>Left out means</th></tr>
+<tr><td>Service layer (Python)</td><td><code>generate(..., options={"compute": "cpu"})</code>; <code>capabilities()</code>, <code>check_compute(value)</code></td><td><code>"auto"</code>; a <code>None</code> value counts as left out, like every option</td></tr>
+<tr><td>Local web API</td><td><code>POST /api/generate</code>, <code>options.compute</code></td><td><code>"auto"</code>; a JSON <code>null</code> is refused (400) like any non-mode</td></tr>
+<tr><td>MCP server</td><td>The <code>compute</code> argument of <code>generate_map</code> and <code>start_generation</code>, a literal of the four values</td><td><code>"auto"</code></td></tr>
+<tr><td>Command line (planned, proposed spelling)</td><td><code>--compute auto|cpu|gpu|hybrid</code>, and a way to print the capabilities JSON</td><td><code>auto</code></td></tr>
+</table>
+<h3>Validation, in this order</h3>
+<ol>
+<li><strong>Not a mode</strong> (unknown string, wrong case, empty, not a string, null in the HTTP API): refused. The message names the field and the four allowed values, and suggests the close one when the value is a near miss. HTTP 400 <code>{"error": "..."}</code>; the service raises <code>ServiceError</code>; the MCP server's schema refuses it before the tool runs.</li>
+<li><strong>A mode that is not available:</strong> refused with the reason from the capabilities and the way out.</li>
+<li><strong>A mode that is available but cannot run this request</strong> (for example an explicit <code>gpu</code> for a width whose buffers exceed the adapter's limits): refused, naming the limit and the way out (a smaller width, <code>hybrid</code> or <code>cpu</code>). <code>auto</code> does not fail here: it runs on the CPU and says so in <code>note</code>.</li>
+</ol>
+<p>All three happen before the first stage, before any file is written and before a result is stored. In the MCP server the check also runs before a job is queued.</p>
+<p>Messages the Python engine gives today:</p>
+<pre><code>options.compute: expected one of 'auto', 'cpu', 'gpu', 'hybrid', got the text 'GPU'. Did you mean 'gpu'? 'auto' lets the engine choose; the engine's capabilities list what it offers.
+
+options.compute: 'gpu' is not available: The Python engine has no GPU path. Use the Rust engine (cloud-map-generator serve) or the web version. On this engine use 'auto' (it never fails for lack of a device) or 'cpu'; the engine's capabilities say what it offers.</code></pre>
+<p>A reason has the shape "what is missing, why, what to use": <em>"No GPU adapter was found on this machine (the driver or the graphics API is missing). Use 'cpu', or 'auto', which runs on the CPU here."</em></p>
+
+<h3>Errors at a glance</h3>
+<table>
+<tr><th>Situation</th><th>HTTP</th><th>Service layer</th><th>MCP server</th></tr>
+<tr><td>Not a mode</td><td>400, <code>{"error": "..."}</code></td><td><code>ServiceError</code></td><td>The input schema refuses it (an enum of the four keys)</td></tr>
+<tr><td>A mode that is not available</td><td>400</td><td><code>ServiceError</code> with the reason</td><td>A tool error (<code>isError</code> true), nothing queued</td></tr>
+<tr><td>Available, but cannot run this request</td><td>400</td><td><code>ServiceError</code> naming the limit</td><td>A tool error, nothing queued</td></tr>
+<tr><td>The device fails while an explicit <code>gpu</code> run is going</td><td>500, <code>{"error": "..."}</code> naming the device failure</td><td>An engine exception (not a <code>ServiceError</code>, which is for refusals before the work starts)</td><td>A tool error; a background job ends as failed</td></tr>
+<tr><td>Cancelled</td><td>no result is stored</td><td>the cancellation exception</td><td>the job ends as cancelled</td></tr>
+</table>
+<p>Every error is a sentence a person or an agent can act on: no stack trace, no path. An error never carries a map: a refused or failed request leaves no file and no stored result.</p>
+
+<h2 id="response">The response: what was used</h2>
+<p>Every successful generate answer (HTTP, service result, MCP) carries the same block:</p>
+<pre><code>"compute": {"requested": "auto", "used": "cpu",
+            "devices": [{"kind": "cpu", "name": "&lt;processor name&gt;", "seconds": 3.1, "share": 1.0}],
+            "note": null}</code></pre>
+<table>
+<tr><th>Field</th><th>Rule</th></tr>
+<tr><td><code>requested</code></td><td>The mode the request asked for, echoed (<code>"auto"</code> when it was left out).</td></tr>
+<tr><td><code>used</code></td><td>What ran the per-texel work: <code>"cpu"</code>, <code>"gpu"</code> or <code>"hybrid"</code>. Never <code>"auto"</code>. <code>"hybrid"</code> means both devices did bands.</td></tr>
+<tr><td><code>devices[].kind</code>, <code>name</code></td><td><code>"cpu"</code> or <code>"gpu"</code>; the name from <code>capabilities().devices</code> (null when unknown).</td></tr>
+<tr><td><code>devices[].seconds</code></td><td>The wall time the device worked on this request, measured as in <a href="#measure">measuring each device</a>. For one device it never exceeds the request's own <code>seconds</code>; the sum over devices may, because devices overlap in hybrid runs.</td></tr>
+<tr><td><code>devices[].share</code></td><td>The fraction of the per-texel work (bands, which are whole rows, so equally texels) the device did, from 0 to 1. The shares add to 1.</td></tr>
+<tr><td><code>note</code></td><td><code>null</code> when the mode was explicit or the engine had no choice (the Python engine has one device). Otherwise one sentence on an automatic choice, for example <code>"auto chose the CPU: a 512-wide map is below the width where the GPU pays on this device."</code> or <code>"auto chose the GPU: ..."</code>. It also tells of an event that changed the run (a device lost in a hybrid run, see <a href="#hybrid">hybrid</a>).</td></tr>
+</table>
+<ul>
+<li><strong>Who is listed.</strong> A device is listed when it worked on the request. In a <code>gpu</code> run that is the GPU (share 1.0) <em>and</em> the CPU (share 0.0, with the seconds it spent on the stages that stay on the CPU: plans, metrics, encoding). A reader then sees where the time went, not only that the GPU was fast.</li>
+<li><strong>Rounding.</strong> Seconds to 0.01 (browsers coarsen their clocks). Shares are exact fractions of the band counts, written with four decimals and adjusted so that they add to exactly 1.</li>
+<li><strong>The sidecar file</strong> (<code>meta.json</code>) records the same block <em>without</em> the per-device <code>seconds</code>: a wall time would make the same inputs write different bytes. The files of a map stay byte-identical for the same inputs and device.</li>
+<li><strong>The summary</strong> of a service result carries a copy of the block under <code>compute</code> (<code>null</code> only for a result built by hand).</li>
+</ul>
+<p>The sidecar form of the block (what <code>meta.json</code> holds):</p>
+<pre><code>"compute": {"requested": "auto", "used": "cpu",
+            "devices": [{"kind": "cpu", "name": "&lt;processor name&gt;", "share": 1.0}],
+            "note": null}</code></pre>
+<h3>Examples (illustrative, not measured)</h3>
+<pre><code>// gpu, explicit
+"compute": {"requested": "gpu", "used": "gpu",
+            "devices": [{"kind": "gpu", "name": "NVIDIA GeForce RTX 5080", "seconds": 0.9, "share": 1.0},
+                        {"kind": "cpu", "name": "...", "seconds": 0.4, "share": 0.0}], "note": null}
+
+// hybrid
+"compute": {"requested": "hybrid", "used": "hybrid",
+            "devices": [{"kind": "gpu", "name": "NVIDIA GeForce RTX 5080", "seconds": 1.2, "share": 0.7222},
+                        {"kind": "cpu", "name": "...", "seconds": 1.3, "share": 0.2778}], "note": null}
+
+// auto on a small map
+"compute": {"requested": "auto", "used": "cpu",
+            "devices": [{"kind": "cpu", "name": "...", "seconds": 0.8, "share": 1.0}],
+            "note": "auto chose the CPU: a 512-wide map is below the width where the GPU pays on this device."}</code></pre>
+
+<h2 id="interface">Interface rules</h2>
+<p>The page (and any other front end) builds its selector from the capabilities. It does not know which engine it talks to.</p>
+<ul>
+<li>Show all four modes, in the order of <code>modes</code>, with their <code>label</code>; add the <code>detail</code> when there is one.</li>
+<li>Preselect <code>default</code>.</li>
+<li>Disable a mode with <code>available: false</code> and show its <code>reason</code> where a person can read it, on touch screens too (visible text or a disclosure, not only a hover tooltip). Do not hide it: the person learns that the GPU path exists and what it needs.</li>
+<li>Send <code>options.compute</code> only for the selected mode; the server's refusal (400) is shown as it is, since the reason is written for the reader.</li>
+<li>After a run, show what was used: <code>used</code>, each device with its seconds and share, and the <code>note</code> when there is one. When <code>requested</code> and <code>used</code> differ (an <code>auto</code> choice), say so.</li>
+<li>Time estimates (<code>estimate_seconds</code> of <code>GET /api/defaults</code>) are a CPU table. For an explicit <code>gpu</code> or <code>hybrid</code> the page shows no estimate until an engine supplies one per mode (see decisions).</li>
+<li>Re-read the capabilities when the engine changes (the page can talk to a native server or run the WASM engine): they are the only source of what is offered.</li>
+</ul>
+
+<h2 id="checklist">Engine implementation checklist</h2>
+<h3>Every engine</h3>
+<ul class="check">
+<li>Serve or return the <a href="#capabilities">capabilities</a> structure exactly: the four modes in order, six fields each, <code>reason</code> null if and only if available, <code>devices.cpu</code> and <code>devices.gpu</code>.</li>
+<li>Set <code>engine</code> to your own key and fill <code>devices</code> by probing, at start-up or on first use, never by assumption.</li>
+<li>Accept <code>compute</code> in the request, default <code>auto</code>, and validate it first, with the <a href="#request">three refusals</a> and their wording rules.</li>
+<li>Resolve <code>auto</code> by capability and by size, and put the reason in <code>note</code>. Keep the size threshold as a measured constant per device class, recorded with the measurement that set it (see <a href="#measure">measuring</a>), not a guess.</li>
+<li>Run the mode that was resolved, report it in the <a href="#response">compute block</a>, and put the block, without seconds, in the sidecar.</li>
+<li>Never change the map's own options, the file names or the encodings because of <code>compute</code>.</li>
+<li>Poll cancellation between bands; a cancelled run writes nothing.</li>
+<li>Ship the <a href="#tests">conformance tests</a>.</li>
+</ul>
+<h3>Rust native engine (<code>cloud-map-generator-core</code>, <code>cloud-map-generator-gpu</code>, <code>cloud-map-generator-cli</code>)</h3>
+<ul class="check">
+<li><code>engine</code> is <code>"rust"</code>. <code>cpu</code>: all cores through the thread pool; <code>detail</code> is the pool size (<code>"16 threads"</code>); <code>devices.cpu.threads</code> is the machine's thread count.</li>
+<li><code>gpu</code>: one adapter request at start-up (what <code>GpuContext::new()</code> returns, <code>None</code> meaning no adapter); <code>devices.gpu.name</code> and <code>backend</code> from the adapter info; run the df64 probe once per device and record the configuration it picks in <code>df64</code>; check the adapter limits against the kernels (buffer sizes, storage bindings, workgroup size) before saying <code>available</code>.</li>
+<li><code>hybrid</code>: available when the GPU is and the pool has at least two threads; implemented by the scheduler of <a href="#hybrid">the next section</a>.</li>
+<li>Serve the same local HTTP API as the Python server (<code>cloud-map-generator serve</code>: planned, it does not exist yet), including <code>GET /api/defaults</code> with <code>compute</code> and <code>backend: "rust"</code>; the Python <code>gpu</code> reason already points to it.</li>
+<li>Command line: a <code>--compute</code> option on <code>gen</code> (and on <code>bake</code>, where it is the engine's choice per map), a way to print the capabilities, and the used block in the summary it prints.</li>
+<li>The thread pool must be usable alongside a GPU queue without oversubscription: with <code>hybrid</code>, one thread drives the GPU (submit, poll, read back), and the CPU bands use the other threads.</li>
+</ul>
+<h3>WebAssembly engine (<code>cloud-map-generator-wasm</code> and the page's worker pool)</h3>
+<ul class="check">
+<li><code>engine</code> is <code>"wasm"</code>. <code>cpu</code>: a pool of Web Workers (planned: hardware concurrency minus one), each with its own WASM instance; <code>detail</code> is <code>"N workers"</code>; <code>devices.cpu.name</code> is <code>null</code> (browsers do not reveal it) and <code>threads</code> is the browser's reported concurrency.</li>
+<li>No threads inside WASM and no shared memory on a static host without cross-origin isolation: bands move between the main thread and the workers by message passing with transferable buffers. This is invisible to the contract but must be counted in the device's <code>seconds</code>.</li>
+<li><code>gpu</code>: <code>navigator.gpu.requestAdapter()</code>; a missing <code>navigator.gpu</code> or a null adapter gives <code>available: false</code> with a reason a visitor can act on (which browser to use). <code>devices.gpu.backend</code> is <code>"WebGPU"</code>; the name comes from the adapter's information, and a browser may give only a vendor and architecture, which is then the name.</li>
+<li><code>hybrid</code>: available when WebGPU is and the pool has at least two workers.</li>
+<li>The same capabilities JSON as the native engines, built by the page's engine adapter, so the selector code is the same whichever engine answers.</li>
+<li>No network request is made by the engine; probing is local.</li>
+</ul>
+
+<h2 id="hybrid">Hybrid: how bands are scheduled</h2>
+<p>The unit of work is a band: a run of whole rows of the equirectangular map. Bands are independent inside a stage group because every texel is a pure function of its direction on the sphere and of the request's plans (the random draws made once from the seed). The schedule below is a design the engines implement and then tune by measurement; the numbers marked <em>starting point</em> are not requirements.</p>
+<h3>Stage groups and barriers</h3>
+<p>These follow <code>cloudgen/generate.py</code> as it is today; an engine must respect them because three steps look across bands.</p>
+<table>
+<tr><th>Group</th><th>Work</th><th>Where it can run</th></tr>
+<tr><td>Plans</td><td>The random draws of the request: the vortices and the noise plans. Drawn once, on the CPU, before any band is cut, and read-only afterwards, so both devices see the same plans. The map-sized sub-texel noise is either drawn here and uploaded, or generated on the device from an integer hash: the engine chooses, but both devices must make the same field for a given request.</td><td>CPU, once</td></tr>
+<tr><td>A. Fields</td><td>The coarse back-trace grid (capped at 512 wide) and its upsampling, the synoptic field <code>s</code>, the ascent, the regime weights, the fine texture and the streak noise. The wind grid is a small evaluation of the flow on a coarser grid; it can run on either device or on the CPU.</td><td>Per band, either device</td></tr>
+<tr><td>Barrier 1</td><td>The global mean and standard deviation of <code>s</code> (the field is normalized over the whole map). Each band returns partial sums; they are merged in float64 in a fixed band order and the normalization constants go back.</td><td>CPU, microseconds</td></tr>
+<tr><td>B. Thresholds</td><td>The per-row bisection (37 compositions) against the target zonal profile; with a surface, a second pass with the row sensitivity.</td><td>Per band, on the band's own device</td></tr>
+<tr><td>Barrier 2</td><td>The threshold vector (one value per row) is smoothed along latitude across the whole map; with a surface, the first pass and the sensitivity are also combined here between the two passes.</td><td>CPU, one value per row</td></tr>
+<tr><td>C. Compose and products</td><td>The coverage from <code>s</code>, the fine field and the smoothed thresholds; then the type and high-share maps.</td><td>Per band, on the band's own device</td></tr>
+<tr><td>CPU stages</td><td><code>match_earth</code>, the metrics against Earth, the file encoding.</td><td>CPU, parallel where the stage allows</td></tr>
+</table>
+<h3>Scheduling</h3>
+<ul>
+<li><strong>Execution units.</strong> The GPU queue is one unit and each CPU worker is one unit. A shared queue of bands feeds them: an idle unit takes the next band (work pulling, no central assignment).</li>
+<li><strong>Band size.</strong> Whole rows only. Starting point: about 8 bands per unit overall, at least 16 rows each, with a GPU band large enough that a dispatch is not dominated by its fixed cost (a few hundred thousand texels) and small enough that its fields fit well inside the adapter's buffer limits. The first bands are small probes: one per unit, to measure throughput.</li>
+<li><strong>Rebalancing.</strong> Each unit's throughput (texels per second, over a sliding window of its last few bands) sets the size of the next band it takes: guided self-scheduling, so the faster unit gets proportionally bigger bands and all units finish together. Keep the GPU up to two bands in flight to hide upload and readback; a CPU worker holds one.</li>
+<li><strong>Affinity.</strong> A band's fields stay where they were made. Group B and C for a band run on the device that ran group A for it, so only partial sums, the row vector of thresholds and the final coverage cross between devices. Rebalance by changing the size of bands not yet started in group A; later groups follow the assignment. Re-assigning a started band means recomputing it, which is allowed only if measured to pay.</li>
+<li><strong>Seams.</strong> A band edge is invisible because both devices evaluate the same pure function of position; the check is the seam and stripe test of <a href="#tests">the conformance tests</a>, looked at on a picture and not only measured.</li>
+<li><strong>Device loss.</strong> If the GPU fails during a <code>hybrid</code> run, the band it held goes back to the queue, the CPU units finish the map, the shares record the work really done and the <code>note</code> says the GPU was lost. If it fails during an explicit <code>gpu</code> run there is no peer to take over: the run fails with an error naming the device failure, and nothing is written. Neither case is a silent fallback, because the reply says what happened.</li>
+<li><strong>Progress and cancellation.</strong> Progress is bands done over bands total, per stage group, mapped onto the request's single 0 to 1 scale; cancellation is polled between bands.</li>
+<li><strong>Determinism.</strong> Within one device a map is repeatable bit for bit. A hybrid map may differ between two runs at float32 rounding, because timing decides which device made a band; an engine may offer a pinned assignment for tests.</li>
+</ul>
+
+<h2 id="measure">Measuring each device</h2>
+<p><code>seconds</code> is the wall time a device was busy on this request. Wall time, not CPU time: eight threads busy for one second report 1.0, not 8.0.</p>
+<table>
+<tr><th>Device</th><th>How</th></tr>
+<tr><td>GPU</td><td>The union of the intervals from the moment a band's commands are submitted to the moment its result has been read back (including the upload of its inputs and the readback). Native: a monotonic clock around <code>submit</code> and the completion of the buffer mapping. Browser: <code>performance.now()</code> around <code>submit</code> and the resolution of <code>mapAsync</code>. GPU timestamp queries (where the device has them) give the kernel-only time: record it in a diagnostic, but do not report it as <code>seconds</code>, because the person waits for the upload and the readback too.</td></tr>
+<tr><td>CPU</td><td>The time during which at least one CPU unit was working on the request: keep a count of active tasks and accumulate the time while it is above zero (the union of the tasks' intervals), including the CPU-side stages (plans, metrics, encoding). In the browser the interval of a worker task includes the message transfer; that is part of what the work costs.</td></tr>
+<tr><td>Shares</td><td>Count the rows (all rows have the same number of texels) each device completed in groups A to C and divide by the total. A band recomputed after a device loss counts for the device that completed it.</td></tr>
+</table>
+<h3>The size at which <code>auto</code> picks the GPU</h3>
+<p>Measure, per device class, the request time of <code>cpu</code>, <code>gpu</code> and <code>hybrid</code> at each supported width (256 to 4096 now, up to 16384 for bakes), with the run flown in the real environment (a headed browser for WASM), several runs, quiet machine. The width where <code>gpu</code> first beats <code>cpu</code> by a clear margin, plus a safety step, is the <code>auto</code> threshold. Record the figures and the date next to the constant, and re-measure when a kernel changes. Estimates quoted in <code>port-plan.html</code> are not measurements.</p>
+
+<h2 id="parity">Float32 parity</h2>
+<p>The statement, the same for every front end: <strong>a map made on the GPU equals the map made on the CPU to float32 rounding, and statistically; it is not equal bit for bit.</strong> WGSL has no 64-bit floats, so the GPU path is float32 end to end, with the double-single library for the few places where float32 is not enough (the back-trace position update, the lattice coordinate of very high noise octaves).</p>
+<h3>What is promised</h3>
+<ul>
+<li>The same seed and physics give the same weather: the same lows in the same places, because the plans are drawn once on the CPU and shared, and the noise hashes use integer arithmetic (u32), never a floating-point fractional hash, so the lattice is the same on every vendor.</li>
+<li>The invariants hold exactly on every device: the grid shape, the north-up orientation with column 0 at longitude -180, coverage inside [0, 1], no NaN, no seam at the antimeridian, no pinch at the poles, and the per-row zonal mean on the target profile.</li>
+<li>The statistics of the map (the metric rows against Earth) fall inside the spread of the CPU maps over several seeds.</li>
+</ul>
+<h3>What is not promised</h3>
+<ul>
+<li>Bit identity between the CPU and the GPU, between two GPUs of different vendors, or between two <code>hybrid</code> runs.</li>
+<li>That the 8-bit or 16-bit PNG of a GPU map equals the CPU one in every texel: a value that sits on a rounding boundary can land one step away.</li>
+</ul>
+<h3>What an engine measures and records</h3>
+<ul class="check">
+<li>Per kernel, on the golden cases: the maximum and mean absolute difference from the CPU result, and the tolerance tier the kernel is held to. A tier is set from this measurement, written down with it, and never loosened to pass.</li>
+<li>End to end, on the golden bodies and at least eight seeds: the maximum and mean absolute difference of the coverage between the GPU and the CPU map, and the metric rows of the GPU maps against the range the CPU maps span.</li>
+<li>Hybrid against <code>gpu</code> only and <code>cpu</code> only, for the same seeds: the same differences, and a picture of the band joins.</li>
+</ul>
+<p class="warn">No tolerance figure is written on this page on purpose: none has been measured yet. The first GPU golden run sets them.</p>
+
+<h2 id="tests">Conformance tests</h2>
+<p>An engine ships tests for each line, at the smallest widths. The Python engine's are <code>tests/test_service.py</code>, <code>tests/test_ui_server.py</code> and <code>tests/test_mcp_server.py</code>; the Rust and WASM engines port the same assertions.</p>
+<ul class="check">
+<li>The capabilities have the four modes in order, six fields each, a reason exactly when a mode is not available, and the devices block.</li>
+<li><code>auto</code> and <code>cpu</code> are always available; the device facts (thread count, adapter name) match the system.</li>
+<li>An unknown value, a wrong case, a non-string and (HTTP) null are refused with a message naming the four values; a near miss gets a suggestion.</li>
+<li>An unavailable explicit mode is refused with its reason, before any stage, with no file and no stored result.</li>
+<li><code>auto</code> with no GPU (simulate it: hide the adapter) runs on the CPU and does not fail; with a GPU it picks by size and explains in <code>note</code>.</li>
+<li>The block: <code>requested</code> echoes, <code>used</code> is never <code>auto</code>, shares add to 1, each device's seconds is at most the request's seconds, <code>hybrid</code> lists both devices with a share above 0.</li>
+<li>The sidecar holds the block without seconds, its <code>options</code> are the options of the map only, and the same inputs write the same bytes on one device.</li>
+<li>Maps: the CPU, GPU and hybrid maps agree to the recorded tolerance, hold every invariant of <a href="#parity">the parity section</a>, and show no stripe or seam at a band edge.</li>
+<li>Device loss in hybrid finishes the map and says so; in <code>gpu</code> it fails cleanly and writes nothing.</li>
+<li>The interface: with the engine's capabilities the selector shows the four modes, disables the refused ones and shows their reasons, and shows what was used after a run.</li>
+</ul>
+
+<h2 id="reference">Reference implementation (Python)</h2>
+<table>
+<tr><th>Piece</th><th>Where</th></tr>
+<tr><td>Vocabulary and capabilities</td><td><code>cloudgen/service.py</code>: <code>COMPUTE_MODES</code>, <code>COMPUTE_DEFAULT</code>, <code>capabilities()</code></td></tr>
+<tr><td>Validation and resolution</td><td><code>check_compute()</code>, <code>resolve_compute(requested, width)</code> (where an engine decides <code>auto</code> by size)</td></tr>
+<tr><td>The reply block</td><td><code>compute_report(requested, used, note, seconds)</code>; <code>GenerationResult.compute</code>, <code>summary()</code>, the sidecar's <code>compute</code></td></tr>
+<tr><td>Local web API</td><td><code>ui/server.py</code>: <code>parse_compute</code>, the <code>compute</code> key of <code>GET /api/defaults</code> and of the generate answer; documented in <code>ui/README.md</code></td></tr>
+<tr><td>MCP server</td><td><code>cloud_map_generator_mcp/server.py</code>: the <code>compute</code> argument of <code>generate_map</code> and <code>start_generation</code>, the resource <code>cloud-map-generator://capabilities</code>, the <code>compute</code> key of <code>list_presets</code>; documented in <code>mcp/README.md</code></td></tr>
+</table>
+
+<h2 id="decisions">Decisions beyond the contract</h2>
+<p>The statement of the contract fixed the modes, the capabilities, the request and the response. These points were not in it; they are decided here so that the engines agree, and they are the first to review.</p>
+<table>
+<tr><th>Decision</th><th>Why</th></tr>
+<tr><td>Every mode row carries <code>detail</code> (null when empty), including <code>auto</code></td><td>One shape for every row; the contract's example omitted it on <code>auto</code>.</td></tr>
+<tr><td>A <code>gpu</code> run lists the CPU as a device with share 0.0 and its own seconds</td><td>The CPU still works (plans, metrics, encoding); the reply should say where the time went.</td></tr>
+<tr><td>The sidecar's compute block has no per-device <code>seconds</code></td><td>Files stay byte-identical for the same inputs; the wall time is in the answer.</td></tr>
+<tr><td>A device lost mid-run: hybrid finishes on the CPU and says so; gpu fails</td><td>No silent fallback and no partial map.</td></tr>
+<tr><td>An explicit mode that cannot run this request (limits) is an error; <code>auto</code> falls back with a note</td><td>The same split as "not available".</td></tr>
+<tr><td><code>auto</code> resolves to <code>cpu</code> or <code>gpu</code>, never <code>hybrid</code></td><td>The contract names only those two; an engine that measures <code>hybrid</code> winning can extend this page.</td></tr>
+<tr><td>The spelling of <code>df64</code> values and of the command-line option</td><td>Proposals (see the notes above); the Rust engine's authors confirm them.</td></tr>
+<tr><td>The Python <code>gpu</code> reason points to <code>cloud-map-generator serve</code></td><td>The wording is the contract's; that command is planned and does not exist yet.</td></tr>
+<tr><td><code>description</code> is one sentence of at most 160 characters</td><td>The first descriptions ran to 330 characters and filled six lines of a 22 rem column; the long meaning is in the table of the four modes. A test holds the limit.</td></tr>
+<tr><td>A device that fails during an explicit <code>gpu</code> run is HTTP 500, not 400</td><td>The request was valid; the machine failed. A 400 is only for a refusal before the work starts.</td></tr>
+<tr><td><code>modes[].estimate_seconds</code> (width to seconds), measured per engine and device</td><td>Built by the Rust engine (see the capabilities table). The legacy top-level <code>estimate_seconds</code> of <code>GET /api/defaults</code> stays, as the CPU figures.</td></tr>
+<tr><td>Widths above 4096: banded engine, files on disk</td><td>From 8192 the Rust engine never holds the map (see <a href="large-maps.html">large-maps.html</a>): <code>POST /api/generate</code> answers with the 2048-wide slices as <code>images</code> (served from memory), a <code>files</code> array <code>[{"label", "key", "path", "bytes"}]</code> for the big files left on the server's disk (16-bit master, raw R8), a <code>banded</code> block (<code>band_rows</code>, <code>bands</code>, <code>dir</code>) and an <code>image_note</code>. The page never receives the full image.</td></tr>
+<tr><td><code>devices.cpu.name</code> is the processor's marketing name when the system has one</td><td>Windows <code>platform.processor()</code> is only the family and stepping; the Python engine reads the registry, a Rust engine reads the same source (or <code>/proc/cpuinfo</code>, <code>sysctl</code>).</td></tr>
+<tr><td>Devices are ordered by share, largest first, one entry per kind</td><td>A reader finds the device that did the work first; a consumer can rely on the shape.</td></tr>
+</table>
+</main>
+</body>
+</html>

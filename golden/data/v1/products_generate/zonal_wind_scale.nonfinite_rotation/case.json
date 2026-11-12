@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "zonal_wind_scale.nonfinite_rotation",
+ "group": "products_generate",
+ "function": "cloudgen.products.zonal_wind_scale",
+ "doc": "Non-finite rotation periods (+inf, -inf, NaN) on an Earth-sized body: hadley_edge_raw is infinity for all of them (the test is `p is None or not isfinite(p) or p == 0`), so there is no storm track and the scale is exactly 0. Exact. Arguments: ONE body per element of the input array `rotation` (rotation_period_days; JSON params cannot hold infinities and NaN, so they are an input), the three other fields of the body shared in params (radius_km, gravity_mps2, scale_height_km, cloud_regime). Output: scale, one float64 per rotation (this case has no params.bodies).",
+ "params": {
+  "radius_km": 6371.0,
+  "gravity_mps2": 9.81,
+  "scale_height_km": 8.0,
+  "cloud_regime": "water"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rotation",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24
+  }
+ ],
+ "outputs": [
+  {
+   "name": "scale",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 24,
+   "nbytes": 24,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "528b2c91569a177569b67355366bbc2bd56c04b0497d290095e234f5bf3dc758"
+}

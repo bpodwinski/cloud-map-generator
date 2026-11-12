@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.uniform_field.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "Every texel equal: one group of n = 4096, mean rank (n - 1) / 2 = 2047.5, byte floor(2047.5 * 256 / 4096) = 127 everywhere (not 0, not 128). Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   64,
+   64
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 4096,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4a124f5ebb7c80c632dd209a1909884bb6a3ca26009d84d7dbb79fde1f5c1efa"
+}

@@ -1,0 +1,52 @@
+{
+ "format": 1,
+ "id": "octaves_below.defaults",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.octaves_below",
+ "doc": "The function called WITHOUT its lacunarity argument: the Python default 2.03 (the value every caller relies on). 19 rows (frequency, max_frequency): for k = 2, 5, 10, 20, 40 one row 0.1% above 2.03^(k - 1) and one 0.1% below 2.03^k (frequency 1), so the count is k and any default off by 0.05% or more (2.029 and 2.031 are tried) changes at least 4 rows; plus production-like rows (48 .. 163 and 326, 3 .. 24, 0.5 .. 1000), frequency just above and just below the maximum (5 against 5.005 and 4.995: n = 1 either way, the second from the clamp of 0 to 1), frequency above the maximum and a very low frequency. Every row is at least 5e-4 (relative) from a boundary 2.03^j * frequency (checked at build time). Integer output: exact.",
+ "params": {
+  "omitted_arguments": [
+   "lacunarity"
+  ],
+  "defaults": {
+   "lacunarity": 2.03
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "frequency",
+   "dtype": "f64",
+   "shape": [
+    19
+   ],
+   "offset": 0,
+   "nbytes": 152
+  },
+  {
+   "name": "max_frequency",
+   "dtype": "f64",
+   "shape": [
+    19
+   ],
+   "offset": 152,
+   "nbytes": 152
+  }
+ ],
+ "outputs": [
+  {
+   "name": "n",
+   "dtype": "i64",
+   "shape": [
+    19
+   ],
+   "offset": 304,
+   "nbytes": 152,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e9fbec5fc326ba6c329c54b28867ef5c222058d15ac5e9d67f0454f0ad0ea0d2"
+}

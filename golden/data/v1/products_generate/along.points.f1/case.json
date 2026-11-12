@@ -1,0 +1,52 @@
+{
+ "format": 1,
+ "id": "along.points.f1",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "The blend at its two ends, f = 1: the result is the normalized back (a float32 unit vector renormalized: 1 +- a few ulp). 200 float32 points that begin with the two poles and the points on the antimeridian. Tolerance is the golden float32 default. Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: promoting the float32 inputs to float64 changes the output by at most 5.6e-8; one-ulp nudges of every float input and parameter change it by at most 1.2e-7 (worst of 6 random trials); the tolerance is 50x the larger of the two spreads.",
+ "params": {
+  "f": 1.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 2400
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 2400,
+   "nbytes": 2400
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 4800,
+   "nbytes": 2400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "951a16c2d14526d3fcd8031d26fc90bdf16b94d23fb6ef341d58ed3e63fb2c52"
+}

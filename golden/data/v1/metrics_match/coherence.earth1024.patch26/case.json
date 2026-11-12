@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "coherence.earth1024.patch26",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. A real patch crop (128x128, rows and columns 64..191 of the 256x256 patch at latitude 0, longitude -90 of the Earth map at 1024x512), stored as float32 and called on its float64 promotion (patches() returns float64). Float64 chain with no data-dependent branch: an independent float64 reimplementation (explicit reflect-padded kernel sums) agrees to 2.2e-16, a float64 one-ulp nudge of every texel moves the value by <= 4.4e-16; tolerance 1e-9. ",
+ "params": {
+  "sigma": 4.0,
+  "called_with": "float64 promotion of the stored float32 patch"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f32",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 65536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 65536,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a6db6943bd4b7cfb615c8fc38e27093b1c842ab30644688f95d63419d927d372"
+}

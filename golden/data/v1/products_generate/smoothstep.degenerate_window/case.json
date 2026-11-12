@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "smoothstep.degenerate_window",
+ "group": "products_generate",
+ "function": "cloudgen.generate._smoothstep",
+ "doc": "A degenerate window a == b = 0.5 (a division by zero, no call site of the generator uses it): (x - a) / 0 is -inf below the edge (clipped to 0), +inf above it (clipped to 1) and 0 / 0 = NaN exactly ON it, which np.clip keeps as NaN, so the output is NaN there (and the Hermite polynomial of NaN is NaN). Float64 x with a python-float window; numpy warnings suppressed. NaN equals NaN in the comparison; documents what the oracle does, a port must not guard the division. Every value is exactly 0, 1 or NaN, so the comparison is exact (a nudge of a or b would make the window finite, which is not this case).",
+ "params": {
+  "a": 0.5,
+  "b": 0.5
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    9
+   ],
+   "offset": 0,
+   "nbytes": 72
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    9
+   ],
+   "offset": 72,
+   "nbytes": 72,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "498a7489df57163c73e0774d2e8e6aaa4c5493bd1ea0681f2cfb9cdb2a035c90"
+}

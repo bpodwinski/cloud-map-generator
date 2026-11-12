@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "continentality.all_land",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.continentality",
+ "doc": "An all-land field (1.0 everywhere, 32x16): the unit-sum kernel returns exactly 1.0 in float32 (the clip does not engage). Default tolerance. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e9bac255f4adc7cb4ada9298e193a5ff66b434d15afabd458505325f29c398c7"
+}

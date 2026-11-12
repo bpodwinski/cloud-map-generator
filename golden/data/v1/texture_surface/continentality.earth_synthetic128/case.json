@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "continentality.earth_synthetic128",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.continentality",
+ "doc": "The synthetic 128x64 land smoothed at CONTINENTALITY_KM = 300 and clipped to [0, 1], Earth radius (smoothing semantics: see smooth_on_sphere). Only the land field is read. Float32 chain: default tolerance (measured 5.8e-8 (a direct float64 convolution with no scipy and no float32 stage)). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "287235664d71e844b6af7ae8ad91743ee49f9d15438c45b72119569c207ae303"
+}

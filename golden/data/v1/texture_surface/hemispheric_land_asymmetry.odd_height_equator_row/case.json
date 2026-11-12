@@ -1,0 +1,37 @@
+{
+ "format": 1,
+ "id": "hemispheric_land_asymmetry.odd_height_equator_row",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.hemispheric_land_asymmetry",
+ "doc": "Seven rows: the middle row has latitude exactly 0 (grid_lonlat gives 0.0) and is in NEITHER hemisphere (`lat > 0` and `lat < 0`), so its land fraction 1.0 does not count. Fractional land (float32 row means, exact here: 0.5 and 0.25 are binary fractions). 1e-9. Output `asymmetry` is 0-d: shape [] in case.json, one item of data.bin.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    7,
+    14
+   ],
+   "offset": 0,
+   "nbytes": 392
+  }
+ ],
+ "outputs": [
+  {
+   "name": "asymmetry",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 392,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "282eb2430ffe5f314220c43c2681d83738dee995b7bb5b0fb8d582e04d6f223d"
+}

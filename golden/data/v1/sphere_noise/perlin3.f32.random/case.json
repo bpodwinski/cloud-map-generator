@@ -1,0 +1,75 @@
+{
+ "format": 1,
+ "id": "perlin3.f32.random",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Perlin3.__call__",
+ "doc": "Improved Perlin noise, float32, at 2000 random points in [-8, 8]^3 (cells of both signs), seed 6 (the permutation is the input plan0.perm). The 8 corner hashes of the points reach all 16 gradient branches (checked at build time). Output float32, |value| < 0.8. Chained float32 (about 30 operations): measured against the float64 evaluation of the same inputs 1.2e-6 at most, against a float32 evaluation with another operation order (a*(1-t)+b*t) 1.9e-7; tolerance 1.5e-5 abs + 1e-5 rel (10x). The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 6,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 6
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    2000
+   ],
+   "offset": 0,
+   "nbytes": 8000
+  },
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    2000
+   ],
+   "offset": 8000,
+   "nbytes": 8000
+  },
+  {
+   "name": "z",
+   "dtype": "f32",
+   "shape": [
+    2000
+   ],
+   "offset": 16000,
+   "nbytes": 8000
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 24000,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    2000
+   ],
+   "offset": 25024,
+   "nbytes": 8000,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1.5e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "670437370f6fe3c6bfa52f03c78d8cbc3414b0e1f82aa22db3582b3b53938df0"
+}

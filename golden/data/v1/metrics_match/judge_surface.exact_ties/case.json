@@ -1,0 +1,149 @@
+{
+ "format": 1,
+ "id": "judge_surface.exact_ties",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.judge_surface",
+ "doc": "judge_surface(ref, maps): one row per judged metric (SURFACE_JUDGED order, params.judged; inputs hold the columns params.keys: the six judged ones then the two season terms). v = the metric over the maps; spread = sample std (ddof 1; NaN for one map); season = |ref[season term]| or 0; tolerance = max(2.2 * spread, floor) + season with floor 2.5 for itcz_lat and 0.01 otherwise; diff = mean(v) - ref; pass = tolerance finite and |diff| <= tolerance. Python max(nan, floor) is NaN (the first argument wins when a comparison fails): do not port it as floor. Float64 arithmetic on a handful of numbers: 1e-9; no verdict sits within 1e-6 of a tie, except in exact_ties and just_over_ties, which sit ON one (or an ulp past it) by construction, from exactly representable operations. Two IDENTICAL maps (spread exactly 0; the mean of two equal floats is exact), so tolerance = floor + season allowance with no spread term, and a reference of 0 (8.0 for itcz_lat) so that diff is the map value itself, in exact float64 arithmetic: land_minus_ocean 0.01 against the floor 0.01; subtropics_land_minus_ocean -0.01 (the negative side: abs); north_minus_south 0.01 + 0.5 against 0.01 + |-0.5| (the season term of ocean_north_minus_south); midlat_north_minus_south -(0.01 + 0.25) against 0.01 + 0.25; itcz_lat 10.5 - 8.0 = 2.5 against its floor 2.5 (dyadic, exact); deck_minus_open -0.01 against 0.01. Every |diff| EQUALS its tolerance bit for bit: the verdict is `<=`, so all six pass (an exclusive comparison fails all six). Every operation is a single IEEE addition, subtraction, abs or an exact mean, so the tie is portable.",
+ "params": {
+  "keys": [
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat",
+   "deck_minus_open",
+   "ocean_north_minus_south",
+   "ocean_midlat_north_minus_south"
+  ],
+  "judged": [
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat",
+   "deck_minus_open"
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "ref",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64
+  },
+  {
+   "name": "maps",
+   "dtype": "f64",
+   "shape": [
+    2,
+    8
+   ],
+   "offset": 64,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "reference",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 192,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 240,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "spread",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 288,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "season",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 336,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "tolerance",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 384,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "diff",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 432,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "pass",
+   "dtype": "bool",
+   "shape": [
+    6
+   ],
+   "offset": 480,
+   "nbytes": 6,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "69e8fabdab86b18ce100d35b4c5a07830f005cde3f91af9e19489bd3b928d755"
+}

@@ -1,0 +1,37 @@
+{
+ "format": 1,
+ "id": "hemispheric_land_asymmetry.smallest_2x2",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.hemispheric_land_asymmetry",
+ "doc": "The smallest legal grid, 2x2: one row per hemisphere, all land in the north: 0.5 (the cos weights cancel). 1e-9. Output `asymmetry` is 0-d: shape [] in case.json, one item of data.bin.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "asymmetry",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 16,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e11720fc47143deeeeac1c6c208f075cf304fc0a5e6bd1f3e39b4766eb20545e"
+}

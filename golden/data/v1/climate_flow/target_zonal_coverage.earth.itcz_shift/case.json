@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.earth.itcz_shift",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction with the ITCZ shifted by inputs.itcz_shift_deg (-20, -5, +5, +20 degrees, positive north): only the convergence peak moves, the flanks stay (the shift fades over half the Hadley edge); the two hemispheres differ. Output row i is shift[i]. Float64: rtol 1e-9.",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 0,
+   "nbytes": 5768
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 5768,
+   "nbytes": 32
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    4,
+    721
+   ],
+   "offset": 5800,
+   "nbytes": 23072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "491741113807a151b4642837ab22be84c58bd5bb8e19ecf6f7b9e65bfae4ef60"
+}

@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "normalize.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.normalize",
+ "doc": "float32 input stays float32 (the norm is accumulated in float32, x*x + y*y + z*z in that order); components 1e-15 and 1e15 are as extreme as float32 squares allow. Error against the float64 evaluation is 1.0e-7 relative (6.4e-8 absolute); default tolerance (1e-5 rel, 1e-6 abs) = 100x that.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    44,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 528
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    44,
+    3
+   ],
+   "offset": 528,
+   "nbytes": 528,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6a6e6871a0561254c67758ac6a63d8dce532185c3890d96bc0b7ea2bbdf71ff3"
+}

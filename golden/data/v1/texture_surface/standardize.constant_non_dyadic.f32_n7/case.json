@@ -1,0 +1,36 @@
+{
+ "format": 1,
+ "id": "standardize.constant_non_dyadic.f32_n7",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "NUMPY FLOAT32 ARTIFACT (a trap, not a model property): a CONSTANT float32 field of 7 values 0.1. The float32 mean (a sequential float32 sum of 7 values, then a float32 division by 7) is one ulp above 0.1f (7.45e-9), so v - mean = -7.45e-9 everywhere, the float32 std is 7.45e-9 > 0, the fallback is NOT taken and the result is -1 everywhere, not 0. The same constant with 8 or 16 values gives 0 (the unrolled pairwise sum is exact there), and with 64 values gives -1 again, so the outcome depends on the size and on float32 accumulation. A port that accumulates mean and std in float64 returns 0 for this input; a port that sums in float32, left to right, for n < 8 reproduces -1. The generator never standardizes a constant field, so a port may skip this case with that reason. Exact.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    7
+   ],
+   "offset": 0,
+   "nbytes": 28
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    7
+   ],
+   "offset": 32,
+   "nbytes": 28,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7f254331efc811cfa8727b285c1237eaec3eb3e73b6b44337d83c6bce7bcb285"
+}

@@ -1,0 +1,79 @@
+{
+ "format": 1,
+ "id": "octave_ladder.fragile",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.octave_ladder",
+ "doc": "hi / low is EXACTLY lacunarity^3, so the floor of ln(ratio) / ln(lacunarity) sits on the integer 3: with lacunarity 2 numpy gives 3.0 (n = 4, start 1) but with 2.03 it gives 2.9999999999999996 (n = 3, start 2.03, although four octaves 1, 2.03, 4.12, 8.37 fit). The result depends on how ln rounds, so another math library can land on the other side. Tagged fragile: it pins the Python result. n exact, start float64 closed form (rtol 1e-9).",
+ "params": {},
+ "tags": [
+  "fragile"
+ ],
+ "inputs": [
+  {
+   "name": "low_frequency",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  },
+  {
+   "name": "max_frequency",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 16,
+   "nbytes": 16
+  },
+  {
+   "name": "lacunarity",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 32,
+   "nbytes": 16
+  },
+  {
+   "name": "top",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 48,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "start",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 64,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "n",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 80,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "48d42d57cf358b46c6cbc9940a8d3de518e3baeb199ef078f25ffdf5b5bb851d"
+}

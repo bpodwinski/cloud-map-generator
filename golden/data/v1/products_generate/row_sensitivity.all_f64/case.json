@@ -1,0 +1,87 @@
+{
+ "format": 1,
+ "id": "row_sensitivity.all_f64",
+ "group": "products_generate",
+ "function": "cloudgen.generate.row_sensitivity",
+ "doc": "The typical call with every input float64: no float32 rounding left, so the difference quotient is checked to rtol 1e-9 (the only difference is the summation order of the row means, relative 1e-16, amplified by the cancellation in lo - hi, at most 1e-13 here). Arguments: s, fine, thr, streak and subtexel are the inputs of that name when listed; an unlisted streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads plus sensitivity_step. The floor 0.05 is a literal of the source. Measured: one-ulp nudges of every float input and parameter change it by at most 2.2e-15 (worst of 6 random trials); the tolerance is more than 1e5 times that spread.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6,
+   "sensitivity_step": 0.05
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "fine",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 16384
+  },
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 32768,
+   "nbytes": 256
+  },
+  {
+   "name": "streak",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 16384
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 49408,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "sens",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 65792,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "84194c04db831aaa44f0c3de578311c2a72bb236cde66288a88a3620fe832125"
+}

@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "lumps.fifth_nearest_ignored.s64.seed828",
+ "group": "tiles",
+ "function": "cloudgen.tiles.lumps",
+ "doc": "ONLY THE 4 NEAREST ARE QUERIED. On this draw the texel (row 6, col 47) is covered by a 5th-nearest lump whose dome is 0.066 higher than the best of the 4 nearest: Python IGNORES it (k = 4), so a port that scans every lump covering a texel (a 3x3 cell neighborhood, k = 5 or more) differs there and nowhere else on this tile (about 2 texels in 4 million do). The texel (row 37, col 10) is won by the 4th-nearest lump (a max over 3 is lower by 0.115). The jittered lump grid (60 x 60 = 3600 centers g, [x, y] in tile units, and their radii r (0.35 to 0.7 of the spacing)) is the input (plan0.g, plan0.r); freq = round(240 / 4) = 60 is read from the source (params.constants). dome = max over the 4 NEAREST lumps (by distance, periodic KD tree, not by normalized distance) of clip(1 - dist / r, 0, 1)^0.6. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 6e-14, because x^0.6 has an infinite slope at 0 (a distance within an ulp of r moves the value by up to (1e-16)^0.6 = 1.6e-10): 1e-9 relative, 1e-9 absolute.",
+ "params": {
+  "size": 64,
+  "seed": 828,
+  "constants": {
+   "REFERENCE_TILE_KM": 240.0,
+   "LUMP_KM": 4.0,
+   "LUMP_RADIUS": [
+    0.35,
+    0.7
+   ],
+   "freq": 60
+  },
+  "literals": {
+   "kd_k": 4,
+   "exponent": 0.6
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.lumps",
+    "size": 64,
+    "seed": 828
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.g",
+   "dtype": "f64",
+   "shape": [
+    3600,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 57600
+  },
+  {
+   "name": "plan0.r",
+   "dtype": "f64",
+   "shape": [
+    3600
+   ],
+   "offset": 57600,
+   "nbytes": 28800
+  }
+ ],
+ "outputs": [
+  {
+   "name": "dome",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 86400,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e782bd2dfc4b71a7270338876cbea45f8ff8399f433c52edfeb430aa1ccab71b"
+}

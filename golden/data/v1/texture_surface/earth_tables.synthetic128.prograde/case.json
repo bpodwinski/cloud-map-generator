@@ -1,0 +1,122 @@
+{
+ "format": 1,
+ "id": "earth_tables.synthetic128.prograde",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.earth_tables",
+ "doc": "Zonal means of continentality (300 km smoothing) and of deck_window x deck_strength in the 15 bands x in [k/6, (k+1)/6) of x = |lat| / phi_H (both hemispheres together; a row with x >= 15/6 is in no band). Float32 field means in float32: default tolerance, measured worst difference against the float64 chain 2.2e-8. The coast threshold is at least 1e-4 from every texel (asserted). 128x64 synthetic world, Hadley 30, prograde, Earth radius, width 128 (the surface needs no resampling). Every band holds at least one row at this resolution. Every band holds at least one row: all 30 outputs are finite. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "spin": 1.0,
+  "hadley_deg": 30.0,
+  "width": 128,
+  "band_edges_x": [
+   0.0,
+   0.16666666666666666,
+   0.3333333333333333,
+   0.5,
+   0.6666666666666666,
+   0.8333333333333334,
+   1.0,
+   1.1666666666666667,
+   1.3333333333333333,
+   1.5,
+   1.6666666666666667,
+   1.8333333333333333,
+   2.0,
+   2.1666666666666665,
+   2.3333333333333335,
+   2.5
+  ],
+  "empty_bands": [],
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001,
+   "DECK_COAST_LAND": 0.5,
+   "DECK_EFOLD_KM": 1200.0,
+   "DECK_MAX_SEARCH_KM": 4000.0,
+   "window_rise": [
+    0.3,
+    0.5
+   ],
+   "window_fall": [
+    0.95,
+    1.25
+   ],
+   "band_edges_x": [
+    0.0,
+    0.16666666666666666,
+    0.3333333333333333,
+    0.5,
+    0.6666666666666666,
+    0.8333333333333334,
+    1.0,
+    1.1666666666666667,
+    1.3333333333333333,
+    1.5,
+    1.6666666666666667,
+    1.8333333333333333,
+    2.0,
+    2.1666666666666665,
+    2.3333333333333335,
+    2.5
+   ]
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 65536,
+   "nbytes": 120,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "deck",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 65656,
+   "nbytes": 120,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "021c945ad009ff80715949b1b0b9f172454365c1c43bc2410f68993ac7f2742f"
+}

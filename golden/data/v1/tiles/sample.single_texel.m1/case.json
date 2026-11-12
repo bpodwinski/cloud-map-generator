@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "sample.single_texel.m1",
+ "group": "tiles",
+ "function": "cloudgen.tiles._sample",
+ "doc": "A 1x1 field: every index is trunc(p) % 1 = 0, whatever the point: the smallest legal tile. Exact.",
+ "params": {
+  "m": 1
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  },
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    4,
+    2
+   ],
+   "offset": 8,
+   "nbytes": 64
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 72,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "33b74d4a758bac57dbd8efbb7426295100513df8942879ecca7f64b2e3760f02"
+}

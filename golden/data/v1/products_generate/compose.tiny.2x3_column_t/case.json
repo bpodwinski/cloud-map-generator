@@ -1,0 +1,89 @@
+{
+ "format": 1,
+ "id": "compose.tiny.2x3_column_t",
+ "group": "products_generate",
+ "function": "cloudgen.generate.compose",
+ "doc": "A (2, 3) field with a (2, 1) float64 threshold column and a (2, 3) subtexel: broadcasting of the column over the columns, smallest 2D case. Pipeline dtypes; tolerance as compose.pipeline_dtypes. Arguments: s, fine, t, streak and subtexel are the inputs of that name when listed; an unlisted t, streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads (the others keep their defaults). params.result_dtype (\"f64\" or \"f32\") is the dtype numpy gives the result by promotion (a float64 t array or float64 inputs give f64, a python-float t with float32 fields keeps f32); it is informational, the stored output has that dtype. Measured: promoting the float32 inputs to float64 changes the output by at most 1.8e-8; one-ulp nudges of every float input and parameter change it by at most 5.9e-8 (worst of 6 random trials); the tolerance is about 2e2x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "result_dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 24,
+   "nbytes": 24
+  },
+  {
+   "name": "t",
+   "dtype": "f64",
+   "shape": [
+    2,
+    1
+   ],
+   "offset": 48,
+   "nbytes": 16
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 64,
+   "nbytes": 24
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 88,
+   "nbytes": 24
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    2,
+    3
+   ],
+   "offset": 112,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "65938603347bacc24ba3dd7afcdae157f6a1a9f65709ca470d7f86b4ce386339"
+}

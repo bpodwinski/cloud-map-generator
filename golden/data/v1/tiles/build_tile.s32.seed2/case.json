@@ -1,0 +1,480 @@
+{
+ "format": 1,
+ "id": "build_tile.s32.seed2",
+ "group": "tiles",
+ "function": "cloudgen.tiles.build_tile",
+ "doc": "The RGBA tile on 32x32, seed 2 (passed explicitly; params.defaults lists the defaults of the signature, size 1024 and seed 1, which no case can run at full size): stack(rank_bytes(raw_channels)) in CHANNELS order R heaps, G closed, B open, A sheet; every channel a rank (each byte level holds 4 texels of 1024, ties excepted: the open channel has a clear-center plateau of 19 equal texels). All random draws of the call are the inputs (plan0..plan19, the same 20 draws and order as raw_channels; 32x32 keeps the file small, the fixed-size lattices of the heaps and the Poisson sets are the same). params.plan_roles names the role of each draw (plan0 to plan2 the heaps lattices, plan3 to plan11 the closed channel, plan12 to plan18 the open channel, plan19 the sheet) and params.stages gives every formula with the inline literals that params.constants (the module constants) does not hold. NOTE: plan6 and plan7 are the SAME draw (the closed crack width is drawn with the seed of the y-warp fBm, seed + 105, low 3, slope 3: width and warp are one correlated field), and so are plan15 and plan16 in the open channel (seed + 155): a port that draws independent fields is statistically different from the Python maps; share the draw to match them. Bytes: exact (0 flipped texels in 8 nudge trials of every random input by one ulp and with scipy.fft). Output (32, 32, 4) uint8, row-major, channel last.",
+ "params": {
+  "size": 32,
+  "seed": 2,
+  "defaults": {
+   "size": 1024,
+   "seed": 1
+  },
+  "constants": {
+   "TILE_SIZE": 1024,
+   "REFERENCE_TILE_KM": 240.0,
+   "HEAP_CLUSTERS": 8,
+   "HEAP_CELLS": 32,
+   "PUFFS": 96,
+   "HEAP_BASE": 0.2,
+   "ENVELOPE_FLOOR": 0.2,
+   "CLOSED_CELL_KM": [
+    8.0,
+    32.0
+   ],
+   "OPEN_CELL_KM": [
+    12.0,
+    48.0
+   ],
+   "LUMP_KM": 4.0,
+   "LUMP_RADIUS": [
+    0.35,
+    0.7
+   ],
+   "BORDER_WARP": 0.12,
+   "SHEET_LOW": 2.0,
+   "SHEET_SLOPE": 3.0,
+   "CHANNELS": [
+    "heaps",
+    "closed",
+    "open",
+    "sheet"
+   ]
+  },
+  "stages": [
+   "U(low, seed, slope = 3) = ndtr(periodic_fbm(size, low, slope, seed)); F1(freq, seed) = tileable_worley(size, freq, seed)[0]; inv(f) = max(0, 1 - f); smoothstep(a, b, x) = k^2 (3 - 2k), k = clip((x - a) / (b - a), 0, 1)",
+   "HEAPS: clusters = inv(F1(8 = HEAP_CLUSTERS, seed + 11)); cells = inv(F1(32 = HEAP_CELLS, seed + 23)); puffs = inv(F1(96 = PUFFS, seed + 37)); envelope = 0.5 clusters + 0.5 cells; heaps = ENVELOPE_FLOOR envelope + puffs (HEAP_BASE + (1 - HEAP_BASE - ENVELOPE_FLOOR) envelope)",
+   "CLOSED: border = warped_voronoi(size, cell_size_field(size, CLOSED_CELL_KM, seed + 101), seed + 103)[0]; width = 0.03 + 0.22 U(3.0, seed + 105); open_crack = smoothstep(0.25, 0.65, U(4.0, seed + 107)); crack = open_crack (1 - smoothstep(0, 1, border / width)); depth = 0.55 + 0.4 U(6.0, seed + 111); sag = 1 - 0.35 open_crack (1 - smoothstep(0, 0.6, border)); tops = inv(F1(64, seed + 113)); texture = 0.3 tops + 0.7 U(12.0, seed + 109, slope = 2.0); closed = sag (0.7 + 0.3 texture) (1 - depth crack)",
+   "OPEN: border_o = warped_voronoi(size, cell_size_field(size, OPEN_CELL_KM, seed + 151), seed + 153)[0]; wall_width = 0.15 + 0.3 U(3.0, seed + 155); wall = 1 - smoothstep(0, 1, border_o / wall_width); wall = wall (0.25 + 0.75 smoothstep(0.2, 0.6, U(5.0, seed + 157))); inward = 1 - clip(border_o, 0, 1); open = wall lumps(size, seed + 159) + 0.03 wall + 0.02 inward",
+   "SHEET: periodic_fbm(size, SHEET_LOW, SHEET_SLOPE, seed + 211)",
+   "Evaluation order, which fixes the order of the draws: heaps; the closed lines top to bottom (cell_size_field, warped_voronoi = Poisson set then its two warp fBms, width, open_crack, depth, tops, texture); the open lines in the same way (cell_size_field, warped_voronoi, wall_width, wall gaps, lumps); the sheet."
+  ],
+  "plan_roles": [
+   "plan0: heaps.clusters",
+   "plan1: heaps.cells",
+   "plan2: heaps.puffs",
+   "plan3: closed.cell_size_field",
+   "plan4: closed.poisson",
+   "plan5: closed.warp_x",
+   "plan6: closed.warp_y",
+   "plan7: closed.width (the SAME draw as closed.warp_y)",
+   "plan8: closed.open_crack",
+   "plan9: closed.depth",
+   "plan10: closed.tops",
+   "plan11: closed.texture",
+   "plan12: open.cell_size_field",
+   "plan13: open.poisson",
+   "plan14: open.warp_x",
+   "plan15: open.warp_y",
+   "plan16: open.wall_width (the SAME draw as open.warp_y)",
+   "plan17: open.wall_gaps",
+   "plan18: open.lumps",
+   "plan19: sheet"
+  ],
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.worley",
+    "size": 32,
+    "freq": 8,
+    "seed": 13
+   },
+   {
+    "index": 1,
+    "kind": "tile.worley",
+    "size": 32,
+    "freq": 32,
+    "seed": 25
+   },
+   {
+    "index": 2,
+    "kind": "tile.worley",
+    "size": 32,
+    "freq": 96,
+    "seed": 39
+   },
+   {
+    "index": 3,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 103
+   },
+   {
+    "index": 4,
+    "kind": "tile.poisson",
+    "seed": 105,
+    "spacing": 0.85
+   },
+   {
+    "index": 5,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 106
+   },
+   {
+    "index": 6,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 107
+   },
+   {
+    "index": 7,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 107
+   },
+   {
+    "index": 8,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 4.0,
+    "slope": 3.0,
+    "seed": 109
+   },
+   {
+    "index": 9,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 6.0,
+    "slope": 3.0,
+    "seed": 113
+   },
+   {
+    "index": 10,
+    "kind": "tile.worley",
+    "size": 32,
+    "freq": 64,
+    "seed": 115
+   },
+   {
+    "index": 11,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 12.0,
+    "slope": 2.0,
+    "seed": 111
+   },
+   {
+    "index": 12,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 153
+   },
+   {
+    "index": 13,
+    "kind": "tile.poisson",
+    "seed": 155,
+    "spacing": 0.85
+   },
+   {
+    "index": 14,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 156
+   },
+   {
+    "index": 15,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 157
+   },
+   {
+    "index": 16,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 157
+   },
+   {
+    "index": 17,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 5.0,
+    "slope": 3.0,
+    "seed": 159
+   },
+   {
+    "index": 18,
+    "kind": "tile.lumps",
+    "size": 32,
+    "seed": 161
+   },
+   {
+    "index": 19,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 2.0,
+    "slope": 3.0,
+    "seed": 213
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.jitter",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan1.jitter",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32,
+    2
+   ],
+   "offset": 1024,
+   "nbytes": 16384
+  },
+  {
+   "name": "plan2.jitter",
+   "dtype": "f64",
+   "shape": [
+    96,
+    96,
+    2
+   ],
+   "offset": 17408,
+   "nbytes": 147456
+  },
+  {
+   "name": "plan3.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 164864,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan4.cand",
+   "dtype": "f64",
+   "shape": [
+    10738,
+    2
+   ],
+   "offset": 173056,
+   "nbytes": 171808
+  },
+  {
+   "name": "plan4.keep",
+   "dtype": "bool",
+   "shape": [
+    10738
+   ],
+   "offset": 344864,
+   "nbytes": 10738
+  },
+  {
+   "name": "plan5.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 355608,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan6.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 363800,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan7.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 371992,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan8.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 380184,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan9.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 388376,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan10.jitter",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64,
+    2
+   ],
+   "offset": 396568,
+   "nbytes": 65536
+  },
+  {
+   "name": "plan11.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 462104,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan12.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 470296,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan13.cand",
+   "dtype": "f64",
+   "shape": [
+    4742,
+    2
+   ],
+   "offset": 478488,
+   "nbytes": 75872
+  },
+  {
+   "name": "plan13.keep",
+   "dtype": "bool",
+   "shape": [
+    4742
+   ],
+   "offset": 554360,
+   "nbytes": 4742
+  },
+  {
+   "name": "plan14.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 559104,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan15.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 567296,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan16.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 575488,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan17.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 583680,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan18.g",
+   "dtype": "f64",
+   "shape": [
+    3600,
+    2
+   ],
+   "offset": 591872,
+   "nbytes": 57600
+  },
+  {
+   "name": "plan18.r",
+   "dtype": "f64",
+   "shape": [
+    3600
+   ],
+   "offset": 649472,
+   "nbytes": 28800
+  },
+  {
+   "name": "plan19.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 678272,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "tile",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32,
+    4
+   ],
+   "offset": 686464,
+   "nbytes": 4096,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "446245a1fcee6473bd37515b34a0f588e1df8c5c59026ca8c390ced4c45277cd"
+}

@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "along.grid_f32.f0p25",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "normalize(p (1 - f) + back f) with f = 0.25 (the generator's advect_fine) on the float32 grid directions of a 64x32 map and an analytic float32 back-trace (a latitude-dependent rotation about the axis plus a tilt): the vector blend, the norm and the division all run in float32. Tolerance is the golden float32 default. Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: promoting the float32 inputs to float64 changes the output by at most 9.5e-8; one-ulp nudges of every float input and parameter change it by at most 1.8e-7 (worst of 6 random trials); the tolerance is 29x the larger of the two spreads.",
+ "params": {
+  "f": 0.25
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24576
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 24576,
+   "nbytes": 24576
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 49152,
+   "nbytes": 24576,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "47db38587f739023d115f8e3d0ee26ef4ffb2522c305bf547825d9f776085cee"
+}

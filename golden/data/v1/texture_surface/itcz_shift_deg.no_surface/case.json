@@ -1,0 +1,32 @@
+{
+ "format": 1,
+ "id": "itcz_shift_deg.no_surface",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.itcz_shift_deg",
+ "doc": "surface None: 0.0 (a body without a surface keeps the ITCZ on the equator). Exact zero. Output `shift_deg` is 0-d: shape [] in case.json, one item of data.bin. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "hadley_deg": 30.0,
+  "surface_is_none": true,
+  "constants": {
+   "EARTH_ITCZ_SHIFT_X": 0.16666666666666666,
+   "EARTH_LAND_ASYMMETRY": 0.2,
+   "ITCZ_SHIFT_MAX_X": 0.35
+  }
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "shift_deg",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 0,
+   "nbytes": 8,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc"
+}

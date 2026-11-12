@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "along.tiny.single_vector",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "One float32 vector of shape (3,) (no batch axes): the smallest legal shape; f = 0.25. Tolerance is the golden float32 default. Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: promoting the float32 inputs to float64 changes the output by at most 3.4e-8; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is 59x the larger of the two spreads.",
+ "params": {
+  "f": 0.25
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    3
+   ],
+   "offset": 0,
+   "nbytes": 12
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    3
+   ],
+   "offset": 16,
+   "nbytes": 12
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    3
+   ],
+   "offset": 32,
+   "nbytes": 12,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1af691d0a0a138c325e9f338af044dcee26b3e3da82eca1df58b9fa13fcf2644"
+}

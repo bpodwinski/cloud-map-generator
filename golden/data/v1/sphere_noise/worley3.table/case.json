@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "worley3.table",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__init__",
+ "doc": "The constructor doubles the 1024-entry permutation to 2048 entries (int64) so that perm[perm[x] + y] with x, y < 1024 indexes up to 2046 without a wrap; the jitter table is 1024 x 3 float32 uniform draws in [0, 1) (both recorded, inputs). Output: the doubled permutation, exact.",
+ "params": {
+  "seed": 4,
+  "size": 1024,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 4
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 8192,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "perm",
+   "dtype": "i64",
+   "shape": [
+    2048
+   ],
+   "offset": 20480,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3877198126a28ef31994ca615d451ed421e7635defb73f0638d0d1c6e16bc5ba"
+}

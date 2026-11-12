@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "detail_lost_2x.smallest",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.detail_lost_2x",
+ "doc": "Share of the variance lost by a 2x2 box average brought back bilinearly (rows clamp, columns wrap): the image is converted to float64 first, then every step is float64 (floor, clip, bilinear lerp, population variance), so a port is within 1e-9 (numpy against exactly rounded math.fsum sums: < 5e-16 relative). The smallest legal size, 2x2 (odd sizes do not reshape: a ValueError, not a case): one half-size texel, every lookup clamps or wraps onto it.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 32
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lost",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8dd4c40c0f8672f416f96acf5a74e0ce9281d08d2c13894a80927a65e8964dfa"
+}

@@ -1,0 +1,147 @@
+{
+ "format": 1,
+ "id": "build_flow.super_earth_2r.seed7",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.build_flow",
+ "doc": "The vortex list build_flow draws for body super_earth_2r and seed 7 (30 vortices: cyclone, anticyclone pairs per hemisphere then Poisson(1.5) tropical storms), as arrays in vortex order (kind 0 cyclone, 1 anticyclone, 2 tropical; lon, lat, radius, omega, ascent, age) and the four flow scalars (hadley_deg, jet, trades, polar_easterlies). The numbers come from numpy default_rng(seed ^ 0x5F10): a port with another generator CANNOT reproduce lon, lat, radius, omega or age, so this case is tagged rng; it binds a port only through flow_scalars, the vortex count per kind and hemisphere and the sign of omega (see build_flow.structure.bodies and the stat cases) and it feeds the kernels real vortex lists. Python-vs-Python tolerance: float64 rtol 1e-9, kind exact.",
+ "params": {
+  "seed": 7,
+  "body": "super_earth_2r",
+  "cloud_regime": "water",
+  "kind_codes": {
+   "cyclone": 0,
+   "anticyclone": 1,
+   "tropical": 2
+  },
+  "rng": "numpy.random.default_rng(seed ^ 0x5F10)",
+  "tag_rng": "a port with another random generator skips this case, except flow_scalars and the vortex count per kind and hemisphere (which equal build_flow.structure.bodies)"
+ },
+ "tags": [
+  "rng"
+ ],
+ "inputs": [
+  {
+   "name": "body",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 0,
+   "nbytes": 32
+  }
+ ],
+ "outputs": [
+  {
+   "name": "flow_scalars",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 32,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "kind",
+   "dtype": "i32",
+   "shape": [
+    30
+   ],
+   "offset": 64,
+   "nbytes": 120,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 184,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 424,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "radius",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 664,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "omega",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 904,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "ascent",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 1144,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "age",
+   "dtype": "f64",
+   "shape": [
+    30
+   ],
+   "offset": 1384,
+   "nbytes": 240,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0427eb50865c923e137d6ec915561a8a4151a642899f137563d4b1920f37a3a5"
+}

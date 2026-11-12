@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "worley3.f32.wrap1024",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "The lattice repeats every 1024 cells (the index is & 1023, two's complement for negatives): 120 base points in cells 0..1023 with fractions k/64 (exact in float32), repeated shifted by multiples of 1024 (up to +-3 periods, both signs) and by -1024: F1 and F2 are bit-identical across the copies (asserted at build time). Default tolerance. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 13,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 13
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f32",
+   "shape": [
+    360,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 4320
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 4320,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 12512,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    360
+   ],
+   "offset": 24800,
+   "nbytes": 1440,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    360
+   ],
+   "offset": 26240,
+   "nbytes": 1440,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7242ae18470c26c275e7001eb275ccd78cef25aff163008e6093dadaab18eec1"
+}

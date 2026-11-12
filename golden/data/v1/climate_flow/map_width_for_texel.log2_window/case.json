@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "map_width_for_texel.log2_window",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.map_width_for_texel",
+ "doc": "The one place the rule is not an exact ceil: radii (inputs.radius_km, texel 3, cap 1 << 20) whose w = 2 pi radius / texel is exactly ONE ULP above 2^5, 2^8, 2^10, 2^12 and 2^14. math.log2 returns the integer itself (the true value is 0.2 to 0.4 ulp above it and rounds back), so ceil gives k and the Python width is 2^k (32, 256, 1024, 4096, 16384), where the exact rule would give 2^(k+1) (64, 512, 2048, 8192, 32768; params.exact_rule_width, informational: NOT the expected output). The oracle follows math.log2: a port must call its libm log2 on w and take the ceil, not test w against a power of two in integers. This relies on log2 being correctly rounded here (error below 0.5 ulp, which the Python platform libm gives); a log2 with up to 1 ulp of error may return the next double and then agrees with the exact rule instead, so these rows are the behavior of the oracle, not a portable truth. Integers: exact.",
+ "params": {
+  "texel_km": 3.0,
+  "max_width": 1048576,
+  "k": [
+   5,
+   8,
+   10,
+   12,
+   14
+  ],
+  "exact_rule_width": [
+   64,
+   512,
+   2048,
+   8192,
+   32768
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "radius_km",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 0,
+   "nbytes": 40
+  }
+ ],
+ "outputs": [
+  {
+   "name": "width",
+   "dtype": "i64",
+   "shape": [
+    5
+   ],
+   "offset": 40,
+   "nbytes": 40,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f67b5ca68179bbf7329cb525eb4c1517b59180a78784c4a8d8112ef2e1d37654"
+}

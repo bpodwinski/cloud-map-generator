@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "zonal_profile.one_band",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.zonal_profile",
+ "doc": "Row means grouped in 360-degree latitude bands (edges arange(-90, 90 + band, band), band k holds rows with a <= lat < b, lat = degrees of the row center); centers are the band midpoints. A band wider than the globe: edges (-90, 270), one band centered at 90 that holds every row (the mean of all row means). Centers are float64 closed-form (1e-9). The profile is a mean of float32 rows (float32 pairwise accumulation, stored dtype follows the image): float32 tolerance, measured 8e-8 absolute (1.3e-7 relative) against the same rows promoted to float64. An empty band is NaN (numpy warns).",
+ "params": {
+  "band_deg": 360.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    16,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "centers",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 512,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "profile",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 520,
+   "nbytes": 4,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ef21e4a56dff086e6d3dbf1905d9f69400331eba175073727cf73a8ccdd00fd2"
+}

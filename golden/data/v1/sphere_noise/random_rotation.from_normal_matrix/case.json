@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "random_rotation.from_normal_matrix",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise._random_rotation",
+ "doc": "QR of a 3x3 matrix g drawn from the normal distribution (g is the INPUT: the draw), then the columns of q are multiplied by sign(diag(r)) (which makes the factorization unique, so any QR algorithm gives this q), then column 0 is negated when det(q) < 0, so the result is a proper rotation (det +1). 34 matrices: the identity, -I, diag(1,1,-1) (the determinant flip), permutation and triangular ones with negative diagonals, 24 random normal matrices, and two scaled by 1e3 and 1e-3 (the rotation is scale free). The flip of column 0 is taken for 20 of the 34 and not for the others (checked at build time; condition numbers below 1e3). The Python function takes a numpy Generator and calls rng.normal(size=(3, 3)) once: the case replaces that draw by the input g (a port's equivalent is a function of g, params.rng_draw). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "rng_draw": "g = rng.normal(size=(3, 3)), float64, the only draw _random_rotation makes",
+  "stand_in": "q = _random_rotation(rng) where rng.normal(size=(3, 3)) returns the input g"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "g",
+   "dtype": "f64",
+   "shape": [
+    34,
+    3,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 2448
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f64",
+   "shape": [
+    34,
+    3,
+    3
+   ],
+   "offset": 2448,
+   "nbytes": 2448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d0e8f2c8830529d826ac6c0b52dff1d4232b6e3ecec4b0450d88ff51bedd96fa"
+}

@@ -1,0 +1,90 @@
+{
+ "format": 1,
+ "id": "compose.cumulus_clips",
+ "group": "products_generate",
+ "function": "cloudgen.generate.compose",
+ "doc": "cumulus_max = 1, a_fine = 1, fine up to +-1.6 and a sub-texel std of 3 (n_clouds = 1/9, outside the pipeline range on purpose): both the first clip (density (1 + a_fine fine) outside [0, 1]) and the one after the binomial term are taken at 0 and at 1; the first row holds fine = -1, 0, +1 at density exactly 1, where c is exactly 0 or 1 and sqrt(c (1 - c)) is 0. float32 fields, float64 threshold column, output float64; tolerance is the default float32 band with frac = 0.005 (the sqrt makes a few texels ill-conditioned, see the measurement). Arguments: s, fine, t, streak and subtexel are the inputs of that name when listed; an unlisted t, streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads (the others keep their defaults). params.result_dtype (\"f64\" or \"f32\") is the dtype numpy gives the result by promotion (a float64 t array or float64 inputs give f64, a python-float t with float32 fields keeps f32); it is informational, the stored output has that dtype. Measured: promoting the float32 inputs to float64 changes the output by at most 1.4e-6; one-ulp nudges of every float input and parameter change it by at most 5.7e-5 (worst of 6 random trials); 0.05% of the elements leave the default band in the worst trial (the sqrt of c (1 - c) has an infinite slope where c reaches 0 or 1), so frac = 0.005 is 10x that.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 1.0,
+   "cumulus_depth": 3.0,
+   "a_fine": 1.0
+  },
+  "result_dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "t",
+   "dtype": "f64",
+   "shape": [
+    32,
+    1
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16640,
+   "nbytes": 8192
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06,
+    "frac": 0.005
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "904d501f0ebe8f82c67f345bfb0f4d80b9fb3dc62d52de8d52a12d795aa49849"
+}

@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "standardize.f32.tiny_std_1e-15",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "A float32 field with std 1.0e-15 (squares of 1e-30 stay normal float32, no denormal): still strictly positive, so the result has unit variance. A threshold of 1e-12 or 1e-9 instead of 0 would return values of order 1e-15. Default tolerance 1e-5/1e-6 (scale-free relative error, as the 1e-4 case).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 256,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "83cf8ba8ec715498e6fbecc98656b767a89612633bbc532684fa35f2681d2565"
+}

@@ -1,0 +1,31 @@
+{
+ "format": 1,
+ "id": "texel_centers.s8",
+ "group": "tiles",
+ "function": "cloudgen.tiles._texel_centers",
+ "doc": "Texel centers ((i + 0.5) / 8) of a 8x8 tile as (size^2, 2) rows [x, y] in row-major order (x = column varies fastest). One correctly rounded float64 division per coordinate: bit-identical in any IEEE port, checked at 1e-12 relative.",
+ "params": {
+  "size": 8
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "centers",
+   "dtype": "f64",
+   "shape": [
+    64,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 1e-15
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "327f93409b1a56ef2605264be00f6f6960b10f67a1b751a2205a6973b728c7be"
+}

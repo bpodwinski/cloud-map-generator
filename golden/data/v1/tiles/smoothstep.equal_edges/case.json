@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "smoothstep.equal_edges",
+ "group": "tiles",
+ "function": "cloudgen.tiles._smoothstep",
+ "doc": "Degenerate a == b: (x - a) / 0 is -inf, NaN (0/0) or +inf, which np.clip turns into 0, NaN and 1. Never reached by the generator (every call has a < b); pins the IEEE division semantics.",
+ "params": {
+  "a": 0.5,
+  "b": 0.5
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 0,
+   "nbytes": 40
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 40,
+   "nbytes": 40,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8ab3e5581c9a45c6930efe9e28dd7a357e6f7df37d2187d8de02a8d675fe133c"
+}

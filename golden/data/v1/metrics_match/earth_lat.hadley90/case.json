@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "earth_lat.hadley90",
+ "group": "metrics_match",
+ "function": "cloudgen.match._earth_lat",
+ "doc": "Earth-equivalent |latitude| (degrees) per row: min(|degrees(lat)| / hadley_deg * 30, 65) where 65 = EARTH_CAP_DEG - ZONE_DEG / 2 (past it the zones of Earth's ice-contaminated caps are replaced by the 62.5..67.5 zone). Edge at 90 degrees (no storm track): zones 0..5 only. Rows: a 64-row grid then the poles pulled in by 1e-3 rad (|lat| = 90 would sit exactly on a zone edge for this edge), the equator, +-0.0, 1e-9, 0.5, 1.2, 1.5 rad. Float64 closed form: 1e-9.",
+ "params": {
+  "hadley_deg": 90.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "earth_lat",
+   "dtype": "f64",
+   "shape": [
+    76
+   ],
+   "offset": 608,
+   "nbytes": 608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a192654cac83a775f5a6bb03cf99028f8b4860f8f32341d4aff8c1840aa2f7fb"
+}

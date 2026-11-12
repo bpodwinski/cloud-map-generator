@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "sample_equirect.f64_image",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "A float64 8x16 image sampled at 300 float64 unit directions (including the poles and the axes): the closed-form bilinear lookup with no float32 anywhere. rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 1024
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    300,
+    3
+   ],
+   "offset": 1024,
+   "nbytes": 7200
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    300
+   ],
+   "offset": 8224,
+   "nbytes": 2400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "89696537c443442bc6de76a9a0e28648c29bd3bcd816a72cbc30abd159b4e55d"
+}

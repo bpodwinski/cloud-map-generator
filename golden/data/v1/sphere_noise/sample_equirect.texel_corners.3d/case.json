@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "sample_equirect.texel_corners.3d",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "The corner directions on the three-channel image: (9, 17, 3) output, the four-texel mean per channel (wrap in longitude, clamp in latitude). float64, rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    9,
+    17,
+    3
+   ],
+   "offset": 1536,
+   "nbytes": 3672
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    9,
+    17,
+    3
+   ],
+   "offset": 5208,
+   "nbytes": 3672,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d178615f6aa71d32e1ba7dd335e915cc32e1a2554262d13118f78eaf7e5af17d"
+}

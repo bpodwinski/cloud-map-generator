@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "seam_ratio.denominator_floor",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.seam_ratio",
+ "doc": "Float64 columns 0, 3e-13, 6e-13, 9e-13: the neighbour difference 3e-13 is under the 1e-12 floor, which then divides the seam 9e-13 (0.9, not 3). Float64: 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    3,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 96
+  }
+ ],
+ "outputs": [
+  {
+   "name": "ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 96,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ac098c9c0a6d2d8e44a9ea5bf09d267d2b3cf2bda5198c66c6ed15e4ed58bffa"
+}

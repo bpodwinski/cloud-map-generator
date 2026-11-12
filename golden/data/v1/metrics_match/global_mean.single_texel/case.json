@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "global_mean.single_texel",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.global_mean",
+ "doc": "The smallest image (1x1, lat 0, weight 1): the value itself. Area-weighted mean: row means (float32 pairwise accumulation for a float32 image) weighted by cos(lat) in float64. A float64 accumulation of the same image differs by 2.3e-8 relative, so a port is within the float32 default. ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 4
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b06f4296af2dd602ec6d8edf34b22145fbd36055f456972b56773203062e9fec"
+}

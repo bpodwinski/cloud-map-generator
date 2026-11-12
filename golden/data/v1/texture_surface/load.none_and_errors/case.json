@@ -1,0 +1,74 @@
+{
+ "format": 1,
+ "id": "load.none_and_errors",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.load",
+ "doc": "load(None) and load({}) return None (a body without a surface); a record naming a land or an elevation file that does not exist raises FileNotFoundError; a record whose files exist loads. Each output is a boolean that must be true. A missing file is an error, not a None.",
+ "params": {},
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "none_for_none",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "none_for_empty_dict",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "raises_missing_land",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 16,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "raises_missing_elevation",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 24,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "ok_when_both_exist",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 32,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "648ec063f0648d3da486834c46675003c0fa14e0b0bee3925b94f2b9e29337dc"
+}

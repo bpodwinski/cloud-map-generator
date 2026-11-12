@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "earth_lat.f32.hadley30",
+ "group": "metrics_match",
+ "function": "cloudgen.match._earth_lat",
+ "doc": "Earth-equivalent |latitude| (degrees) per row: min(|degrees(lat)| / hadley_deg * 30, 65) where 65 = EARTH_CAP_DEG - ZONE_DEG / 2 (past it the zones of Earth's ice-contaminated caps are replaced by the 62.5..67.5 zone). A float32 latitude array: np.degrees and the arithmetic stay float32 (the output is float32). Float32 chain of 4 operations: 1e-5.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    76
+   ],
+   "offset": 0,
+   "nbytes": 304
+  }
+ ],
+ "outputs": [
+  {
+   "name": "earth_lat",
+   "dtype": "f32",
+   "shape": [
+    76
+   ],
+   "offset": 304,
+   "nbytes": 304,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8584db1264f1a7a07d9e463d2cfaf16776edeb936a7086b8904c2d70bdf2f601"
+}

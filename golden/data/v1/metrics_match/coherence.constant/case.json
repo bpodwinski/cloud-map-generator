@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "coherence.constant",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. A flat patch: no gradient, trace 0, so every term is 0 / 1e-12 and the weighted sum over max(sum, 1e-12) is 0.0 (the guard branch).",
+ "params": {
+  "sigma": 4.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 2048,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "455a4e1461e783571aedc65aee00f2015721b64beba4a3c9849552cd35e309fe"
+}

@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "encode_wind.tiny.1x1",
+ "group": "products_generate",
+ "function": "cloudgen.products.encode_wind",
+ "doc": "One texel (1, 1, 2): east 10.0, north -3.5 m/s (the round trip of tests/test_products.py): (148, 121, 0). Exact bytes.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgb",
+   "dtype": "u8",
+   "shape": [
+    1,
+    1,
+    3
+   ],
+   "offset": 8,
+   "nbytes": 3,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "eb5f593e977893d366e465b7c202c8a6be10f6bc831923c6398d8a0a87e0c7e7"
+}

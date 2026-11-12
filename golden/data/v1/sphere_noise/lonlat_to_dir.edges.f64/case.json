@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "lonlat_to_dir.edges.f64",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.lonlat_to_dir",
+ "doc": "x = cos(lat)cos(lon), y = cos(lat)sin(lon), z = sin(lat), float64, over the product of longitudes {0, +-pi, pi/2, +-1, +-1e3, 1e6, 7} (the antimeridian both ways, huge and unreduced angles) and latitudes {+-pi/2 (the poles, where cos is 6e-17, not 0), 0, +-0.3, 2.0, -3.0, pi (beyond the pole: cos < 0, no clamp)} plus 64 random pairs. Closed form: rtol 1e-9, atol 1e-12 (the pole x, y are ~1e-17).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    144
+   ],
+   "offset": 0,
+   "nbytes": 1152
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    144
+   ],
+   "offset": 1152,
+   "nbytes": 1152
+  }
+ ],
+ "outputs": [
+  {
+   "name": "dir",
+   "dtype": "f64",
+   "shape": [
+    144,
+    3
+   ],
+   "offset": 2304,
+   "nbytes": 3456,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "41945ec75439091b3129b30d3c6bdcbb2019d9ccc01de901259476a007536778"
+}

@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "sample_equirect.texel_corners.2d",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "Directions at the 9x17 CORNERS of the texels (half a texel off the centers): each sample is the mean of the four surrounding texels, with longitude wrapped (corner column 0 at -pi and column 16 at +pi both average the last and the first texel columns) and latitude clamped (corner row 0 at the pole averages row 0 with itself, row 8 row 7). The poles here are lat = +-pi/2 with x, y ~ 6e-17, not exact zeros. float64.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 512
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    9,
+    17,
+    3
+   ],
+   "offset": 512,
+   "nbytes": 3672
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    9,
+    17
+   ],
+   "offset": 4184,
+   "nbytes": 1224,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9783e8c650fd4119052099914d2c27a282e4e072a2f47158eb53398204a465a4"
+}

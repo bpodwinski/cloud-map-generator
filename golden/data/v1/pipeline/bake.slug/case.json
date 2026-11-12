@@ -1,0 +1,59 @@
+{
+ "format": 1,
+ "id": "bake.slug",
+ "group": "pipeline",
+ "function": "bake.slug",
+ "doc": "slug(key) = key.replace(\":\", \"_\").replace(\" \", \"_\").lower() for the same 18 keys: str.lower is the full Unicode lowercase (accents, the final sigma of \"\u0391\u03a3\" -> \"\u03b1\u03c2\", \"\u0130\" -> \"i\" + U+0307, \"\u00df\" unchanged). Output: the UTF-8 bytes of the slugs back to back and the i32 offsets (n + 1 of them). Exact.",
+ "params": {
+  "keys": [
+   "earth",
+   "Dev:Gaia",
+   "Dev:Aurora",
+   "Sol:Earth Moon",
+   "mars",
+   "a b:C D",
+   "",
+   " ",
+   "::",
+   "UPPER:CASE",
+   "\u00c9ire \u2603",
+   "\u00c0\u00c9\u00ce \u00d5\u00fc",
+   "\u0391\u03a3",
+   "\u0130stanbul",
+   "Stra\u00dfe",
+   "\ud83c\udf0d globe",
+   "with\ttab",
+   "long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key long key "
+  ]
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "slug.bytes",
+   "dtype": "u8",
+   "shape": [
+    300
+   ],
+   "offset": 0,
+   "nbytes": 300,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "slug.offsets",
+   "dtype": "i32",
+   "shape": [
+    19
+   ],
+   "offset": 304,
+   "nbytes": 76,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c41ad30c0002ae9940ab3b01cb9dc003c5e852cbf1a1ea791f1398f01d34fa27"
+}

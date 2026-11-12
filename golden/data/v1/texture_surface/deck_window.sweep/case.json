@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "deck_window.sweep",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.deck_window",
+ "doc": "Latitude window of the marine stratocumulus, smoothstep(0.3, 0.5, x) (1 - smoothstep(0.95, 1.25, x)), over x from -0.2 to 3 (a negative x is outside the window), the four knees and 1e6. Float64 closed form: 1e-9 (measured: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp)). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "constants": {
+   "rise": [
+    0.3,
+    0.5
+   ],
+   "fall": [
+    0.95,
+    1.25
+   ]
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    166
+   ],
+   "offset": 0,
+   "nbytes": 1328
+  }
+ ],
+ "outputs": [
+  {
+   "name": "window",
+   "dtype": "f64",
+   "shape": [
+    166
+   ],
+   "offset": 1328,
+   "nbytes": 1328,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6ad54f8c89bb9ccbdd3e733c40fa52b4fcba507d989dd2c34013ad303fa7d766"
+}

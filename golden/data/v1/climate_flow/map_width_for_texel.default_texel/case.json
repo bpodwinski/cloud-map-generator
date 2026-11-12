@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "map_width_for_texel.default_texel",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.map_width_for_texel",
+ "doc": "map_width_for_texel(radius_km, max_width=...) with the default texel 3.0 km (params.texel_km): the radii of the defaults case with the cap alternating 4096 and 1 << 20 (inputs.max_width), so that the width is the power of two of the 3 km texel when the cap is not reached. Integers: exact.",
+ "params": {
+  "texel_km": 3.0,
+  "call": "map_width_for_texel(radius_km, max_width=max_width)"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "radius_km",
+   "dtype": "f64",
+   "shape": [
+    27
+   ],
+   "offset": 0,
+   "nbytes": 216
+  },
+  {
+   "name": "max_width",
+   "dtype": "i64",
+   "shape": [
+    27
+   ],
+   "offset": 216,
+   "nbytes": 216
+  }
+ ],
+ "outputs": [
+  {
+   "name": "width",
+   "dtype": "i64",
+   "shape": [
+    27
+   ],
+   "offset": 432,
+   "nbytes": 216,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "26b2777f52a2bc52bc6018a89f4d87c477b07d9cf25d0c2fd8a65a917e92e744"
+}

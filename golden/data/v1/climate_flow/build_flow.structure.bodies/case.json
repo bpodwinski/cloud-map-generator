@@ -1,0 +1,207 @@
+{
+ "format": 1,
+ "id": "build_flow.structure.bodies",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.build_flow",
+ "doc": "The part of build_flow that does NOT depend on the random draws (asserted equal over seeds 0..19), per body of params.names: the four flow scalars (hadley_deg, jet, trades, polar_easterlies; weak shear 0.3 / 0.1 / 0 and hadley 90 where there is no storm track), the number of cyclones and of anticyclones per hemisphere (north, south), both exactly m = max(2, round(x)) with x = 2 pi cos(track) / (5 L_R) (output wavenumber_x, NaN for a body without a storm track; Python round is half-to-even, the floor 2 is taken by threshold_below_50), and 0 for a body without a storm track (including every no-spin row), and the constant ascent weight per kind (cyclone 1, anticyclone -0.45, tropical 1.6) and the age of the non-cyclones (1), both asserted over the seeds. The 16 wave_<k>p5_below/above bodies put x 5e-5 (relative) below and above k + 0.5 for k = 2, 3, 4, 6, 8, 11, 14, 20 (m = k below, k + 1 above), so a wavelength factor (the 5 of 5 L_R) or a deformation radius off by more than 0.005 per cent changes m on one of them; no row sits exactly on a half-integer (the round-half-to-even tie is not pinned, it depends on the last bit of the libm). The input table holds NaN (a None or NaN period), +inf, 0, -0 and +-1e300 periods: no spin, no storm track. A port with any random generator must reproduce all of it exactly (scalars and wavenumber_x rtol 1e-9). Exact for the integers. NaN and infinities may appear in the inputs (a rotation period None is stored as NaN) and in the outputs: NaN equals NaN, an infinity equals the same infinity (sign included).",
+ "params": {
+  "names": [
+   "earth",
+   "mars",
+   "titan",
+   "venus",
+   "fast_rotator_0.4d",
+   "retrograde_earth",
+   "slow_rotator_4d",
+   "super_earth_2r",
+   "small_moon",
+   "threshold_below_50",
+   "threshold_above_50",
+   "threshold_below_1ulp_of_50",
+   "threshold_exact_50",
+   "threshold_above_1ulp_of_50",
+   "very_fast_0.05d",
+   "wave_2p5_below",
+   "wave_2p5_above",
+   "wave_3p5_below",
+   "wave_3p5_above",
+   "wave_4p5_below",
+   "wave_4p5_above",
+   "wave_6p5_below",
+   "wave_6p5_above",
+   "wave_8p5_below",
+   "wave_8p5_above",
+   "wave_11p5_below",
+   "wave_11p5_above",
+   "wave_14p5_below",
+   "wave_14p5_above",
+   "wave_20p5_below",
+   "wave_20p5_above",
+   "no_spin_none",
+   "no_spin_nan",
+   "no_spin_inf",
+   "no_spin_zero",
+   "no_spin_negative_zero",
+   "period_huge",
+   "period_negative_huge",
+   "tiny_radius"
+  ],
+  "cloud_regime": [
+   "water",
+   "thin water ice",
+   "methane",
+   "sulfuric acid",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water",
+   "water"
+  ],
+  "note": "a NaN rotation period stands for None or NaN: both mean no spin",
+  "ascent_by_kind": {
+   "cyclone": 1.0,
+   "anticyclone": -0.45,
+   "tropical": 1.6
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rotation_period_days",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 0,
+   "nbytes": 312
+  },
+  {
+   "name": "radius_km",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 312,
+   "nbytes": 312
+  },
+  {
+   "name": "gravity_mps2",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 624,
+   "nbytes": 312
+  },
+  {
+   "name": "scale_height_km",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 936,
+   "nbytes": 312
+  }
+ ],
+ "outputs": [
+  {
+   "name": "flow_scalars",
+   "dtype": "f64",
+   "shape": [
+    39,
+    4
+   ],
+   "offset": 1248,
+   "nbytes": 1248,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "cyclones_per_hemisphere",
+   "dtype": "i64",
+   "shape": [
+    39,
+    2
+   ],
+   "offset": 2496,
+   "nbytes": 624,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "anticyclones_per_hemisphere",
+   "dtype": "i64",
+   "shape": [
+    39,
+    2
+   ],
+   "offset": 3120,
+   "nbytes": 624,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "has_eddies",
+   "dtype": "bool",
+   "shape": [
+    39
+   ],
+   "offset": 3744,
+   "nbytes": 39,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "wavenumber_x",
+   "dtype": "f64",
+   "shape": [
+    39
+   ],
+   "offset": 3784,
+   "nbytes": 312,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "289191204be5f75847eaae99c0507867478b0cb0666f7d4a76ccb047892e8fd9"
+}

@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "sample.nearest_texel.m22",
+ "group": "tiles",
+ "function": "cloudgen.tiles._sample",
+ "doc": "Nearest-texel lookup field[trunc(y m) % m, trunc(x m) % m] on a 22x22 field whose value is row * 22 + col (so the output names both indices): points at k/22 (15/22 * 22 = 14.999999999999998 truncates to 14), exactly 1.0 and just below (wrap to 0 / last texel), NEGATIVE points (astype(int64) truncates toward zero, so -1e-9 and -0.03 give index 0, not 21; -0.07 gives -1 % 22 = 21), points beyond one tile (1.5, 2.25, 1e9) and random points. The field is SQUARE: _sample is only defined for square fields (m = shape[0] indexes both axes, see sample.non_square.rows_index_both_axes.5x9). Pure selection of a float64 array: exact.",
+ "params": {
+  "m": 22
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    22,
+    22
+   ],
+   "offset": 0,
+   "nbytes": 3872
+  },
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    78,
+    2
+   ],
+   "offset": 3872,
+   "nbytes": 1248
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    78
+   ],
+   "offset": 5120,
+   "nbytes": 624,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c22531a24cce8db730e906403d2bc934d0e9d55343fa3340dcdaf954ce2e1830"
+}

@@ -1,0 +1,86 @@
+{
+ "format": 1,
+ "id": "cell_edges.f0p5.seed4",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.cell_edges",
+ "doc": "Frequency 0.5: the unit sphere spans at most 2 x 2 x 2 cells, so the field is smooth and slowly varying. Output float32, shape = points.shape[:-1]. Chained float32 (matmul, scale, 27-neighbor search): recomputed in float64, with the matmul in both orders and with the points nudged by one float32 ulp either way: the largest observed difference is 2.5e-07 (it grows with the frequency because q is quantized to float32); tolerance rtol 1e-5 + atol 2.5e-06 (10x). The Python casts the points to float32 first; that cast is not enforced (the tolerance was measured with float64 recomputes, so a float64 pipeline passes). The Python evaluates in chunks of 1 << 20 points: a port may chunk differently (checked at build time with chunks of 7 and 97 points: the same field within this tolerance). The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "frequency": 0.5,
+  "seed": 4,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 1560023975
+   },
+   {
+    "index": 1,
+    "kind": "cell_edges",
+    "seed": 4,
+    "frequency": 0.5,
+    "worley_seed": 1560023975
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "points",
+   "dtype": "f32",
+   "shape": [
+    512,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 6144
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 6144,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 14336,
+   "nbytes": 12288
+  },
+  {
+   "name": "plan1.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 26624,
+   "nbytes": 36
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    512
+   ],
+   "offset": 26664,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2.5e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "227b6260c85ad476845e69bd82681555e551c0ab12dfa4cf359f3f108fd7465e"
+}

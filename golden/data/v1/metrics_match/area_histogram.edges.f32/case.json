@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "area_histogram.edges.f32",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.area_histogram",
+ "doc": "Every float32 bin edge k / 10 exactly, one float32 ulp below and one above it, plus values outside [0, 1] (-0.1, 1.1, -1e30, 1e30), which are dropped (the histogram is renormalized by what is left). The edge value goes to the upper bin and 1.0 to the last: np.histogram bins [edge_k, edge_k+1), the last bin closed, edges = linspace(0, 1, bins + 1) computed in float64 (k * (1 / bins)) and rounded to the IMAGE dtype (float32 edges for a float32 image); values outside [0, 1] are dropped; weights cos(lat) in float64, normalized by their sum. Float64 sums of weights: 1e-9.",
+ "params": {
+  "bins": 10
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    40
+   ],
+   "offset": 0,
+   "nbytes": 1280
+  }
+ ],
+ "outputs": [
+  {
+   "name": "hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 1280,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "890533658dad7875f62c69d48b1bbbf125d670a184daa6a59f472f6852708363"
+}

@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "moisture_profile.f32.hadley30",
+ "group": "products_generate",
+ "function": "cloudgen.generate.moisture_profile",
+ "doc": "The same profile at the float32 latitudes the pipeline passes (lat_back = arcsin(clip(z)) of float32 directions; both poles and the equator first), so degrees, divide, clip and the polynomial all run in float32; tolerance is the golden default for a float32 kernel. Measured: promoting the float32 inputs to float64 changes the output by at most 9.8e-8; one-ulp nudges of every float input and parameter change it by at most 1.2e-7 (worst of 6 random trials); the tolerance is 29x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    35
+   ],
+   "offset": 0,
+   "nbytes": 140
+  }
+ ],
+ "outputs": [
+  {
+   "name": "profile",
+   "dtype": "f32",
+   "shape": [
+    35
+   ],
+   "offset": 144,
+   "nbytes": 140,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "54dd5516ebffc8bd03c2a3010865ca5d1806b59e36bb1d45d9f941c5ff7ac6f7"
+}

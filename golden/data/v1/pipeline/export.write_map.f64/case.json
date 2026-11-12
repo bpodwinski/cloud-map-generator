@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "export.write_map.f64",
+ "group": "pipeline",
+ "function": "cloudgen.export.write_map",
+ "doc": "write_map on a 24x20 f64 coverage made of rounding ties: every (k + 0.5) / 255 (np.round is half-to-even: 127.5 -> 128, 126.5 -> 126; the product c * 255 stays in the input dtype), a third of them one f64 ulp below and above, the 16-bit ties (m + 0.5) / 65535, negative zero, values out of [0, 1] and infinities (np.clip first). Decoded files: the 16-bit master (I;16 PNG, north-up, round(c * 65535)), the 8-bit preview (L PNG, north-up, round(c * 255)) and the raw R8 gunzipped (south-up: the preview's rows reversed). Exact: integers.",
+ "params": {
+  "dtype": "f64",
+  "master_mode": "I;16",
+  "preview_mode": "L",
+  "stem": "case",
+  "scales": {
+   "master": 65535,
+   "preview": 255
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 3840
+  }
+ ],
+ "outputs": [
+  {
+   "name": "master16",
+   "dtype": "u16",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 3840,
+   "nbytes": 960,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "preview8",
+   "dtype": "u8",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 4800,
+   "nbytes": 480,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "r8_south_up",
+   "dtype": "u8",
+   "shape": [
+    20,
+    24
+   ],
+   "offset": 5280,
+   "nbytes": 480,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "45ad581fa3577c4f0e45289c956c76907b0ec63f50dc7eede1c61602a5777239"
+}

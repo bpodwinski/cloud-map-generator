@@ -1,0 +1,53 @@
+{
+ "format": 1,
+ "id": "sample_equirect.texel_centers.3d",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "The same with a three-channel (8, 16, 3) image: the weights get a trailing axis, the output is (8, 16, 3) and equals the image. float64: rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 1536,
+   "nbytes": 3072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 4608,
+   "nbytes": 3072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a23be1aff15420d75831bbb00e4e79b833f786d3835bb6934100e56cc2f7171d"
+}

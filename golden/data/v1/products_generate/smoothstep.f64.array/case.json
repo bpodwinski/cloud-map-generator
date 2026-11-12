@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.f64.array",
+ "group": "products_generate",
+ "function": "cloudgen.generate._smoothstep",
+ "doc": "Hermite smoothstep 3k^2 - 2k^3 with k = clip((x - a) / (b - a), 0, 1), a = -1.6 and b = 0 (the cumulus-density window of compose), float64 x from -3 to 3: below a (0), exactly on a and b, inside, above b (1). Float64 closed form: rtol 1e-9. Measured: one-ulp nudges of every float input and parameter change it by at most 3.3e-16 (worst of 6 random trials); the tolerance is about 7e4x that spread.",
+ "params": {
+  "a": -1.6,
+  "b": 0.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    241
+   ],
+   "offset": 0,
+   "nbytes": 1928
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    241
+   ],
+   "offset": 1928,
+   "nbytes": 1928,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "db994de7087f42e04bee0cec0aa7a2b50453facf08adcb55733d72e8998b808f"
+}

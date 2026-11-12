@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "object_stats.earth1024.patch52",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.object_stats",
+ "doc": "Cloud objects of a patch: mask = patch > 0.5 (strict), scipy.ndimage.label with its default structure, 4-CONNECTIVITY (edge neighbours only: two texels that touch diagonally are two objects; no wraparound), area = texel count * patch_px_km^2 (77.0252 km^2 per texel); returns (share of the cloudy area held by objects larger than 1e5 km^2, median object area in km^2), and (0.0, 0.0) when there is no object. A real patch crop (128x128, rows and columns 64..191 of the 256x256 patch at latitude 55, longitude 0 of the Earth map at 1024x512), stored as float32 and called on its float64 promotion; no texel equals 0.5. Diagnostics recomputed by the case through the same label call, not returned by the function: n_objects and areas_km2 (in ndimage.label order: by the raster position of each object's first texel); a port's labelling must produce the same multiset of areas. Integer counts times a float64 constant: exact up to the rounding of a product and a sum, 1e-9. ",
+ "params": {
+  "called_with": "float64 promotion of the stored float32 patch"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f32",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 65536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "stats",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 65536,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "n_objects",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 65552,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "areas_km2",
+   "dtype": "f64",
+   "shape": [
+    25
+   ],
+   "offset": 65560,
+   "nbytes": 200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ddcf55ecc6e26b02cfef2c1a4d191528fafdca3da11c96488559970fbe74740f"
+}

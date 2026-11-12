@@ -1,0 +1,86 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.tiny.2x2_offset_col",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "A (2, 2) field with a (2, 1) float32 offset column and a (2, 2) subtexel: the offset broadcasts over the columns, subtexel present. Float32 inputs; tolerance as the typical case. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 5.2e-9; one-ulp nudges of every float input and parameter change it by at most 1.0e-7 (worst of 6 random trials); the tolerance is 46x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 16,
+   "nbytes": 16
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 32,
+   "nbytes": 16
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 48,
+   "nbytes": 16
+  },
+  {
+   "name": "offset",
+   "dtype": "f32",
+   "shape": [
+    2,
+    1
+   ],
+   "offset": 64,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 72,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "795729ebdc49c38e00cffd589db3eea5720a380f9b81bcc32f5253512d1c440a"
+}

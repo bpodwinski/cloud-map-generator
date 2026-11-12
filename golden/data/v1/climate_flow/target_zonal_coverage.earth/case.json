@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.earth",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Zonal-mean cloud fraction on a latitude sweep -90..90 at Hadley edge 30 and no ITCZ shift. Float64 closed form (gaussian, two smoothsteps): rtol 1e-9; a 1-ulp nudge of the inputs moves it by under 5e-15 relative.",
+ "params": {
+  "hadley_deg": 30.0,
+  "itcz_shift_deg": 0.0,
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 0,
+   "nbytes": 5768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 5768,
+   "nbytes": 5768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7d660d713f295fe352d2127b7345cd5c318decc856b0a3ef9e3a80a363d3a829"
+}

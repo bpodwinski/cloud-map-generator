@@ -1,0 +1,75 @@
+{
+ "format": 1,
+ "id": "perlin3.f32.large",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Perlin3.__call__",
+ "doc": "Large coordinates, |x| from 1e4 to 1e7 (float32 resolution 1e-3 to 1): the fractional part x - floor(x) is exact in float32 but coarse, and the int64 cast & 255 must see the whole integer part. Measured spread against float64: 4.8e-7. Same tolerance as perlin3.f32.random. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 9,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 9
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    300
+   ],
+   "offset": 0,
+   "nbytes": 1200
+  },
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    300
+   ],
+   "offset": 1200,
+   "nbytes": 1200
+  },
+  {
+   "name": "z",
+   "dtype": "f32",
+   "shape": [
+    300
+   ],
+   "offset": 2400,
+   "nbytes": 1200
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 3600,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    300
+   ],
+   "offset": 4624,
+   "nbytes": 1200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1.5e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9f048a6dcdb7974fd05db3f7b9b29872b117f64af9c288d178e87c0137149598"
+}

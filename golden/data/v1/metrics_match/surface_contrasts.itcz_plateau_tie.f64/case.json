@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "id": "surface_contrasts.itcz_plateau_tie.f64",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.surface_contrasts",
+ "doc": "surface_contrasts(img, land, deck): area-weighted (cos lat, float64) means of the map over masks with |lat| < 60: land (land > 0.5, strict, in the dtype of land), ocean, 15..35 degree land and ocean, north, south, 40..60 north and south, the ocean-only north-minus-south pairs, the differences, and itcz_lat = the mean latitude of the 2.5-degree zonal-mean bands (|lat| < 20) whose mean is >= max - 0.02; with a deck: ocean 8..35 degrees under a deck (deck > 0.3) and with none (deck < 0.05), both strict, compared in the deck's own dtype (a float32 deck against 0.3 compares float32(0.3): a texel equal to it is NOT under a deck). A mask with no texel gives 0 (the 1e-12 floor). The values come back in the order of params.keys. Maps are stored u8 and divided by 255 in float32 (land and deck as Surface.load does) unless the doc says otherwise. EXACT TIE of the plateau rule `band >= max - 0.02`: a float64 zonal-only map (72 rows x 2 columns: the row mean of two equal floats is exact) whose bands read 1.0 (3.75 degrees), 1.0 - 0.02 = 0.98 (1.25), 0.5 and 0.5: the 0.98 band equals max - 0.02 bit for bit (one IEEE subtraction) and is IN the plateau (>=), so itcz_lat = (3.75 + 1.25) / 2 = 2.5; a strict > gives 3.75. Float64 formula on float32 or float64 inputs, summed by numpy (pairwise): against exactly rounded sums it differs by 2.7e-16 relative, so 1e-9. The itcz_lat crest picks bands by a hard threshold on float32 row means; params.itcz_threshold_margin is the smallest gap between a 2.5-degree band mean and the max - 0.02 threshold, > 1e-5 (a float32 rounding is 1e-7), so the selection is stable.  Input convention: the u8 input(s) land are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "keys": [
+   "land",
+   "ocean",
+   "subtropics_land",
+   "subtropics_ocean",
+   "north",
+   "south",
+   "midlat_north",
+   "midlat_south",
+   "ocean_north_minus_south",
+   "ocean_midlat_north_minus_south",
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat"
+  ],
+  "bit_exact_tie": true,
+  "u8_inputs": {
+   "land": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    72,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 1152
+  },
+  {
+   "name": "land",
+   "dtype": "u8",
+   "shape": [
+    72,
+    2
+   ],
+   "offset": 1152,
+   "nbytes": 144
+  }
+ ],
+ "outputs": [
+  {
+   "name": "values",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 1296,
+   "nbytes": 120,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6e9179a14c6d95d50538126f8626dce5f0971a27d00b3d737241ae178b0912b1"
+}

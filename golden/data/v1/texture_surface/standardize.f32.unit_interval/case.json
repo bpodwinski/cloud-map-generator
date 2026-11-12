@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "standardize.f32.unit_interval",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "(v - mean) / std over a whole float32 2-D array with values in [0, 1]. The mean and std are float32 pairwise sums. Default tolerance 1e-5/1e-6: measured worst difference against float64 statistics 1.8e-7.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c98806424a5d479c6f504d4bf87a0cc0c1120694fc0d7a6c95c8cd4134e76657"
+}

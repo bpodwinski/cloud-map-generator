@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "ascent.cyclone.pole_south",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "Ascent of a cyclone exactly on the south pole (fallback east, and pole = -north because copysign(1, lat) = -1), age 1.3, 41 x 41 float32 patch of half-angle 0.5 rad around it. The branch decides which way the comma head shifts. The cases at 1e-10 and 1e-8 only bracket the threshold to within a decade; the ascent.cyclone.pole_colat_* cases pin the 1e-9 of the code to 1e-5 relative. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN). Tolerance rtol 5e-5, atol 5e-6: over the single-vortex float32 cases the float64-promoted computation differs by at most 3.1e-7 and a one-ulp nudge of the directions by 9e-7 (the oldest low, 0.44 of the default band); tolerance 10 times the worst, rounded up.",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": -1.0,
+    "lat": -1.5707963267948966,
+    "radius": 0.25,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 1.3
+   }
+  ],
+  "east_norm": 6.123233995736766e-17,
+  "dtype_chain": "p float32: a = float32 zeros; per vortex the center is cast to float32, d2, exp and the gaussians are float32 (a cyclone takes _comma_ascent, float32; a tropical subtracts its float32 eye); the term is np.float32(ascent) * g.astype(float32) and a += term accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 20172
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    1681
+   ],
+   "offset": 20176,
+   "nbytes": 6724,
+   "tol": {
+    "mode": "close",
+    "rtol": 5e-05,
+    "atol": 5e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f3b72b63eee47f6ebca9435e11d2ded0313b7e705ad656bda5d75b857a05eaf3"
+}

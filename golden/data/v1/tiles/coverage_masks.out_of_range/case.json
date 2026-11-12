@@ -1,0 +1,47 @@
+{
+ "format": 1,
+ "id": "coverage_masks.out_of_range",
+ "group": "tiles",
+ "function": "cloudgen.tiles.coverage_masks",
+ "doc": "Coverages outside (0, 1): 0.0 gives threshold 256 (nothing), 1.0 gives 0 and 1.5 gives -128 (everything), -0.5 gives 384 (nothing); numpy compares a uint8 array with such Python ints without wrapping. 0.3 -> 179.",
+ "params": {
+  "coverages": [
+   0.0,
+   1.0,
+   1.5,
+   -0.5,
+   0.3
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "masks",
+   "dtype": "bool",
+   "shape": [
+    5,
+    16,
+    16
+   ],
+   "offset": 256,
+   "nbytes": 1280,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2aad9d78f0035afe96b411d54096f85d435b0ac77e2b981d9950424d621d6a32"
+}

@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "global_mean.earth256",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.global_mean",
+ "doc": "Area-weighted mean: row means (float32 pairwise accumulation for a float32 image) weighted by cos(lat) in float64. A float64 accumulation of the same image differs by 2.3e-8 relative, so a port is within the float32 default. The 256x128 Earth reference. Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a052fdd7d9ab7a69c1546e5dc0ef209a9bd838ab449608586461a014f34a84eb"
+}

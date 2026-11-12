@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "dir_to_lonlat.grid3d.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.dir_to_lonlat",
+ "doc": "A (8, 16, 3) float32 array of directions (the grid_dirs of a 16x8 map): the output keeps the leading shape, lon and lat are (8, 16); they equal grid_lonlat up to float32 rounding (2e-6 abs, 1e-5 rel).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "dir",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 1536,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 2048,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0850471f53313b886c71a42612772cb64e23ee18c43b20afbce9df60a784cde7"
+}

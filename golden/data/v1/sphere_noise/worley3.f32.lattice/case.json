@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "worley3.f32.lattice",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "Points exactly ON cell corners (fractional part 0) up to +-5000: F1 is the distance from the corner to the nearest jittered feature of the 27-cell neighborhood. Exercises the exact-integer path of floor() and the cell indices past the 1024 wrap. Default tolerance. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 12,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 12
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f32",
+   "shape": [
+    260,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 3120
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 3120,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 11312,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    260
+   ],
+   "offset": 23600,
+   "nbytes": 1040,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    260
+   ],
+   "offset": 24640,
+   "nbytes": 1040,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "30b2445f10b5ab88a2cbde0551896972bb845d6c7408e9d2787fefbfcea6b563"
+}

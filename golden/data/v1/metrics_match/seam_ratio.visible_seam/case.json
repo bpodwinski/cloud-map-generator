@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "seam_ratio.visible_seam",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.seam_ratio",
+ "doc": "A ramp 0..1 across the map: the seam jumps by 1 while a neighbour step is 1/15, ratio 15. Mean |first column - last column| over mean |neighbour column difference| (the seam is NOT wrapped in the inner term). Means of float32 rows: the quotient is float32 and the tolerance float32 (observed 6.2e-8 relative against the same image promoted to float64). ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 512,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8f837f6d4203e87f65c62466ca4060b72e6a1ed74c1a4b3047a31714c607b2d2"
+}

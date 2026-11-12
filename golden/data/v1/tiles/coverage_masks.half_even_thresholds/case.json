@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "coverage_masks.half_even_thresholds",
+ "group": "tiles",
+ "function": "cloudgen.tiles.coverage_masks",
+ "doc": "The threshold int(round(256 (1 - c))) uses Python round, HALF TO EVEN, on a value that is exactly k + 0.5 here (c = 1 - (k + 0.5) / 256 is a dyadic float): 0.5 -> 0, 1.5 -> 2, 2.5 -> 2, 3.5 -> 4, 254.5 -> 254, 255.5 -> 256. On the ramp 0..255 the number of True texels is 256 - threshold, so the mask counts are 256, 254, 254, 252, 2, 0 (round-half-up would give 255, 254, 253, 252, 1 and 0).",
+ "params": {
+  "coverages": [
+   0.998046875,
+   0.994140625,
+   0.990234375,
+   0.986328125,
+   0.005859375,
+   0.001953125
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "masks",
+   "dtype": "bool",
+   "shape": [
+    6,
+    16,
+    16
+   ],
+   "offset": 256,
+   "nbytes": 1536,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7c4afdb7622c9020ad621cd81be8ac96d191b7d0ea5cd1bf80d0f2cef7a76dbc"
+}

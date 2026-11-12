@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.above_nyquist.s8",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "low above every radial frequency (size 8 reaches 5.7): every amplitude is 0, the field is exactly 0 and the std guard max(std, 1e-12) keeps the division finite: the output is all 0, not NaN. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Output is exactly 0 in any implementation: exact.",
+ "params": {
+  "size": 8,
+  "low": 100.0,
+  "slope": 3.0,
+  "seed": 25,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 8,
+    "low": 100.0,
+    "slope": 3.0,
+    "seed": 25
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    8,
+    8
+   ],
+   "offset": 512,
+   "nbytes": 512,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ba40ecbd2de8e505e20d2284b11a0354fec27df14d1821707d18ee3c9334fb27"
+}

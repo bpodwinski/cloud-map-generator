@@ -1,0 +1,129 @@
+{
+ "format": 1,
+ "id": "stat.tile.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.raw_channels",
+ "doc": "The four regimes on a 64x64 tile: level of the raw fields, the open-cell plateau, spatial smoothness of each rank channel and the correlation between regimes (the regimes must stay distinct). STATISTICAL: 24 seeds (1000..1023), 18 metrics (names and definitions in params). The port draws its own random numbers, so it cannot reproduce `values`; it computes each metric exactly as defined, for its own seeds, and checks |metric - mean| <= n_sigma * std per metric for one seed (n_sigma * std / sqrt(m) for the mean of m seeds). mean and std (ddof = 1) are what the Python code produces; the recomputation check holds them at 1e-9 (no flipped texel in the nudge experiments).",
+ "params": {
+  "seeds": [
+   1000,
+   1001,
+   1002,
+   1003,
+   1004,
+   1005,
+   1006,
+   1007,
+   1008,
+   1009,
+   1010,
+   1011,
+   1012,
+   1013,
+   1014,
+   1015,
+   1016,
+   1017,
+   1018,
+   1019,
+   1020,
+   1021,
+   1022,
+   1023
+  ],
+  "metrics": [
+   "mean_raw_heaps",
+   "mean_raw_closed",
+   "mean_raw_open",
+   "open_plateau_fraction",
+   "acorr_x1_heaps",
+   "acorr_x1_closed",
+   "acorr_x1_open",
+   "acorr_x1_sheet",
+   "acorr_x8_heaps",
+   "acorr_x8_closed",
+   "acorr_x8_open",
+   "acorr_x8_sheet",
+   "corr_heaps_closed",
+   "corr_heaps_open",
+   "corr_heaps_sheet",
+   "corr_closed_open",
+   "corr_closed_sheet",
+   "corr_open_sheet"
+  ],
+  "definitions": [
+   "mean of the raw heaps field",
+   "mean of the raw closed field",
+   "mean of the raw open field",
+   "fraction of texels of the raw open field that are exactly 0.0",
+   "Pearson correlation of the heaps rank channel (bytes as floats) with itself shifted 1 texel along x (circular)",
+   "Pearson correlation of the closed rank channel (bytes as floats) with itself shifted 1 texel along x (circular)",
+   "Pearson correlation of the open rank channel (bytes as floats) with itself shifted 1 texel along x (circular)",
+   "Pearson correlation of the sheet rank channel (bytes as floats) with itself shifted 1 texel along x (circular)",
+   "the same for the heaps channel shifted 8 texels",
+   "the same for the closed channel shifted 8 texels",
+   "the same for the open channel shifted 8 texels",
+   "the same for the sheet channel shifted 8 texels",
+   "Pearson correlation between the heaps and closed rank channels",
+   "Pearson correlation between the heaps and open rank channels",
+   "Pearson correlation between the heaps and sheet rank channels",
+   "Pearson correlation between the closed and open rank channels",
+   "Pearson correlation between the closed and sheet rank channels",
+   "Pearson correlation between the open and sheet rank channels"
+  ],
+  "n_sigma": 4.0,
+  "size": 64
+ },
+ "tags": [
+  "stat",
+  "slow"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "values",
+   "dtype": "f64",
+   "shape": [
+    24,
+    18
+   ],
+   "offset": 0,
+   "nbytes": 3456,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    18
+   ],
+   "offset": 3456,
+   "nbytes": 144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "std",
+   "dtype": "f64",
+   "shape": [
+    18
+   ],
+   "offset": 3600,
+   "nbytes": 144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "572faff0d36e605da2a7f5315509a580133d6d0baa873ffac5699afa17d36513"
+}

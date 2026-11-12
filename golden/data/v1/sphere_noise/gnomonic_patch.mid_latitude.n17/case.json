@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.mid_latitude.n17",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "A 17x17 patch at (-73, 41) degrees with the 10 degree half angle the metrics use (a 256x256 patch in production): the isotropic tangent-plane view; every sample is unit length. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": -1.2740903539558606,
+  "lat0": 0.7155849933176751,
+  "half_angle": 0.17453292519943295,
+  "n": 17
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    17,
+    17,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 6936,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ec908af6e35ec9ac3cc3d854a2b14452146422c4d89b5d7d3846d127ceac5726"
+}

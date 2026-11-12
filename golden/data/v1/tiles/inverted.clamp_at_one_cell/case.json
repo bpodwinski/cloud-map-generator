@@ -1,0 +1,36 @@
+{
+ "format": 1,
+ "id": "inverted.clamp_at_one_cell",
+ "group": "tiles",
+ "function": "cloudgen.tiles._inverted",
+ "doc": "max(0, 1 - f1): 1 at a feature point, 0 a full cell away and beyond (distances above 1, 1e9 and infinity clamp to 0), and a negative distance (-0.25) gives 1.25 (no upper clamp). One float64 subtraction and a max are correctly rounded, so the result is bit-exact in any IEEE port: exact.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "f1",
+   "dtype": "f64",
+   "shape": [
+    67
+   ],
+   "offset": 0,
+   "nbytes": 536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    67
+   ],
+   "offset": 536,
+   "nbytes": 536,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0a7ad93cdf8ee08f9854623ac1a4a2ea184073cbad5dfe116e0a9168e88ec93c"
+}

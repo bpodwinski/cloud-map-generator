@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "deck_strength.rows.spin_zero",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.deck_strength",
+ "doc": "Strength exp(-d / 1200 km) of marine stratocumulus for each ocean cell, d the distance to the next coast cell (cont >= 0.5, tested on the float32 values) DOWNSTREAM along its row (east on a prograde body; the row is mirrored for spin < 0, spin >= 0 counts as prograde), in wrapped columns times dx = 2 pi R / w max(cos lat, 1e-3); d x dx > 4000 km (strict) is infinite (strength 0); the result is multiplied by (1 - cont) (so a coast cell keeps at most 0.5). Rows with no coast or only coast are skipped (zeros). The exp is float64 rounded to float32, then a float32 product. `cont` is a float32 array and the test `cont >= 0.5` is made on those float32 values (0.5 is exact in both precisions): a port must keep cont in float32, because the hand-built inputs below put cells exactly on 0.5 and one float32 ulp either side of it. The 12 rows of this 32-column field cover: a single coast cell (row 0), NO coast (row 1: zeros), ALL coast (row 2: zeros), a coast cell exactly 0.5 in column 0 (row 3), one just above 0.5 in the LAST column (row 4: the wrap), a run of coast and a cell at nextafter(0.5, 0) that is not coast (row 5), random, a full-land cell, scattered coasts, one coast in the last column, and a run to the last column. Radius 6371 km. spin = 0 equals +1. Default tolerance: measured worst difference against a float64 evaluation with another operation order of d x dx / efold, 7.5e-8. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "spin": 0.0,
+  "constants": {
+   "DECK_COAST_LAND": 0.5,
+   "DECK_EFOLD_KM": 1200.0,
+   "DECK_MAX_SEARCH_KM": 4000.0,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "cont",
+   "dtype": "f32",
+   "shape": [
+    12,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "strength",
+   "dtype": "f32",
+   "shape": [
+    12,
+    32
+   ],
+   "offset": 1536,
+   "nbytes": 1536,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fbbb38b9969802baddf5f958e9df23b42e0918b0259b5997bb58bab0ee9acf4b"
+}

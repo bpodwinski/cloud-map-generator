@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.shift_extremes",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction at Hadley edge 30 with ITCZ shifts that push the peak to the pole or off the sphere (+-90, 180, 360, +-1000 degrees); the shift fades as exp(-(lat / (0.5 h))^2), so the poles keep the unshifted value. Output row i is shift[i]. Float64: rtol 1e-9.",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f64",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 2888
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 2888,
+   "nbytes": 48
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    6,
+    361
+   ],
+   "offset": 2936,
+   "nbytes": 17328,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0ed618fe830b81bf8eedc827d6a8e67763be5f456b192e421de31f0a13fde3c3"
+}

@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "at.bilinear_down.not_a_divisor",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.at",
+ "doc": "128x64 pattern to 48x24: 128 is not a multiple of 48, so the box branch is not taken and the surface is sampled bilinearly through sample_equirect at the texel-center directions of the 48x24 grid (longitude wraps at the antimeridian, latitude clamps at the poles; no pre-filtering). A float64 formula rounded to float32: default tolerance, measured worst difference against an analytic-index float64 evaluation 1.1e-7 (one float32 ulp).",
+ "params": {
+  "width": 48
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "src_land",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "src_elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    24,
+    48
+   ],
+   "offset": 65536,
+   "nbytes": 4608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    24,
+    48
+   ],
+   "offset": 70144,
+   "nbytes": 4608,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8ecaafa858675e387f5d2bbee60d639ead40c1c70257f54fdaefc4681b275a4a"
+}

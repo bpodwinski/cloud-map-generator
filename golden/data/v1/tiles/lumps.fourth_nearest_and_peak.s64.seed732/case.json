@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "lumps.fourth_nearest_and_peak.s64.seed732",
+ "group": "tiles",
+ "function": "cloudgen.tiles.lumps",
+ "doc": "THE 4TH-NEAREST LUMP AND THE DOME PEAK. On this draw the dome at texels (row 23, col 6) and (row 60, col 25) comes from the FOURTH-nearest lump (a lower radius loses to a farther, wider one): a max over the 3 nearest would be lower there by 5.6e-04 and 2.0e-02. The texel (row 16, col 37) lies at dist / r = 0.0012 of a lump center, where the dome is 0.99925: the upper bound of clip(1 - dist / r, 0, 1) never binds (dist >= 0), so the dome rises to 1 at a center with no flat top; a port that caps it below 1, say at 0.99, loses 6e-3 here. Both facts are invisible on a typical draw (lumps.s64), hence the searched seed. The jittered lump grid (60 x 60 = 3600 centers g, [x, y] in tile units, and their radii r (0.35 to 0.7 of the spacing)) is the input (plan0.g, plan0.r); freq = round(240 / 4) = 60 is read from the source (params.constants). dome = max over the 4 NEAREST lumps (by distance, periodic KD tree, not by normalized distance) of clip(1 - dist / r, 0, 1)^0.6. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 6e-14, because x^0.6 has an infinite slope at 0 (a distance within an ulp of r moves the value by up to (1e-16)^0.6 = 1.6e-10): 1e-9 relative, 1e-9 absolute.",
+ "params": {
+  "size": 64,
+  "seed": 732,
+  "constants": {
+   "REFERENCE_TILE_KM": 240.0,
+   "LUMP_KM": 4.0,
+   "LUMP_RADIUS": [
+    0.35,
+    0.7
+   ],
+   "freq": 60
+  },
+  "literals": {
+   "kd_k": 4,
+   "exponent": 0.6
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.lumps",
+    "size": 64,
+    "seed": 732
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.g",
+   "dtype": "f64",
+   "shape": [
+    3600,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 57600
+  },
+  {
+   "name": "plan0.r",
+   "dtype": "f64",
+   "shape": [
+    3600
+   ],
+   "offset": 57600,
+   "nbytes": 28800
+  }
+ ],
+ "outputs": [
+  {
+   "name": "dome",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 86400,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3bf26376244ec37c12cef6acf163a31b6803892c79aec7d047ab4c1db1c1db95"
+}

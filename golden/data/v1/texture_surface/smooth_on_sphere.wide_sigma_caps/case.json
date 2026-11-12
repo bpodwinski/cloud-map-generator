@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "smooth_on_sphere.wide_sigma_caps",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.smooth_on_sphere",
+ "doc": "Semantics a port must reproduce (verified by an independent direct convolution with no scipy: it agrees to 5.8e-8 on every smoothing case): each row is filtered along longitude with its own sigma s = min(w/4, sigma_km / (px_km max(cos lat, 1e-3))) pixels, px_km = 2 pi R / w, only when s > 0.3 (otherwise the row is copied); then every column is filtered with sigma_km / px_km. scipy gaussian_filter1d: kernel taps -r..r with r = int(4 s + 0.5), weights exp(-0.5 x^2 / s^2) normalized to sum 1, accumulated in float64 and rounded to float32 once per pass; mode \"wrap\" is periodic (indices modulo w, even when r >= w), mode \"nearest\" repeats the edge row. The 64x32 synthetic land at 4000 km: row sigmas of 6.4 px / cos(lat), capped at w/4 = 16 px past |lat| = 66 deg; the column sigma of 6.4 px on 32 rows is dominated by the \"nearest\" boundary. Default tolerance (measured 2.0e-8). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "sigma_km": 4000.0,
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "smoothed",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ac06f40efed93f6513fc3e86cf2788e39f8288ab1c4e57887af5f89625ae5ac9"
+}

@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "sample_equirect.image_1x5",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "Smallest images (1 rows x 5 columns), 40 unit directions: with one column both wrap indices are 0, with one row both clamped rows are row 0, so the result is the constant, the row or the column profile only. float64, rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    1,
+    5
+   ],
+   "offset": 0,
+   "nbytes": 20
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    40,
+    3
+   ],
+   "offset": 24,
+   "nbytes": 960
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    40
+   ],
+   "offset": 984,
+   "nbytes": 320,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e078910aa09fd45c04a2520441cf2bf208322e5d58444e986a22430dbe00c39e"
+}

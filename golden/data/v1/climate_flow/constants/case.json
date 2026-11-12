@@ -1,0 +1,46 @@
+{
+ "format": 1,
+ "id": "constants",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.constants",
+ "doc": "Every module constant of climate.py (Earth anchors, Hadley and storm-track bounds, deformation fraction, map texel and width cap) and the field defaults of flow.Flow (jet, trades, polar_easterlies) and flow.Vortex (age), in params.names order: a tripwire for a port whose constants drifted. The literals inside the functions (0.15, 0.85, 1e-3, ...) are not constants: the port reads them from the source. Exact. A pseudo-function name: there is nothing to call, the port maps it by hand.",
+ "params": {
+  "names": [
+   "EARTH_ROTATION_DAYS",
+   "EARTH_RADIUS_KM",
+   "EARTH_GRAVITY",
+   "EARTH_SCALE_HEIGHT_KM",
+   "EARTH_HADLEY_EDGE_DEG",
+   "HADLEY_MIN_DEG",
+   "HADLEY_MAX_DEG",
+   "DEFORMATION_FRACTION_OF_HADLEY",
+   "EARTH_STORM_TRACK_DEG",
+   "STORM_TRACK_IN_HADLEY",
+   "STORM_TRACK_MAX_DEG",
+   "MAP_TEXEL_KM",
+   "MAP_MAX_WIDTH",
+   "Flow.jet",
+   "Flow.trades",
+   "Flow.polar_easterlies",
+   "Vortex.age"
+  ]
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "values",
+   "dtype": "f64",
+   "shape": [
+    17
+   ],
+   "offset": 0,
+   "nbytes": 136,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "725ecf23a94aa3f645c92846d67d2cc338729ba7de2b83a0ec644598739d5b17"
+}

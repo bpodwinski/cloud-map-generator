@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "spectral_slope.default_band.n136",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.spectral_slope",
+ "doc": "Log-log slope of the radially averaged power spectrum: (patch - mean) * Hann (np.hanning(n) outer itself, symmetric, 0.5 - 0.5 cos(2 pi i / (n - 1))), np.fft.fft2 (unnormalized, complex128), fftshift, |F|^2, radius r = int(hypot(x, y)) with x, y counted from n // 2 (truncation), radial[r] = mean of the power at integer radius r (np.bincount), wavelength of bin k = n * patch_px_km() / k km; bins with lo <= wavelength <= hi (inclusive) and radial > 0 enter np.polyfit(log k, log radial, 1), whose slope is returned; fewer than 4 bins give NaN. n = patch.shape[0] (square patches only). The DEFAULT band again (lo_km and hi_km omitted). n = 136: k = 3 has wavelength 397.86 km, just BELOW 400 (included), and k = 30 has 39.79 km, just BELOW 40 (excluded): a default hi_km of 396 or a default lo_km of 39.6 gives another slope. The whole chain is float64 (the Hann window is float64 even for a float32 patch): an independent float64 reimplementation agrees to 9e-16 with np.fft and to 1.4e-13 with an explicit DFT-matrix product (a different operation order; measured on Earth patches, noise and smooth fields), a float64 one-ulp nudge of the texels moves the slope by <= 1.7e-15; tolerance 1e-9. ",
+ "params": {
+  "lo_km": 40.0,
+  "hi_km": 400.0,
+  "bounds_are_python_defaults": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    136,
+    136
+   ],
+   "offset": 0,
+   "nbytes": 147968
+  }
+ ],
+ "outputs": [
+  {
+   "name": "slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 147968,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "18cbcc049677a2073d2abf7e9b2a26580303ece911a44fb9c2770d5469c0ebd0"
+}

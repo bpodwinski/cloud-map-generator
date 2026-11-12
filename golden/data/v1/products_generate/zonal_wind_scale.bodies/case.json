@@ -1,0 +1,167 @@
+{
+ "format": 1,
+ "id": "zonal_wind_scale.bodies",
+ "group": "products_generate",
+ "function": "cloudgen.products.zonal_wind_scale",
+ "doc": "Wind scale relative to Earth, g H / (Omega a) over Earth's value, for seventeen bodies in params.bodies: Earth (1), retrograde Earth (the same: |period|), a fast rotator, Mars-like, Titan-like and Venus-like (no storm track: 0), a 5-day Earth, two bodies either side of the raw Hadley edge 50 degrees that decides has_baroclinic_eddies (49.94 yes, 50.09 no), rotation None and 0.0 (no spin: 0), a 0.05-day rotator, negative gravity and zero scale height (g H floored at 0 so the scale is 0 although a storm track exists), and extreme radii. The eddies test is hadley_edge_raw_deg < 50 (strict; has_baroclinic_eddies of climate.py is evaluated inside, its own cases are in climate_flow). Float64 closed form: rtol 1e-9. Arguments: params.bodies, a list of body records (name is a label only). Measured: one-ulp nudges of the float parameters change it by at most 8.9e-16 (worst of 6 random trials); the tolerance is more than 1e5 times that spread.",
+ "params": {
+  "bodies": [
+   {
+    "name": "earth",
+    "rotation_period_days": 0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "retrograde earth",
+    "rotation_period_days": -0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "fast rotator",
+    "rotation_period_days": 0.4,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "mars-like",
+    "rotation_period_days": 1.02596,
+    "radius_km": 3389.5,
+    "gravity_mps2": 3.721,
+    "scale_height_km": 11.1,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "titan-like",
+    "rotation_period_days": 15.945,
+    "radius_km": 2574.7,
+    "gravity_mps2": 1.352,
+    "scale_height_km": 21.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "venus-like retrograde",
+    "rotation_period_days": -243.0,
+    "radius_km": 6051.8,
+    "gravity_mps2": 8.87,
+    "scale_height_km": 15.9,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "slow earth 5 d (no storm track)",
+    "rotation_period_days": 5.0,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "raw edge 49.94 deg (storm track)",
+    "rotation_period_days": 1.66,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "raw edge 50.09 deg (no storm track)",
+    "rotation_period_days": 1.665,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "rotation None",
+    "rotation_period_days": null,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "rotation 0.0",
+    "rotation_period_days": 0.0,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "0.05 d (hadley clamped at 10)",
+    "rotation_period_days": 0.05,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "negative gravity (gh floored at 0)",
+    "rotation_period_days": 0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": -3.0,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "zero scale height",
+    "rotation_period_days": 0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 0.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "half gravity, double height, retrograde",
+    "rotation_period_days": -0.99727,
+    "radius_km": 6371.0,
+    "gravity_mps2": 4.905,
+    "scale_height_km": 16.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "tiny radius 100 km at 0.2 d",
+    "rotation_period_days": 0.2,
+    "radius_km": 100.0,
+    "gravity_mps2": 0.05,
+    "scale_height_km": 1.0,
+    "cloud_regime": "water"
+   },
+   {
+    "name": "huge radius 1e5 km at 50 d",
+    "rotation_period_days": 50.0,
+    "radius_km": 100000.0,
+    "gravity_mps2": 9.81,
+    "scale_height_km": 8.0,
+    "cloud_regime": "water"
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "scale",
+   "dtype": "f64",
+   "shape": [
+    17
+   ],
+   "offset": 0,
+   "nbytes": 136,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8e487784bbe815b85ee0fe6112199b8ab170cdfd4bd3f815fabea3687625577c"
+}

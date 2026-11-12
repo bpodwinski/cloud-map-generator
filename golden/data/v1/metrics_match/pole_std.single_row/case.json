@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "pole_std.single_row",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.pole_std",
+ "doc": "Population standard deviation (ddof 0) over longitude of the first and the last row, as (north, south). ndarray.std on float32 accumulates in float32 (observed 5e-8 relative against float64); the tolerance is the float32 default. One row: the north and the south row are the same row, the two numbers are equal.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    1,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "std",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 16,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9e3693625e257fc8aeef9b2c0026df09f9c75291efe725a49d59a18c55d517bf"
+}

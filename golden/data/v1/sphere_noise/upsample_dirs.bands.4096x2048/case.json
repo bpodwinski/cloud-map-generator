@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "upsample_dirs.bands.4096x2048",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.upsample_dirs",
+ "doc": "A 64x32 perturbed coarse grid upsampled to 4096x2048 (8.4M texels): the function works in bands of 4194304 // width = 1024 rows, so the target is processed in 2 bands; the result must not depend on the banding. The case stores 8 full rows (0, 1, 511, the last row of band 0 and the first and second row of band 1, and the last two rows) and the sum over the columns of EVERY row (3 components: a fingerprint of all 2048 rows) instead of the 100 MB map. Measured: the rows differ by 3e-8 from the float64 pipeline without its final rounding and by 6.6e-6 from a pipeline in float32 end to end; the row sums (each over 4096 components, up to 4000 in magnitude) by 3.2e-6 and 1.9e-3 respectively. Tolerances: rows 7e-5 abs + 1e-5 rel (10x the float32 pipeline), sums 2e-2 abs + 1e-5 rel (10x); a banding bug gives O(1) errors.",
+ "params": {
+  "width": 4096,
+  "height": 2048,
+  "band_rows": 1024,
+  "rows": [
+   0,
+   1,
+   511,
+   1023,
+   1024,
+   1025,
+   2046,
+   2047
+  ]
+ },
+ "tags": [
+  "slow"
+ ],
+ "inputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24576
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rows",
+   "dtype": "f32",
+   "shape": [
+    8,
+    4096,
+    3
+   ],
+   "offset": 24576,
+   "nbytes": 393216,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 7e-05
+   }
+  },
+  {
+   "name": "row_sum",
+   "dtype": "f64",
+   "shape": [
+    2048,
+    3
+   ],
+   "offset": 417792,
+   "nbytes": 49152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.02
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "df64e704645a8758a29c5bc80cfdaaf6df642dcdafd08c1171ef6a44ca23331b"
+}

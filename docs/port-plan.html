@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Port plan: Rust and GPU</title>
+<style>
+:root { --bg:#fbfbfa; --fg:#1d1f21; --muted:#5f6368; --line:#dadce0; --card:#ffffff; --accent:#1a5fb4; --ok:#1e7b34; --warn:#9a6200; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; } }
+:root[data-theme="dark"] { --bg:#16181b; --fg:#e6e6e3; --muted:#a0a4a9; --line:#33373c; --card:#1e2125; --accent:#78aeff; --ok:#6bd283; --warn:#f0b55a; }
+body { background:var(--bg); color:var(--fg); font:16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; margin:0; padding:24px 16px 64px; }
+main { max-width:900px; margin:0 auto; }
+h1 { font-size:1.8rem; margin:0 0 4px; } h2 { font-size:1.25rem; margin:36px 0 8px; border-bottom:1px solid var(--line); padding-bottom:4px; }
+.status { color:var(--muted); margin:0 0 24px; }
+table { border-collapse:collapse; width:100%; margin:8px 0 16px; font-size:.95rem; display:block; overflow-x:auto; }
+th, td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+th { background:var(--card); }
+code { font-family:ui-monospace, "JetBrains Mono", Consolas, monospace; font-size:.9em; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 16px; margin:12px 0; }
+.ok { color:var(--ok); } .warn { color:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+<h1>Port plan: Rust core, GPU kernels</h1>
+<p class="status">Status (2026-11-11): plan only. The Python version (commit 431962b) is the reference; nothing is ported yet.</p>
+
+<h2>Where the time goes today</h2>
+<p>One 4096x2048 Earth map, seed 42, under <code>cProfile</code> (119 s profiled, about 80 s plain), numpy on <strong>one</strong> of the machine's 16 cores:</p>
+<table>
+<tr><th>Stage</th><th>Profiled time</th><th>Shape of the work</th></tr>
+<tr><td>Regime texture: Worley cell edges (<code>noise.cell_edges</code>)</td><td>31 s</td><td>per texel, independent</td></tr>
+<tr><td>Gradient-noise fBm (<code>noise.fbm</code>)</td><td>24 s</td><td>per texel, independent</td></tr>
+<tr><td>Flow backtrace (<code>flow.backtrace</code>, 97 velocity evaluations)</td><td>25 s</td><td>per texel, 48 steps, independent</td></tr>
+<tr><td>Threshold solve (<code>generate.solve_thresholds</code>, 37 compositions)</td><td>14 s</td><td>per texel + a per-row reduction</td></tr>
+<tr><td>Ascent, regime weights, resampling, misc.</td><td>~20 s</td><td>per texel</td></tr>
+</table>
+<p>About 90 % of the time is per-texel math on a 3D direction with no neighbor: the ideal shape for a GPU, and for multi-core CPU.</p>
+
+<h2>Is the GPU worth it?</h2>
+<table>
+<tr><th>Path</th><th>4096 map (estimate)</th><th>16384 map (estimate)</th><th>Cost</th></tr>
+<tr><td>Python today</td><td>80 s (measured)</td><td>~25 min (extrapolated)</td><td>none</td></tr>
+<tr><td>Rust + rayon, 16 cores</td><td>~3-8 s</td><td>~1-2 min</td><td>port of every module</td></tr>
+<tr><td>GPU compute (wgpu, WGSL kernels)</td><td>&lt; 1 s</td><td>a few s</td><td>kernels in WGSL, float parity, buffers</td></tr>
+</table>
+<p class="warn">The two lower rows are estimates (a 10-30x gain from native multi-core code, a GPU throughput of order 10^9 noise evaluations per second); measure before relying on them.</p>
+<div class="card">
+<p><strong>For a batch bake, the GPU is not worth it:</strong> Rust on the CPU already brings a 16K globe under a few minutes.</p>
+<p><strong>It is worth it for one thing: a live preview</strong>, where a slider for spin, radius or air redraws the planet at once. That is the open-source showcase, and it needs the map in well under a second.</p>
+<p><strong>The way to get both without writing the kernels twice:</strong> write the per-texel stages in WGSL from the start, run them with <code>wgpu</code>. The same shaders run natively (Vulkan, DX12, Metal) for the CLI and in a browser through WebGPU for the demo. A CPU fallback stays for machines without a GPU and as the reference.</p>
+</div>
+
+<h2>What goes on the GPU, what stays on the CPU</h2>
+<table>
+<tr><th>Module</th><th>Where</th><th>Why</th></tr>
+<tr><td><code>noise.py</code> (gradient noise, fBm, Worley)</td><td class="ok">GPU</td><td>pure functions of a 3D point and a seed: hash-based, no tables to upload beyond a permutation</td></tr>
+<tr><td><code>flow.py</code> (velocity, backtrace, ascent)</td><td class="ok">GPU</td><td>per texel; the vortex list (tens of lows) goes in a small storage buffer</td></tr>
+<tr><td><code>texture.py</code>, <code>generate.compose</code></td><td class="ok">GPU</td><td>per texel</td></tr>
+<tr><td><code>generate.solve_thresholds</code></td><td class="ok">GPU + reduction</td><td>per-row bisection: a row histogram per pass (workgroup reduction), the threshold update on the CPU</td></tr>
+<tr><td><code>climate.py</code>, <code>surface.py</code> tables</td><td>CPU</td><td>a few hundred numbers, computed once, uploaded as uniforms</td></tr>
+<tr><td><code>metrics.py</code> (FFT, connected components), <code>match.py</code></td><td>CPU</td><td>measurement and an optional post-process; rustfft and a union-find are enough</td></tr>
+<tr><td><code>tiles.py</code> (Poisson-disc, KD-tree)</td><td>CPU</td><td>a 1024^2 tile in 5 s, baked once; dart throwing is sequential</td></tr>
+<tr><td>Export (PNG, gzip)</td><td>CPU</td><td>I/O</td></tr>
+</table>
+
+<h2>Phases</h2>
+<ol>
+<li><strong>Golden outputs.</strong> From the Python version, freeze small maps per seed and per body (512x256 and 1024x512: coverage, type, high share, wind) and every stage's intermediate field, in <code>tests/golden/</code>. These are the oracle for every later phase.</li>
+<li><strong>Rust workspace.</strong> Crates <code>cloud-map-generator-core</code> (climate, flow, surface, tables; CPU), <code>cloud-map-generator-cli</code> (gen, bake, measure), and later <code>cloud-map-generator-gpu</code> and <code>cloud-map-generator-web</code>. Port the CPU path first, module by module, each against its golden field (tolerance on the field, exact on the shapes).</li>
+<li><strong>Measurements.</strong> Port <code>metrics.py</code>; the comparison to Earth (spectral slope, object sizes, zonal RMSE, land/sea contrasts) must give the same numbers as Python within a stated tolerance.</li>
+<li><strong>GPU kernels.</strong> Move the per-texel stages to WGSL behind the same interface; the CPU path stays as the reference. Gate: GPU vs CPU field difference within tolerance on the golden set, and a measured time.</li>
+<li><strong>Web demo.</strong> <code>cloud-map-generator-web</code>: the core compiled to WASM, the WGSL kernels on WebGPU, a globe and sliders.</li>
+<li><strong>Retire the Python version</strong> once the Rust outputs pass the measurements; keep it tagged.</li>
+</ol>
+
+<h2>Risks</h2>
+<ul>
+<li><strong>Float parity.</strong> GPUs compute in f32 with their own transcendental functions; noise hashes must be integer-based (<code>u32</code>), never float-fract hashes, so a seed gives the same field on every vendor. A map is judged by its statistics, not bit for bit; the shipped file is the source of truth.</li>
+<li><strong>Precision on large maps.</strong> Positions are unit 3D directions; at 16K the texel is 0.02 deg, well inside f32. Noise frequencies stay below 2^16 cells per unit to keep the lattice exact.</li>
+<li><strong>Scope.</strong> The port must not change the physics. Model changes go to the Python version first, or after the port, never during it.</li>
+</ul>
+</main>
+</body>
+</html>

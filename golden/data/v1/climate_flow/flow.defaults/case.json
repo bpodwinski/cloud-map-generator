@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "flow.defaults",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow",
+ "doc": "The dataclass defaults: Flow(hadley_deg).jet, .trades, .polar_easterlies, an empty vortex list, and a Vortex built without an age (age 1.0). Exact. A pseudo-function name: there is nothing to call, the port maps it by hand.",
+ "params": {
+  "n_vortices": 0
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "shear",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "default_age",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 24,
+   "nbytes": 8,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4d4a62b7ca7251a985cb66f532525607eb29e58adf6f1c72c02adb2c962dfc58"
+}

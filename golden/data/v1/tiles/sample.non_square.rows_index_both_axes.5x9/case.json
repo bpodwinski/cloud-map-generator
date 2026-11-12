@@ -1,0 +1,52 @@
+{
+ "format": 1,
+ "id": "sample.non_square.rows_index_both_axes.5x9",
+ "group": "tiles",
+ "function": "cloudgen.tiles._sample",
+ "doc": "OUTSIDE THE CONTRACT, pinned so that nobody generalizes it silently: _sample is defined for SQUARE fields (every tile, size field and map of tiles.py is square). m = shape[0] is used for BOTH axes, so on a 5x9 field (value row * 9 + col) the column is trunc(x * 5) % 5 and columns 5 to 8 are never read. A port that scales the column by shape[1] differs here and nowhere else. Exact.",
+ "params": {
+  "rows": 5,
+  "cols": 9
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    5,
+    9
+   ],
+   "offset": 0,
+   "nbytes": 360
+  },
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    26,
+    2
+   ],
+   "offset": 360,
+   "nbytes": 416
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    26
+   ],
+   "offset": 776,
+   "nbytes": 208,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0ac28b635dc84d921d48eb32630726301209eeb16e1dfb2d469df85b26a49d84"
+}

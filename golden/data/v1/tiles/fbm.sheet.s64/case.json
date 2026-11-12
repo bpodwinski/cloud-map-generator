@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.sheet.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "The sheet channel: spectral synthesis, slope -3 from 2 cycles a tile on a 64x64 tile, mean 0 and population std 1 (ddof = 0) by construction. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 64,
+  "low": 2.0,
+  "slope": 3.0,
+  "seed": 212,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 64,
+    "low": 2.0,
+    "slope": 3.0,
+    "seed": 212
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7dfa624083280561bd15b14018d3a302703c1dfd3addaaf423d6bd4b266899c6"
+}

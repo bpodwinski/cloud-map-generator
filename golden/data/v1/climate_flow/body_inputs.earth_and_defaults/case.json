@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "body_inputs.earth_and_defaults",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.BodyInputs",
+ "doc": "The BodyInputs record and the EARTH constant built from it: (period d, radius km, gravity m/s2, scale height km) of EARTH, and the default cloud_regime (\"water\", which is_bakeable accepts). A frozen dataclass: exact. A pseudo-function name: there is nothing to call, the port maps it by hand.",
+ "params": {
+  "default_cloud_regime": "water",
+  "earth_cloud_regime": "water"
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "earth",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 0,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "default_regime_bakeable",
+   "dtype": "bool",
+   "shape": [
+    1
+   ],
+   "offset": 32,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6564de9d31da8a631c0dcf2101b09efb4f3b2cca52f003217807eb0ca4c4a010"
+}

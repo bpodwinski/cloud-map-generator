@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "coherence.stripes.diagonal.noisy",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. Diagonal bands over noise: gx and gy are both non-zero, jxy is large and the coherence falls between noise and stripes; the sign of jxy does not matter (it enters squared). Float64 chain with no data-dependent branch: an independent float64 reimplementation (explicit reflect-padded kernel sums) agrees to 2.2e-16, a float64 one-ulp nudge of every texel moves the value by <= 4.4e-16; tolerance 1e-9. ",
+ "params": {
+  "sigma": 4.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8192,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "79e5cbdc6a69670762f506f76331f8e7245df994299c24bdeafa38ea5ab767c7"
+}

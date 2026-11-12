@@ -1,0 +1,37 @@
+{
+ "format": 1,
+ "id": "hemispheric_land_asymmetry.mirror_symmetric",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.hemispheric_land_asymmetry",
+ "doc": "A land field mirrored north-south (rows i and h-1-i equal): 0 to float64 rounding, so the tolerance is atol 1e-12. Output `asymmetry` is 0-d: shape [] in case.json, one item of data.bin.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "asymmetry",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 2048,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7e558af6a7aadca95acb2b2db703d29375784b6663bd0e0dc99c9d085a8fdc19"
+}

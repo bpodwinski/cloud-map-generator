@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.slope0.low0.s16",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "slope 0 and low 0: the amplitude is 1 for every mode INCLUDING the DC mode (radius 0 passes `kk >= 0`, and max(0, 1e-9)^-0 = 1), so the field is the white noise itself, normalized: (white - mean) / std. Well-conditioned way to hit the max(kk, 1e-9) guard. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 16,
+  "low": 0.0,
+  "slope": 0.0,
+  "seed": 28,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 16,
+    "low": 0.0,
+    "slope": 0.0,
+    "seed": 28
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 2048,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6cb4661bea85957c6732bfa224ff0fe03a47025b88038bd7440c982221c5ddfe"
+}

@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "earth_tables_at.column_shape",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.earth_tables_at",
+ "doc": "x of shape (24, 1) as surface_terms passes it (|lat| / 30 of a 24-row grid): np.interp keeps the shape, so the outputs are (24, 1) columns that broadcast against (rows, width) maps. 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    24,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 192
+  },
+  {
+   "name": "table_x",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 192,
+   "nbytes": 120
+  },
+  {
+   "name": "table_continentality",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 312,
+   "nbytes": 120
+  },
+  {
+   "name": "table_deck",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 432,
+   "nbytes": 120
+  }
+ ],
+ "outputs": [
+  {
+   "name": "continentality",
+   "dtype": "f64",
+   "shape": [
+    24,
+    1
+   ],
+   "offset": 552,
+   "nbytes": 192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "deck",
+   "dtype": "f64",
+   "shape": [
+    24,
+    1
+   ],
+   "offset": 744,
+   "nbytes": 192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e24596098847e5ab31133ce7e1804e2313f9cf10c29a532fa26a9487bcec9492"
+}

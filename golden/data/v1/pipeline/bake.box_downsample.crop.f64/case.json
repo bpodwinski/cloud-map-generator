@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "bake.box_downsample.crop.f64",
+ "group": "pipeline",
+ "function": "bake.box_downsample",
+ "doc": "A float64 10x70 map to width 16: the factor is 70 // 16 = 4, the map is cropped to (10 // 4) * 4 = 8 rows and 68 columns first, so the output is 2x17 (NOT 16 wide: the remainder is dropped, not resampled). float64: rtol 1e-12.",
+ "params": {
+  "width": 16
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f64",
+   "shape": [
+    10,
+    70
+   ],
+   "offset": 0,
+   "nbytes": 5600
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    2,
+    17
+   ],
+   "offset": 5600,
+   "nbytes": 272,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 1e-14
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "702f1e43f88ba53f530fa92cbc9510bb99b8531088014aafc3b6b2516630f2f2"
+}

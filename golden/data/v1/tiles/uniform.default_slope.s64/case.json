@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "uniform.default_slope.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles._uniform",
+ "doc": "ndtr of a unit periodic fBm (low 1: the cell-size field source), default slope. Slope 3.0. The fBm white noise is the input plan0.white. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 6.7e-16, so 1e-9 relative / 1e-10 absolute (ndtr is a contraction: its slope is at most 0.4).",
+ "params": {
+  "size": 64,
+  "low": 1.0,
+  "seed": 102,
+  "slope": 3.0,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 64,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 102
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "23873eb96653235b41fd4ce5a010fa09566dc5ebe1d5b2c8e6e046c0f0e84e09"
+}

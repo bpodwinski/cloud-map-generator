@@ -1,0 +1,47 @@
+{
+ "format": 1,
+ "id": "map_max_frequency.table",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.map_max_frequency",
+ "doc": "width / (2 pi min_texels): the highest noise frequency (cycles per radian) a width-W map resolves with at least min_texels texels per wavelength, 15 rows: widths 0 (gives 0), 1 .. 1e9, min_texels 0.25 .. 8 and the default 4, one negative min_texels (sign carried through). Every row passes min_texels explicitly (the rows with 4 just happen to equal the default): the default itself is pinned by map_max_frequency.defaults. Closed-form float64: rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "width",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 0,
+   "nbytes": 120
+  },
+  {
+   "name": "min_texels",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 120,
+   "nbytes": 120
+  }
+ ],
+ "outputs": [
+  {
+   "name": "fmax",
+   "dtype": "f64",
+   "shape": [
+    15
+   ],
+   "offset": 240,
+   "nbytes": 120,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "16e5d4f70a8bcc160156c05de78a504f918360ec19b920360f27823bfcd17ec5"
+}

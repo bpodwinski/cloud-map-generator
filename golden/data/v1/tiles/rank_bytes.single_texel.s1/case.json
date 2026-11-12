@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.single_texel.s1",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "The smallest legal field, 1x1: one value, rank 0, byte 0. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   1,
+   1
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 8,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c14c943a6ec8f321d0d5ec22092e14b86f07780e91d62b59463b70f4db6d9d7f"
+}

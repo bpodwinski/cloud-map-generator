@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.unit_0_1",
+ "group": "tiles",
+ "function": "cloudgen.tiles._smoothstep",
+ "doc": "_smoothstep(0, 1, x) (the border/width ramp of the closed cracks and the sag): x from -1 to 2, so both clips and the identity-denominator ramp are taken. Float64 closed form: 1e-9 relative.",
+ "params": {
+  "a": 0.0,
+  "b": 1.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    304
+   ],
+   "offset": 0,
+   "nbytes": 2432
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    304
+   ],
+   "offset": 2432,
+   "nbytes": 2432,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "32888e1b15fb91ea65baae932f2b4dd3f6c3689e1cf1038c92f6d59ed7cc8b00"
+}

@@ -1,0 +1,67 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.tiny.1x1",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "One row of one texel: the mean is the texel itself, so compose(s, fine, t) = target is solved exactly by bisection; target 0.6 with s = 0.2, scalar streak 0, no subtexel. Float32 inputs; tolerance as the typical case. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 2.2e-8; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is 75x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "offset": 0.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 4
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 8,
+   "nbytes": 4
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 16,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 24,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3e3a8d62295062bae07b63cfc39f577d5c36b8ad63ac965ec16c0428253b1b5c"
+}

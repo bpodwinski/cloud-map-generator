@@ -1,0 +1,68 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.no_subtexel.streak_scalar",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "subtexel = None and a scalar streak 0.4 (the shield texture is a constant), offset 0.3 as a python float (a scalar offset, not an array): the branches of compose the typical case does not take, through the solver. 64x32 float32 fields. Tolerance as the typical case. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 1.0e-8; one-ulp nudges of every float input and parameter change it by at most 7.0e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "streak": 0.4,
+  "offset": 0.3
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 16384,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 16640,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3649313b11d8e958c5cbf4c76604775939bb5c136b142d9f136d57a7a8e795b4"
+}

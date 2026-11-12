@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "grid_lonlat.7x5",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_lonlat",
+ "doc": "Odd sizes 7x5: the middle column and row sit at lon 0.0 and lat 0.0 (exactly, here), the other centers at multiples of 2pi/7 and pi/5 from them. Same tolerance.",
+ "params": {
+  "width": 7,
+  "height": 5
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    7
+   ],
+   "offset": 0,
+   "nbytes": 56,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    5
+   ],
+   "offset": 56,
+   "nbytes": 40,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a15f1526d2ea6fe4522d15a0225098e182be6c903cb4e3d065cb3d0eb342db9a"
+}

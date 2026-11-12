@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "fade.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise._fade",
+ "doc": "The same curve on float32 t (a few float32 operations, the form Perlin3 uses). Measured against the float64 evaluation of the same inputs: 1.2e-6 relative at most (the polynomial has no root past the triple one at 0, so no cancellation beyond a factor 16); tolerance 1.2e-5 rel (10x), 1e-6 abs.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "t",
+   "dtype": "f32",
+   "shape": [
+    111
+   ],
+   "offset": 0,
+   "nbytes": 444
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    111
+   ],
+   "offset": 448,
+   "nbytes": 444,
+   "tol": {
+    "mode": "close",
+    "rtol": 1.2e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ff2e4988cf82b5f346f4481aac38d870ec36e0c50147159efd2ad69572cc2588"
+}

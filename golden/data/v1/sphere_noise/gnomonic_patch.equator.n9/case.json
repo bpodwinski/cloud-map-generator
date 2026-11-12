@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.equator.n9",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "A 9x9 patch of half angle 0.3 rad at lon 0, lat 0: the center sample (row 4, column 4) is (1, 0, 0); row 0 is north (z > 0), column 0 is west (y < 0). float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 0.0,
+  "lat0": 0.0,
+  "half_angle": 0.3,
+  "n": 9
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    9,
+    9,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1944,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "da399f65582d28bcaa9fa75f0b6fc562cd885c139c39803c3f86c9e52f3e1805"
+}

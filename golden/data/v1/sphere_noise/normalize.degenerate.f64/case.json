@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "normalize.degenerate.f64",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.normalize",
+ "doc": "The same in float64: zero -> NaN, 1e200 squares to infinity -> 0, 1e-200 squares to 0 -> [inf, NaN, NaN], 1e160 each overflows the sum -> 0. Tagged degenerate.",
+ "params": {},
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f64",
+   "shape": [
+    4,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 96
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    4,
+    3
+   ],
+   "offset": 96,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b799df2f17adb56b2f082cc968ecaa5b27b1890412dfcecb9a2e0eac812855f8"
+}

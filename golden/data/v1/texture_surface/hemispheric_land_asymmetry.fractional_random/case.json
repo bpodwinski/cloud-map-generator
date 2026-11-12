@@ -1,0 +1,37 @@
+{
+ "format": 1,
+ "id": "hemispheric_land_asymmetry.fractional_random",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.hemispheric_land_asymmetry",
+ "doc": "Random fractional land on 48x24: the row means are float32 pairwise sums (relative error 6e-8 against float64). Tolerance 1e-6 relative with 1e-7 absolute: measured worst difference 1.1e-8 on a result of about 0.01, so about 10x. Output `asymmetry` is 0-d: shape [] in case.json, one item of data.bin.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    24,
+    48
+   ],
+   "offset": 0,
+   "nbytes": 4608
+  }
+ ],
+ "outputs": [
+  {
+   "name": "asymmetry",
+   "dtype": "f64",
+   "shape": [],
+   "offset": 4608,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-07
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c5141ece826585c0ef50b7fa3307479b98905147b58295c374b2d6d0872009df"
+}

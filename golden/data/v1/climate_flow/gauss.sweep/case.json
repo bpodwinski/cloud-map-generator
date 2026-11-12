@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "gauss.sweep",
+ "group": "climate_flow",
+ "function": "cloudgen.climate._gauss",
+ "doc": "The private gaussian exp(-((x - mu) / sigma)^2) (no 1/2 in the exponent) on x in [-5, 5] for six (mu, sigma) pairs of inputs.mu and inputs.sigma, including a narrow (1e-3: most of the row underflows to 0) and a wide (1e3) one. Output row i is pair i. Float64: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    401
+   ],
+   "offset": 0,
+   "nbytes": 3208
+  },
+  {
+   "name": "mu",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 3208,
+   "nbytes": 48
+  },
+  {
+   "name": "sigma",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 3256,
+   "nbytes": 48
+  }
+ ],
+ "outputs": [
+  {
+   "name": "g",
+   "dtype": "f64",
+   "shape": [
+    6,
+    401
+   ],
+   "offset": 3304,
+   "nbytes": 19248,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2d561d10ea7c6174fc27e7c96347e6d6aecd12766a8f8346af532f73eab8e62f"
+}

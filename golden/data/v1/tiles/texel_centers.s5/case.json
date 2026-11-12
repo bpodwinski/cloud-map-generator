@@ -1,0 +1,31 @@
+{
+ "format": 1,
+ "id": "texel_centers.s5",
+ "group": "tiles",
+ "function": "cloudgen.tiles._texel_centers",
+ "doc": "Texel centers ((i + 0.5) / 5) of a 5x5 tile as (size^2, 2) rows [x, y] in row-major order (x = column varies fastest). One correctly rounded float64 division per coordinate: bit-identical in any IEEE port, checked at 1e-12 relative.",
+ "params": {
+  "size": 5
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "centers",
+   "dtype": "f64",
+   "shape": [
+    25,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 1e-15
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b180ddd57f4cdda72cbc1daa77bcf4680f05fb1e219f97e44948fdaf671f0229"
+}

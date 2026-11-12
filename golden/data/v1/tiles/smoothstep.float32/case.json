@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.float32",
+ "group": "tiles",
+ "function": "cloudgen.tiles._smoothstep",
+ "doc": "The same function on a float32 array: the Python float edges stay weak, so the whole chain is float32 and the result float32. The tiles code never passes float32; the case pins the dtype rule. Tolerance 1e-5 relative / 1e-6 absolute (float32 kernel of a few operations; the same computation in float64 differs by 1.4e-7 absolute, 4.6e-7 relative).",
+ "params": {
+  "a": 0.2,
+  "b": 0.6
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f32",
+   "shape": [
+    131
+   ],
+   "offset": 0,
+   "nbytes": 524
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    131
+   ],
+   "offset": 528,
+   "nbytes": 524,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "716c53657c3c7eb7bf335285919e6af327ec9f628323e3e328ac0208e4068b9f"
+}

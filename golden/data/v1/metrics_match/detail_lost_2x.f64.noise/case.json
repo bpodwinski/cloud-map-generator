@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "detail_lost_2x.f64.noise",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.detail_lost_2x",
+ "doc": "Share of the variance lost by a 2x2 box average brought back bilinearly (rows clamp, columns wrap): the image is converted to float64 first, then every step is float64 (floor, clip, bilinear lerp, population variance), so a port is within 1e-9 (numpy against exactly rounded math.fsum sums: < 5e-16 relative). Float64 noise 24x16.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    16,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 3072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lost",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 3072,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d105248d59f0d34a23d013242bf368538599ee55f954df84dfc6b8b762e889ed"
+}

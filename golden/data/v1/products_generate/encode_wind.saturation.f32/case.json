@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "encode_wind.saturation.f32",
+ "group": "products_generate",
+ "function": "cloudgen.products.encode_wind",
+ "doc": "Saturation at both ends and special floats, float32: +-64 (256 -> 255, 0), 63.5 (255 exactly), 63.75 (255.5 -> 256 -> clip 255), -64.25, +-100, +-1e6, +-3e38 (v / 0.5 overflows float32 to infinity, the clip gives 255 and 0), +-inf, +0.0 and -0.0 (both 128). NaN is excluded: astype(uint8) of NaN is undefined. Exact bytes.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    1,
+    20,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 160
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgb",
+   "dtype": "u8",
+   "shape": [
+    1,
+    20,
+    3
+   ],
+   "offset": 160,
+   "nbytes": 60,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "423c9037d90a130795efc21d74b5e831715bd3dc32e6a25dc28cfc8fc5b27237"
+}

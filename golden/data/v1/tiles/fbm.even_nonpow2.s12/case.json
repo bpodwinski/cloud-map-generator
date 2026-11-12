@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.even_nonpow2.s12",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "An even non-power-of-two size (12 = 4 x 3): the Nyquist row is index 6 (k = -6), and the transform is a mixed-radix one. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 12,
+  "low": 1.0,
+  "slope": 3.0,
+  "seed": 21,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 12,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 21
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    12,
+    12
+   ],
+   "offset": 0,
+   "nbytes": 1152
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    12,
+    12
+   ],
+   "offset": 1152,
+   "nbytes": 1152,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "eec6e7b5fe716a38f25a398144db8018ff9d6d4d38e88a0acb4d602d10ee0801"
+}

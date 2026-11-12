@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "fade.f64",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise._fade",
+ "doc": "The Perlin fade curve 6t^5 - 15t^4 + 10t^3 evaluated as t*t*t*(t*(t*6-15)+10), float64, on [0, 1] (fade(0) = 0, fade(1/2) = 1/2, fade(1) = 1), beyond it (-2, 3, +-100: the polynomial is not clamped) and at 1e-8 from the ends. Closed form: rtol 1e-9, atol 1e-12.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "t",
+   "dtype": "f64",
+   "shape": [
+    111
+   ],
+   "offset": 0,
+   "nbytes": 888
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    111
+   ],
+   "offset": 888,
+   "nbytes": 888,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "174cc6fe517d8ede903504de8a50d103a0afdf83ac080a6a04b5d38cc1ecccf4"
+}

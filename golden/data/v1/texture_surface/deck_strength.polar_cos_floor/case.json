@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "deck_strength.polar_cos_floor",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.deck_strength",
+ "doc": "Strength exp(-d / 1200 km) of marine stratocumulus for each ocean cell, d the distance to the next coast cell (cont >= 0.5, tested on the float32 values) DOWNSTREAM along its row (east on a prograde body; the row is mirrored for spin < 0, spin >= 0 counts as prograde), in wrapped columns times dx = 2 pi R / w max(cos lat, 1e-3); d x dx > 4000 km (strict) is infinite (strength 0); the result is multiplied by (1 - cont) (so a coast cell keeps at most 0.5). Rows with no coast or only coast are skipped (zeros). The exp is float64 rounded to float32, then a float32 product. `cont` is a float32 array and the test `cont >= 0.5` is made on those float32 values (0.5 is exact in both precisions): a port must keep cont in float32, because the hand-built inputs below put cells exactly on 0.5 and one float32 ulp either side of it. A tall 8-column x 1700-row field with random cont (sea and coast in most rows, 16 rows have none or only coast and are skipped): the half-texel pole rows have cos(lat) = 9.2e-4, floored to 1e-3 in dx (5.0 km instead of 4.6 km per column); every other row is above the floor. The case is sensitive to the floor (those two rows differ by 2e-3 without it). Default tolerance. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "spin": 1.0,
+  "constants": {
+   "DECK_COAST_LAND": 0.5,
+   "DECK_EFOLD_KM": 1200.0,
+   "DECK_MAX_SEARCH_KM": 4000.0,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "cont",
+   "dtype": "f32",
+   "shape": [
+    1700,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 54400
+  }
+ ],
+ "outputs": [
+  {
+   "name": "strength",
+   "dtype": "f32",
+   "shape": [
+    1700,
+    8
+   ],
+   "offset": 54400,
+   "nbytes": 54400,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "23f3db6985c05722639d40591c6ac51d954ecc175c2cfefb702d47cdb5ed4aa4"
+}

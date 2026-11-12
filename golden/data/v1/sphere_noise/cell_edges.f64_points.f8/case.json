@@ -1,0 +1,86 @@
+{
+ "format": 1,
+ "id": "cell_edges.f64_points.f8",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.cell_edges",
+ "doc": "FLOAT64 points: cast to float32 first (flat = points.astype(float32)); the case keeps them float64 (the dtype the Python saw). The rounding is NOT separable from the chain's own float32 error at this tolerance, so a port that keeps float64 also passes. Output float32, shape = points.shape[:-1]. Chained float32 (matmul, scale, 27-neighbor search): recomputed in float64, with the matmul in both orders and with the points nudged by one float32 ulp either way: the largest observed difference is 1.9e-06 (it grows with the frequency because q is quantized to float32); tolerance rtol 1e-5 + atol 1.9e-05 (10x). The Python casts the points to float32 first; that cast is not enforced (the tolerance was measured with float64 recomputes, so a float64 pipeline passes). The Python evaluates in chunks of 1 << 20 points: a port may chunk differently (checked at build time with chunks of 7 and 97 points: the same field within this tolerance). The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "frequency": 8.0,
+  "seed": 11,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 287335975
+   },
+   {
+    "index": 1,
+    "kind": "cell_edges",
+    "seed": 11,
+    "frequency": 8.0,
+    "worley_seed": 287335975
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    300,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 7200
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 7200,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 15392,
+   "nbytes": 12288
+  },
+  {
+   "name": "plan1.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 27680,
+   "nbytes": 36
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    300
+   ],
+   "offset": 27720,
+   "nbytes": 1200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1.9e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0a67d0d2a41ec3298268707091f928ed71c81a4bb0303fdf351c7e80d25b0ae8"
+}

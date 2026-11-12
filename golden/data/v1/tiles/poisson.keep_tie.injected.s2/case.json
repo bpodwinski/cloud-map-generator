@@ -1,0 +1,108 @@
+{
+ "format": 1,
+ "id": "poisson.keep_tie.injected.s2",
+ "group": "tiles",
+ "function": "cloudgen.tiles.poisson_points",
+ "doc": "THE THINNING COMPARISON, with the draws INJECTED by the case module (the seed argument is unused): a 2x2 size field [[0.25, 0.5], [0.5, 0.5]] gives 192 = int(12 / 0.0625) candidates and keep ratio 1 in the 0.25 texel, (0.25 / 0.5)^2 = 0.25 EXACTLY in the others. Candidate 0 (0.25, 0.25), u = 0.5: kept. Candidate 1 (0.75, 0.75), u = 0.25 = its ratio: NOT kept (`u < ratio` is strict; `<=` would keep it and accept a third point). Candidate 2 (0.75, 0.25), u = the float just BELOW 0.25: kept (no epsilon: the comparison is exact). Candidate 3 (0.25, 0.75), u = the float just ABOVE 0.25: not kept. The 188 later candidates repeat candidates 1 and 3 and are all not kept. Two points come out, candidate 0 and 2; keep_from_u pins the thinning of a port that draws its own uniforms. Spacing 0.85 (default): the accepted points are 0.5 apart and the threshold 0.85 max(0.5, 0.25) = 0.425. The candidates and the thinning mask the seed draws are the inputs plan0.cand (n, 2: x, y) and plan0.keep (n,); n = int(12.0 / min(size_field)^2) and the thinning is keep = (u < (min size / size at the candidate)^2), the size being the nearest-texel one. The uniforms u of the thinning draw are the input thin_u (n,) (the code's own plan keeps only their outcome, so the case module records them): a port that draws its own cand and u derives keep from them, and the output keep_from_u (bool, n, exact: the square is one multiplication r * r, the comparison STRICT) is what it must obtain; it equals plan0.keep. The dart throwing over cand[keep] (scan order, a candidate is rejected when a PERIODIC distance to any accepted point is < spacing * max(its size, the accepted point's size), STRICTLY) is sequential and order-dependent, so the accepted points are an exact output, with their indices into cand[keep]. Accepted points are copies of candidates (exact); in THIS injected case the decisions sit exactly on a threshold by construction, which is why the result is exact (the inputs are copied, not recomputed) and why a port must compare as stated.",
+ "params": {
+  "seed": 0,
+  "spacing": 0.85,
+  "n_candidates": 192,
+  "n_kept": 2,
+  "literals": {
+   "oversample": 12.0
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.poisson",
+    "seed": 0,
+    "spacing": 0.85
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "size_field",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 32
+  },
+  {
+   "name": "plan0.cand",
+   "dtype": "f64",
+   "shape": [
+    192,
+    2
+   ],
+   "offset": 32,
+   "nbytes": 3072
+  },
+  {
+   "name": "plan0.keep",
+   "dtype": "bool",
+   "shape": [
+    192
+   ],
+   "offset": 3104,
+   "nbytes": 192
+  },
+  {
+   "name": "thin_u",
+   "dtype": "f64",
+   "shape": [
+    192
+   ],
+   "offset": 3296,
+   "nbytes": 1536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 4832,
+   "nbytes": 32,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "index",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 4864,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "keep_from_u",
+   "dtype": "bool",
+   "shape": [
+    192
+   ],
+   "offset": 4880,
+   "nbytes": 192,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9a935f1212a1d18808fb7fc7869048a98028ef4ed987047382f0bb7b0cef6985"
+}

@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "octaves_below.table",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.octaves_below",
+ "doc": "How many octaves frequency * lacunarity^k (k = 0, 1, ...) start strictly below max_frequency, at least 1: 20 rows (frequency, max_frequency, lacunarity). Covers frequency above and equal to the maximum (n = 0 raised to 1), one octave, many (35 for 1 .. 1e6 at lacunarity 1.5, 59 for 1e-9 .. 1e9), lacunarity 1.1 to 1000, and the exact boundary with lacunarity 2.0 (3 * 2^3 = 24 is NOT below 24, so n = 3; 24.000001 gives 4; both exact in float64). No other row is within 1e-9 of a boundary (checked at build time): see octaves_below.fragile. The function loops forever for frequency <= 0 or lacunarity <= 1 with frequency < max, so they are not cases. Every row passes lacunarity explicitly; the Python default (2.03, what the callers use) is pinned by octaves_below.defaults. Integer output: exact.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "frequency",
+   "dtype": "f64",
+   "shape": [
+    20
+   ],
+   "offset": 0,
+   "nbytes": 160
+  },
+  {
+   "name": "max_frequency",
+   "dtype": "f64",
+   "shape": [
+    20
+   ],
+   "offset": 160,
+   "nbytes": 160
+  },
+  {
+   "name": "lacunarity",
+   "dtype": "f64",
+   "shape": [
+    20
+   ],
+   "offset": 320,
+   "nbytes": 160
+  }
+ ],
+ "outputs": [
+  {
+   "name": "n",
+   "dtype": "i64",
+   "shape": [
+    20
+   ],
+   "offset": 480,
+   "nbytes": 160,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "be095e34affc66b262a32cd6651cdf2667a36d993bdcf1c1fbb74927944433ba"
+}

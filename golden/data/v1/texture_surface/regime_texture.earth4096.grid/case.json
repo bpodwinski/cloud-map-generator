@@ -1,0 +1,485 @@
+{
+ "format": 1,
+ "id": "regime_texture.earth4096.grid",
+ "group": "texture_surface",
+ "function": "cloudgen.texture.regime_texture",
+ "doc": "Plans in call order: 0-1 the generic fBm (seed+3, directions 0.75 p + 0.25 back), 2-3 the street fBm (seed+5, 0.1 p + 0.9 back), then a (worley3, cell_edges) pair for each USED cell diameter (seed + int(d_km), directions 0.85 p + 0.15 back); params.cells_used_km lists them, the fBm ladder is octave_ladder(fine_frequency, fmax) (the plans hold its result). The cells are accumulated in float32 and standardized over the WHOLE array (a global mean and std: the case is one array). A 64x32 grid of float32 directions with hand-built back-traced directions and the weights regime_weights gives for Earth (float64). Earth at 4096 wide: radius 6371, fmax 326: the 15 km cells (f = 424 > fmax) hit the `continue` branch, 30/60/120 km are used, the ladder has 3 octaves up to 310 cycles/rad. The texture is a float32 chain whose coordinates reach 300, so one float32 ulp of a direction moves a noise coordinate by 2e-5: measured worst difference 6.2e-4 against an all-float64 evaluation of the same plans (99.9% of texels below 3.3e-4) and 7.7e-4 when p, back and the weights move by one float32 ulp; tolerance atol 8e-3, rtol 1e-5 (10x). Outputs besides `texture` are the intermediates, there to localize a mismatch: generic_std and street_std (the standardized fBm fields), and, when a cell diameter is used, closed_sum and open_sum (the float32 weighted sums of the cell ramps, before standardization) and closed_std / open_std (their standardizations); each has its own measured tolerance, see TEX_INTER in the case module. params.constants holds the mixes, ramps and seed offsets written in the code, and params.cells_per_radian the f = radius_km / d_km compared with fmax for each diameter (`f > fmax` skips, a tie f == fmax is USED; f is computed by a division).",
+ "params": {
+  "radius_km": 6371.0,
+  "fmax": 326.0,
+  "seed": 7,
+  "fine_frequency": 48.0,
+  "fine_gain": 0.65,
+  "cell_diameters_km": [
+   15.0,
+   30.0,
+   60.0,
+   120.0
+  ],
+  "cell_weights": [
+   0.4,
+   0.3,
+   0.2,
+   0.1
+  ],
+  "cells_per_radian": [
+   424.73333333333335,
+   212.36666666666667,
+   106.18333333333334,
+   53.09166666666667
+  ],
+  "cells_used_km": [
+   30.0,
+   60.0,
+   120.0
+  ],
+  "constants": {
+   "generic": {
+    "p": 0.75,
+    "back": 0.25,
+    "seed_offset": 3
+   },
+   "street": {
+    "p": 0.1,
+    "back": 0.9,
+    "seed_offset": 5
+   },
+   "cells": {
+    "p": 0.85,
+    "back": 0.15,
+    "seed_is_seed_plus_int_of_diameter_km": true,
+    "closed_ramp": [
+     0.03,
+     0.3
+    ],
+    "open_ramp": [
+     0.05,
+     0.25
+    ]
+   },
+   "ladder": {
+    "lacunarity": 2.03,
+    "top": 0.95
+   }
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 1667601612
+   },
+   {
+    "index": 1,
+    "kind": "fbm",
+    "seed": 10,
+    "perlin_seed": 1667601612,
+    "frequency": 75.15348588900484,
+    "octaves": 3,
+    "gain": 0.65,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 2.935813280890608
+   },
+   {
+    "index": 2,
+    "kind": "perlin3",
+    "seed": 1315760028
+   },
+   {
+    "index": 3,
+    "kind": "fbm",
+    "seed": 12,
+    "perlin_seed": 1315760028,
+    "frequency": 75.15348588900484,
+    "octaves": 3,
+    "gain": 0.65,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 2.935813280890608
+   },
+   {
+    "index": 4,
+    "kind": "worley3",
+    "seed": 342600247
+   },
+   {
+    "index": 5,
+    "kind": "cell_edges",
+    "seed": 37,
+    "frequency": 212.36666666666667,
+    "worley_seed": 342600247
+   },
+   {
+    "index": 6,
+    "kind": "worley3",
+    "seed": 1681053396
+   },
+   {
+    "index": 7,
+    "kind": "cell_edges",
+    "seed": 67,
+    "frequency": 106.18333333333334,
+    "worley_seed": 1681053396
+   },
+   {
+    "index": 8,
+    "kind": "worley3",
+    "seed": 1091366910
+   },
+   {
+    "index": 9,
+    "kind": "cell_edges",
+    "seed": 127,
+    "frequency": 53.09166666666667,
+    "worley_seed": 1091366910
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 24576
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 24576,
+   "nbytes": 24576
+  },
+  {
+   "name": "weights.closed",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 49152,
+   "nbytes": 16384
+  },
+  {
+   "name": "weights.open",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 65536,
+   "nbytes": 16384
+  },
+  {
+   "name": "weights.street",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 81920,
+   "nbytes": 16384
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 98304,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan1.amp",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 99328,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.freq",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 99352,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3,
+    3
+   ],
+   "offset": 99376,
+   "nbytes": 108
+  },
+  {
+   "name": "plan1.off",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 99488,
+   "nbytes": 36
+  },
+  {
+   "name": "plan2.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 99528,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan3.amp",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 100552,
+   "nbytes": 24
+  },
+  {
+   "name": "plan3.freq",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 100576,
+   "nbytes": 24
+  },
+  {
+   "name": "plan3.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3,
+    3
+   ],
+   "offset": 100600,
+   "nbytes": 108
+  },
+  {
+   "name": "plan3.off",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 100712,
+   "nbytes": 36
+  },
+  {
+   "name": "plan4.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 100752,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan4.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 108944,
+   "nbytes": 12288
+  },
+  {
+   "name": "plan5.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 121232,
+   "nbytes": 36
+  },
+  {
+   "name": "plan6.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 121272,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan6.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 129464,
+   "nbytes": 12288
+  },
+  {
+   "name": "plan7.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 141752,
+   "nbytes": 36
+  },
+  {
+   "name": "plan8.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 141792,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan8.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 149984,
+   "nbytes": 12288
+  },
+  {
+   "name": "plan9.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 162272,
+   "nbytes": 36
+  }
+ ],
+ "outputs": [
+  {
+   "name": "texture",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 162312,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.008
+   }
+  },
+  {
+   "name": "generic_std",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 170504,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0022
+   }
+  },
+  {
+   "name": "street_std",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 178696,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.002
+   }
+  },
+  {
+   "name": "closed_sum",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 186888,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0011
+   }
+  },
+  {
+   "name": "open_sum",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 195080,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0014
+   }
+  },
+  {
+   "name": "closed_std",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 203272,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.007
+   }
+  },
+  {
+   "name": "open_std",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 211464,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 0.0081
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ac0aedfc4a0ae091295f49b454fbeb79dc802f7f7aea84989d17d86dac8e946f"
+}

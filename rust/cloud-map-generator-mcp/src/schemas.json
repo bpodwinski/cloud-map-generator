@@ -1,0 +1,2823 @@
+{
+ "bake_bodies": {
+  "input": {
+   "$defs": {
+    "BakeBody": {
+     "additionalProperties": false,
+     "properties": {
+      "cloud_regime": {
+       "default": "water",
+       "description": "What the clouds are made of; only 'water' bodies are baked, the others are skipped.",
+       "maxLength": 64,
+       "title": "Cloud Regime",
+       "type": "string"
+      },
+      "gravity_mps2": {
+       "description": "Surface gravity in m/s^2. Allowed range 0.1 to 100.",
+       "title": "Gravity Mps2",
+       "type": "number"
+      },
+      "key": {
+       "description": "Name of the body, unique in the call; it names its output files (1 to 64 letters, digits, spaces and . _ : + -).",
+       "maxLength": 64,
+       "minLength": 1,
+       "title": "Key",
+       "type": "string"
+      },
+      "measured": {
+       "default": false,
+       "description": "true = a real map of this body exists: it is skipped.",
+       "title": "Measured",
+       "type": "boolean"
+      },
+      "radius_km": {
+       "description": "Planet radius in km. Allowed range 500 to 30000.",
+       "title": "Radius Km",
+       "type": "number"
+      },
+      "rotation_period_days": {
+       "description": "Sidereal rotation period in Earth days (36 h = 1.5); negative = retrograde. Allowed range -400 to 400.",
+       "title": "Rotation Period Days",
+       "type": "number"
+      },
+      "scale_height_km": {
+       "description": "Atmospheric scale height in km. Allowed range 0.5 to 100.",
+       "title": "Scale Height Km",
+       "type": "number"
+      }
+     },
+     "required": [
+      "key",
+      "rotation_period_days",
+      "radius_km",
+      "gravity_mps2",
+      "scale_height_km"
+     ],
+     "title": "BakeBody",
+     "type": "object"
+    }
+   },
+   "properties": {
+    "bodies": {
+     "anyOf": [
+      {
+       "items": {
+        "$ref": "#/$defs/BakeBody"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "The planets to bake, inline: pass this OR bodies_file. Water-cloud bodies only are baked. Cannot carry land and relief grids (use bodies_file for those).",
+     "title": "Bodies"
+    },
+    "bodies_file": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Alternative to `bodies`: a bodies JSON file (camelCase keys, format in the resource cloud-map-generator://docs/bodies-format) inside the output folder or a --read-dir directory; a relative path is looked up in the output folder.",
+     "title": "Bodies File"
+    },
+    "k": {
+     "default": 1,
+     "description": "Seeds per library climate class.",
+     "maximum": 8,
+     "minimum": 1,
+     "title": "K",
+     "type": "integer"
+    },
+    "library_width": {
+     "default": 1024,
+     "description": "Map width of each library map.",
+     "title": "Library Width",
+     "type": "integer"
+    },
+    "list_width": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Map width of each body (1024 when omitted).",
+     "title": "List Width"
+    },
+    "only": {
+     "anyOf": [
+      {
+       "enum": [
+        "list",
+        "library"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Bake only 'list' (your bodies) or only 'library'; omit for both and the manifest.",
+     "title": "Only"
+    },
+    "url_prefix": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Prefix of the paths in the manifest, for example 'assets/clouds/v1'.",
+     "title": "Url Prefix"
+    },
+    "version": {
+     "default": "v1",
+     "description": "Folder name of this bake: 1 to 32 letters, digits, \".\", \"_\" or \"-\".",
+     "title": "Version",
+     "type": "string"
+    }
+   },
+   "title": "bake_bodiesArguments",
+   "type": "object"
+  },
+  "output": {
+   "additionalProperties": true,
+   "properties": {
+    "files": {
+     "description": "Files written, relative to the output folder.",
+     "items": {
+      "type": "string"
+     },
+     "title": "Files",
+     "type": "array"
+    },
+    "files_total": {
+     "title": "Files Total",
+     "type": "integer"
+    },
+    "folder": {
+     "title": "Folder",
+     "type": "string"
+    },
+    "manifest": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "The manifest (written to manifest.json unless only= was given: a partial bake writes none).",
+     "title": "Manifest"
+    },
+    "next": {
+     "title": "Next",
+     "type": "string"
+    },
+    "seconds": {
+     "title": "Seconds",
+     "type": "number"
+    },
+    "skipped": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Skipped",
+     "type": "array"
+    },
+    "truncated": {
+     "default": false,
+     "title": "Truncated",
+     "type": "boolean"
+    },
+    "version": {
+     "title": "Version",
+     "type": "string"
+    }
+   },
+   "required": [
+    "version",
+    "folder",
+    "seconds",
+    "files",
+    "files_total",
+    "next"
+   ],
+   "title": "BakeOut",
+   "type": "object"
+  }
+ },
+ "cancel_generation": {
+  "input": {
+   "properties": {
+    "job_id": {
+     "description": "The job_id returned by start_generation.",
+     "title": "Job Id",
+     "type": "string"
+    }
+   },
+   "required": [
+    "job_id"
+   ],
+   "title": "cancel_generationArguments",
+   "type": "object"
+  },
+  "output": {
+   "additionalProperties": true,
+   "properties": {
+    "job_id": {
+     "title": "Job Id",
+     "type": "string"
+    },
+    "message": {
+     "title": "Message",
+     "type": "string"
+    },
+    "status": {
+     "title": "Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "job_id",
+    "status",
+    "message"
+   ],
+   "title": "CancelOut",
+   "type": "object"
+  }
+ },
+ "derive_physics": {
+  "input": {
+   "$defs": {
+    "PhysicsOverrides": {
+     "additionalProperties": false,
+     "properties": {
+      "cloud_regime": {
+       "anyOf": [
+        {
+         "maxLength": 64,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the clouds are made of, a free word such as 'methane'. 'water' (default) is the only regime the model is built for; anything else is refused unless the TOP-LEVEL argument experiment=true is also passed (not an overrides field), and gives an experiment, not a prediction.",
+       "title": "Cloud Regime"
+      },
+      "gravity_mps2": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Surface gravity in m/s^2 (Earth 9.81). Allowed range 0.1 to 100.",
+       "title": "Gravity Mps2"
+      },
+      "radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Planet radius in km (Earth 6371). Allowed range 500 to 30000.",
+       "title": "Radius Km"
+      },
+      "rotation_period_days": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sidereal rotation period in Earth DAYS (not hours: 36 h = 1.5, 9.6 h = 0.4); NEGATIVE means a retrograde spin (the planet turns backwards and the cyclones reverse). Allowed range -400 to 400.",
+       "title": "Rotation Period Days"
+      },
+      "scale_height_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Atmospheric scale height in km (Earth 8). Allowed range 0.5 to 100.",
+       "title": "Scale Height Km"
+      }
+     },
+     "title": "PhysicsOverrides",
+     "type": "object"
+    }
+   },
+   "properties": {
+    "overrides": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/PhysicsOverrides"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Physics that differ from the preset (or that define the planet on their own): any of rotation_period_days, radius_km, gravity_mps2, scale_height_km, cloud_regime. Example: {'rotation_period_days': 4.0} on preset 'earth'."
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Key of a built-in planet from list_presets, for example 'earth'. Optional when `overrides` gives all four physics fields.",
+     "title": "Preset"
+    }
+   },
+   "title": "derive_physicsArguments",
+   "type": "object"
+  },
+  "output": {
+   "$defs": {
+    "DerivedOut": {
+     "additionalProperties": true,
+     "properties": {
+      "bakeable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when the clouds are not water (experiment only).",
+       "title": "Bakeable"
+      },
+      "cyclone_spin_north": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sense in which a low turns in the northern hemisphere, seen from outside the planet above its north pole: 'counterclockwise' (Earth) or 'clockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin North"
+      },
+      "cyclone_spin_south": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Same for the southern hemisphere, seen from outside above the south pole: 'clockwise' (Earth) or 'counterclockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin South"
+      },
+      "cyclones_per_hemisphere": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Number of storm vortices per hemisphere; null when there are no eddies.",
+       "title": "Cyclones Per Hemisphere"
+      },
+      "deformation_radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Rossby deformation radius in km: the size scale of the cyclones.",
+       "title": "Deformation Radius Km"
+      },
+      "hadley_edge_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude where the Hadley cell ends (degrees).",
+       "title": "Hadley Edge Deg"
+      },
+      "has_eddies": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Whether baroclinic eddies (cyclones) form at all.",
+       "title": "Has Eddies"
+      },
+      "storm_track_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude of the mid-latitude storm track (degrees).",
+       "title": "Storm Track Deg"
+      },
+      "texel_km": {
+       "additionalProperties": {
+        "type": "number"
+       },
+       "description": "Size of one map pixel at the equator in km, per map width.",
+       "title": "Texel Km",
+       "type": "object"
+      },
+      "warnings": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Warnings",
+       "type": "array"
+      }
+     },
+     "title": "DerivedOut",
+     "type": "object"
+    },
+    "PhysicsOut": {
+     "additionalProperties": true,
+     "properties": {
+      "cloud_regime": {
+       "description": "What the clouds are made of: 'water' is the only regime this model was built for.",
+       "title": "Cloud Regime",
+       "type": "string"
+      },
+      "gravity_mps2": {
+       "description": "Surface gravity in m/s^2.",
+       "title": "Gravity Mps2",
+       "type": "number"
+      },
+      "radius_km": {
+       "description": "Planet radius in km.",
+       "title": "Radius Km",
+       "type": "number"
+      },
+      "rotation_period_days": {
+       "description": "Rotation period in Earth days; negative = retrograde spin.",
+       "title": "Rotation Period Days",
+       "type": "number"
+      },
+      "scale_height_km": {
+       "description": "Atmospheric scale height in km.",
+       "title": "Scale Height Km",
+       "type": "number"
+      }
+     },
+     "required": [
+      "rotation_period_days",
+      "radius_km",
+      "gravity_mps2",
+      "scale_height_km",
+      "cloud_regime"
+     ],
+     "title": "PhysicsOut",
+     "type": "object"
+    }
+   },
+   "additionalProperties": true,
+   "properties": {
+    "derived": {
+     "$ref": "#/$defs/DerivedOut"
+    },
+    "physics": {
+     "$ref": "#/$defs/PhysicsOut"
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Preset"
+    }
+   },
+   "required": [
+    "preset",
+    "physics",
+    "derived"
+   ],
+   "title": "DeriveOut",
+   "type": "object"
+  }
+ },
+ "explain_model": {
+  "input": {
+   "properties": {},
+   "title": "explain_modelArguments",
+   "type": "object"
+  },
+  "output": {
+   "additionalProperties": true,
+   "properties": {
+    "markdown": {
+     "title": "Markdown",
+     "type": "string"
+    }
+   },
+   "required": [
+    "markdown"
+   ],
+   "title": "ExplainOut",
+   "type": "object"
+  }
+ },
+ "generate_map": {
+  "input": {
+   "$defs": {
+    "PhysicsOverrides": {
+     "additionalProperties": false,
+     "properties": {
+      "cloud_regime": {
+       "anyOf": [
+        {
+         "maxLength": 64,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the clouds are made of, a free word such as 'methane'. 'water' (default) is the only regime the model is built for; anything else is refused unless the TOP-LEVEL argument experiment=true is also passed (not an overrides field), and gives an experiment, not a prediction.",
+       "title": "Cloud Regime"
+      },
+      "gravity_mps2": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Surface gravity in m/s^2 (Earth 9.81). Allowed range 0.1 to 100.",
+       "title": "Gravity Mps2"
+      },
+      "radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Planet radius in km (Earth 6371). Allowed range 500 to 30000.",
+       "title": "Radius Km"
+      },
+      "rotation_period_days": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sidereal rotation period in Earth DAYS (not hours: 36 h = 1.5, 9.6 h = 0.4); NEGATIVE means a retrograde spin (the planet turns backwards and the cyclones reverse). Allowed range -400 to 400.",
+       "title": "Rotation Period Days"
+      },
+      "scale_height_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Atmospheric scale height in km (Earth 8). Allowed range 0.5 to 100.",
+       "title": "Scale Height Km"
+      }
+     },
+     "title": "PhysicsOverrides",
+     "type": "object"
+    }
+   },
+   "properties": {
+    "compute": {
+     "default": "auto",
+     "description": "Where the work runs. 'auto' (default): the engine picks the GPU when one is available and the map is large enough for the upload to pay, otherwise the CPU; it never fails for lack of a device. 'cpu': every stage on the CPU. 'gpu': the per-texel stages on the GPU, in float32 (the same map to float32 rounding and statistically, not bit for bit). 'hybrid': row bands shared between the GPU and the CPU threads. 'gpu' and 'hybrid' need a GPU-capable engine: an explicit mode that is not available is an ERROR that gives the reason (never a silent fallback). Check what is offered in the resource cloud-map-generator://capabilities or the `compute` key of list_presets. This server (engine python) offers: auto, cpu; not available: gpu, hybrid. The result's `compute` says what was used.",
+     "enum": [
+      "auto",
+      "cpu",
+      "gpu",
+      "hybrid"
+     ],
+     "title": "Compute",
+     "type": "string"
+    },
+    "experiment": {
+     "default": false,
+     "description": "Allow a cloud regime other than water (a preset with experiment_required=true, or cloud_regime in overrides). The cloud amount is still Earth's water-cloud amount, so the result is an experiment, not a prediction. Never needed for water planets.",
+     "title": "Experiment",
+     "type": "boolean"
+    },
+    "isotropic": {
+     "default": false,
+     "description": "A baseline without the flow: no cyclones, fronts or jets, just noise with the same latitude profile. Use it only to compare against the real map; it is not a planet.",
+     "title": "Isotropic",
+     "type": "boolean"
+    },
+    "match_earth": {
+     "default": false,
+     "description": "Force the map's statistics toward Earth's (histogram, zonal profile, scale by scale), meant for widths of 2048 or more. Leave it false when you want to MEASURE how close a planet is to Earth: with true the closeness is built in and proves nothing.",
+     "title": "Match Earth",
+     "type": "boolean"
+    },
+    "overrides": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/PhysicsOverrides"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Physics that differ from the preset (or that define the planet on their own): any of rotation_period_days, radius_km, gravity_mps2, scale_height_km, cloud_regime. Example: {'rotation_period_days': 4.0} on preset 'earth'."
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Key of a built-in planet from list_presets, for example 'earth'. Optional when `overrides` gives all four physics fields.",
+     "title": "Preset"
+    },
+    "save": {
+     "default": true,
+     "description": "true (default): write the PNG/R8/JSON files to a subfolder of the output folder and return their paths. false: nothing is written; the result stays viewable with view_map(id) for this server session.",
+     "title": "Save",
+     "type": "boolean"
+    },
+    "seed": {
+     "default": 42,
+     "description": "Random seed (0 to 2147483647). The same physics, options and seed always give the same map.",
+     "maximum": 2147483647,
+     "minimum": 0,
+     "title": "Seed",
+     "type": "integer"
+    },
+    "surface": {
+     "default": "none",
+     "description": "'none': a world with no land. 'synthetic': a made-up world of five continents and a range, so land and relief act on the clouds (marine decks, dry land, uplift and rain shadow). To use your own land and relief, bake a bodies file with bake_bodies.",
+     "enum": [
+      "none",
+      "synthetic"
+     ],
+     "title": "Surface",
+     "type": "string"
+    },
+    "width": {
+     "default": 512,
+     "description": "Map width in pixels, one of 256, 512, 1024, 2048, 4096 (the height is half). This server accepts up to 2048.",
+     "title": "Width",
+     "type": "integer"
+    }
+   },
+   "title": "generate_mapArguments",
+   "type": "object"
+  },
+  "output": {
+   "$defs": {
+    "ComputeDeviceUsedOut": {
+     "additionalProperties": true,
+     "properties": {
+      "kind": {
+       "description": "'cpu' or 'gpu'.",
+       "title": "Kind",
+       "type": "string"
+      },
+      "name": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Name"
+      },
+      "seconds": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Wall time this device worked.",
+       "title": "Seconds"
+      },
+      "share": {
+       "description": "Fraction of the work (bands or texels) this device did; the shares add up to 1.",
+       "title": "Share",
+       "type": "number"
+      }
+     },
+     "required": [
+      "kind",
+      "share"
+     ],
+     "title": "ComputeDeviceUsedOut",
+     "type": "object"
+    },
+    "ComputeOut": {
+     "additionalProperties": true,
+     "properties": {
+      "devices": {
+       "items": {
+        "$ref": "#/$defs/ComputeDeviceUsedOut"
+       },
+       "title": "Devices",
+       "type": "array"
+      },
+      "note": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Why an automatic choice went the way it did; null when there is nothing to add.",
+       "title": "Note"
+      },
+      "requested": {
+       "description": "The `compute` mode that was asked for.",
+       "title": "Requested",
+       "type": "string"
+      },
+      "used": {
+       "description": "What really ran the map: 'cpu', 'gpu' or 'hybrid'.",
+       "title": "Used",
+       "type": "string"
+      }
+     },
+     "required": [
+      "requested",
+      "used",
+      "devices"
+     ],
+     "title": "ComputeOut",
+     "type": "object"
+    },
+    "DerivedOut": {
+     "additionalProperties": true,
+     "properties": {
+      "bakeable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when the clouds are not water (experiment only).",
+       "title": "Bakeable"
+      },
+      "cyclone_spin_north": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sense in which a low turns in the northern hemisphere, seen from outside the planet above its north pole: 'counterclockwise' (Earth) or 'clockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin North"
+      },
+      "cyclone_spin_south": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Same for the southern hemisphere, seen from outside above the south pole: 'clockwise' (Earth) or 'counterclockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin South"
+      },
+      "cyclones_per_hemisphere": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Number of storm vortices per hemisphere; null when there are no eddies.",
+       "title": "Cyclones Per Hemisphere"
+      },
+      "deformation_radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Rossby deformation radius in km: the size scale of the cyclones.",
+       "title": "Deformation Radius Km"
+      },
+      "hadley_edge_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude where the Hadley cell ends (degrees).",
+       "title": "Hadley Edge Deg"
+      },
+      "has_eddies": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Whether baroclinic eddies (cyclones) form at all.",
+       "title": "Has Eddies"
+      },
+      "storm_track_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude of the mid-latitude storm track (degrees).",
+       "title": "Storm Track Deg"
+      },
+      "texel_km": {
+       "additionalProperties": {
+        "type": "number"
+       },
+       "description": "Size of one map pixel at the equator in km, per map width.",
+       "title": "Texel Km",
+       "type": "object"
+      },
+      "warnings": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Warnings",
+       "type": "array"
+      }
+     },
+     "title": "DerivedOut",
+     "type": "object"
+    },
+    "MetricRow": {
+     "additionalProperties": true,
+     "properties": {
+      "comparable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when this row cannot be compared with Earth at the map width measured (spectrum, object sizes and coherence need width 2048 or more): ignore its gap. True otherwise; null if unknown.",
+       "title": "Comparable"
+      },
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on Earth's reference map.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on this map.",
+       "title": "Generated"
+      },
+      "hint": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What to change to close the gap.",
+       "title": "Hint"
+      },
+      "key": {
+       "title": "Key",
+       "type": "string"
+      },
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "relative_gap": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "(generated - earth) / earth; near 0 is Earth-like; null when the Earth value is 0.",
+       "title": "Relative Gap"
+      }
+     },
+     "required": [
+      "key",
+      "label"
+     ],
+     "title": "MetricRow",
+     "type": "object"
+    },
+    "PhysicsOut": {
+     "additionalProperties": true,
+     "properties": {
+      "cloud_regime": {
+       "description": "What the clouds are made of: 'water' is the only regime this model was built for.",
+       "title": "Cloud Regime",
+       "type": "string"
+      },
+      "gravity_mps2": {
+       "description": "Surface gravity in m/s^2.",
+       "title": "Gravity Mps2",
+       "type": "number"
+      },
+      "radius_km": {
+       "description": "Planet radius in km.",
+       "title": "Radius Km",
+       "type": "number"
+      },
+      "rotation_period_days": {
+       "description": "Rotation period in Earth days; negative = retrograde spin.",
+       "title": "Rotation Period Days",
+       "type": "number"
+      },
+      "scale_height_km": {
+       "description": "Atmospheric scale height in km.",
+       "title": "Scale Height Km",
+       "type": "number"
+      }
+     },
+     "required": [
+      "rotation_period_days",
+      "radius_km",
+      "gravity_mps2",
+      "scale_height_km",
+      "cloud_regime"
+     ],
+     "title": "PhysicsOut",
+     "type": "object"
+    },
+    "ZonalRow": {
+     "additionalProperties": true,
+     "properties": {
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Earth's mean cloud fraction at this latitude.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Mean cloud fraction of this map at this latitude.",
+       "title": "Generated"
+      },
+      "lat_deg": {
+       "title": "Lat Deg",
+       "type": "number"
+      },
+      "target": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the climate model aimed for at this latitude.",
+       "title": "Target"
+      }
+     },
+     "required": [
+      "lat_deg"
+     ],
+     "title": "ZonalRow",
+     "type": "object"
+    }
+   },
+   "additionalProperties": true,
+   "properties": {
+    "compute": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ComputeOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "What ran the map: the mode requested, the mode used and, per device, the seconds it worked and its share of the work."
+    },
+    "derived": {
+     "$ref": "#/$defs/DerivedOut"
+    },
+    "files": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "description": "Written files, name -> absolute path.",
+     "title": "Files",
+     "type": "object"
+    },
+    "folder": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Folder holding the files (null when save=false).",
+     "title": "Folder"
+    },
+    "height": {
+     "title": "Height",
+     "type": "integer"
+    },
+    "id": {
+     "description": "Hex token naming this result: pass it to view_map.",
+     "title": "Id",
+     "type": "string"
+    },
+    "metrics": {
+     "items": {
+      "$ref": "#/$defs/MetricRow"
+     },
+     "title": "Metrics",
+     "type": "array"
+    },
+    "next": {
+     "description": "Suggested next tool calls.",
+     "title": "Next",
+     "type": "string"
+    },
+    "options": {
+     "additionalProperties": true,
+     "title": "Options",
+     "type": "object"
+    },
+    "physics": {
+     "$ref": "#/$defs/PhysicsOut"
+    },
+    "resources": {
+     "additionalProperties": {
+      "type": "string"
+     },
+     "description": "MCP resource URIs of the saved files, name -> uri.",
+     "title": "Resources",
+     "type": "object"
+    },
+    "saved": {
+     "title": "Saved",
+     "type": "boolean"
+    },
+    "seconds": {
+     "title": "Seconds",
+     "type": "number"
+    },
+    "seed": {
+     "title": "Seed",
+     "type": "integer"
+    },
+    "warnings": {
+     "description": "Plain-language notes about THIS map: read them before judging the metrics.",
+     "items": {
+      "type": "string"
+     },
+     "title": "Warnings",
+     "type": "array"
+    },
+    "width": {
+     "title": "Width",
+     "type": "integer"
+    },
+    "zonal": {
+     "description": "Coarse zonal-mean profile, every 15 degrees of latitude.",
+     "items": {
+      "$ref": "#/$defs/ZonalRow"
+     },
+     "title": "Zonal",
+     "type": "array"
+    }
+   },
+   "required": [
+    "id",
+    "seconds",
+    "width",
+    "height",
+    "seed",
+    "physics",
+    "options",
+    "derived",
+    "metrics",
+    "zonal",
+    "saved",
+    "next"
+   ],
+   "title": "GenerationOut",
+   "type": "object"
+  }
+ },
+ "get_generation": {
+  "input": {
+   "properties": {
+    "job_id": {
+     "description": "The job_id returned by start_generation.",
+     "title": "Job Id",
+     "type": "string"
+    }
+   },
+   "required": [
+    "job_id"
+   ],
+   "title": "get_generationArguments",
+   "type": "object"
+  },
+  "output": {
+   "$defs": {
+    "ComputeDeviceUsedOut": {
+     "additionalProperties": true,
+     "properties": {
+      "kind": {
+       "description": "'cpu' or 'gpu'.",
+       "title": "Kind",
+       "type": "string"
+      },
+      "name": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "title": "Name"
+      },
+      "seconds": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Wall time this device worked.",
+       "title": "Seconds"
+      },
+      "share": {
+       "description": "Fraction of the work (bands or texels) this device did; the shares add up to 1.",
+       "title": "Share",
+       "type": "number"
+      }
+     },
+     "required": [
+      "kind",
+      "share"
+     ],
+     "title": "ComputeDeviceUsedOut",
+     "type": "object"
+    },
+    "ComputeOut": {
+     "additionalProperties": true,
+     "properties": {
+      "devices": {
+       "items": {
+        "$ref": "#/$defs/ComputeDeviceUsedOut"
+       },
+       "title": "Devices",
+       "type": "array"
+      },
+      "note": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Why an automatic choice went the way it did; null when there is nothing to add.",
+       "title": "Note"
+      },
+      "requested": {
+       "description": "The `compute` mode that was asked for.",
+       "title": "Requested",
+       "type": "string"
+      },
+      "used": {
+       "description": "What really ran the map: 'cpu', 'gpu' or 'hybrid'.",
+       "title": "Used",
+       "type": "string"
+      }
+     },
+     "required": [
+      "requested",
+      "used",
+      "devices"
+     ],
+     "title": "ComputeOut",
+     "type": "object"
+    },
+    "DerivedOut": {
+     "additionalProperties": true,
+     "properties": {
+      "bakeable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when the clouds are not water (experiment only).",
+       "title": "Bakeable"
+      },
+      "cyclone_spin_north": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sense in which a low turns in the northern hemisphere, seen from outside the planet above its north pole: 'counterclockwise' (Earth) or 'clockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin North"
+      },
+      "cyclone_spin_south": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Same for the southern hemisphere, seen from outside above the south pole: 'clockwise' (Earth) or 'counterclockwise' (retrograde spin). Null when there are no eddies.",
+       "title": "Cyclone Spin South"
+      },
+      "cyclones_per_hemisphere": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Number of storm vortices per hemisphere; null when there are no eddies.",
+       "title": "Cyclones Per Hemisphere"
+      },
+      "deformation_radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Rossby deformation radius in km: the size scale of the cyclones.",
+       "title": "Deformation Radius Km"
+      },
+      "hadley_edge_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude where the Hadley cell ends (degrees).",
+       "title": "Hadley Edge Deg"
+      },
+      "has_eddies": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Whether baroclinic eddies (cyclones) form at all.",
+       "title": "Has Eddies"
+      },
+      "storm_track_deg": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Latitude of the mid-latitude storm track (degrees).",
+       "title": "Storm Track Deg"
+      },
+      "texel_km": {
+       "additionalProperties": {
+        "type": "number"
+       },
+       "description": "Size of one map pixel at the equator in km, per map width.",
+       "title": "Texel Km",
+       "type": "object"
+      },
+      "warnings": {
+       "items": {
+        "type": "string"
+       },
+       "title": "Warnings",
+       "type": "array"
+      }
+     },
+     "title": "DerivedOut",
+     "type": "object"
+    },
+    "GenerationOut": {
+     "additionalProperties": true,
+     "properties": {
+      "compute": {
+       "anyOf": [
+        {
+         "$ref": "#/$defs/ComputeOut"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What ran the map: the mode requested, the mode used and, per device, the seconds it worked and its share of the work."
+      },
+      "derived": {
+       "$ref": "#/$defs/DerivedOut"
+      },
+      "files": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "Written files, name -> absolute path.",
+       "title": "Files",
+       "type": "object"
+      },
+      "folder": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Folder holding the files (null when save=false).",
+       "title": "Folder"
+      },
+      "height": {
+       "title": "Height",
+       "type": "integer"
+      },
+      "id": {
+       "description": "Hex token naming this result: pass it to view_map.",
+       "title": "Id",
+       "type": "string"
+      },
+      "metrics": {
+       "items": {
+        "$ref": "#/$defs/MetricRow"
+       },
+       "title": "Metrics",
+       "type": "array"
+      },
+      "next": {
+       "description": "Suggested next tool calls.",
+       "title": "Next",
+       "type": "string"
+      },
+      "options": {
+       "additionalProperties": true,
+       "title": "Options",
+       "type": "object"
+      },
+      "physics": {
+       "$ref": "#/$defs/PhysicsOut"
+      },
+      "resources": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "MCP resource URIs of the saved files, name -> uri.",
+       "title": "Resources",
+       "type": "object"
+      },
+      "saved": {
+       "title": "Saved",
+       "type": "boolean"
+      },
+      "seconds": {
+       "title": "Seconds",
+       "type": "number"
+      },
+      "seed": {
+       "title": "Seed",
+       "type": "integer"
+      },
+      "warnings": {
+       "description": "Plain-language notes about THIS map: read them before judging the metrics.",
+       "items": {
+        "type": "string"
+       },
+       "title": "Warnings",
+       "type": "array"
+      },
+      "width": {
+       "title": "Width",
+       "type": "integer"
+      },
+      "zonal": {
+       "description": "Coarse zonal-mean profile, every 15 degrees of latitude.",
+       "items": {
+        "$ref": "#/$defs/ZonalRow"
+       },
+       "title": "Zonal",
+       "type": "array"
+      }
+     },
+     "required": [
+      "id",
+      "seconds",
+      "width",
+      "height",
+      "seed",
+      "physics",
+      "options",
+      "derived",
+      "metrics",
+      "zonal",
+      "saved",
+      "next"
+     ],
+     "title": "GenerationOut",
+     "type": "object"
+    },
+    "MetricRow": {
+     "additionalProperties": true,
+     "properties": {
+      "comparable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when this row cannot be compared with Earth at the map width measured (spectrum, object sizes and coherence need width 2048 or more): ignore its gap. True otherwise; null if unknown.",
+       "title": "Comparable"
+      },
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on Earth's reference map.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on this map.",
+       "title": "Generated"
+      },
+      "hint": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What to change to close the gap.",
+       "title": "Hint"
+      },
+      "key": {
+       "title": "Key",
+       "type": "string"
+      },
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "relative_gap": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "(generated - earth) / earth; near 0 is Earth-like; null when the Earth value is 0.",
+       "title": "Relative Gap"
+      }
+     },
+     "required": [
+      "key",
+      "label"
+     ],
+     "title": "MetricRow",
+     "type": "object"
+    },
+    "PhysicsOut": {
+     "additionalProperties": true,
+     "properties": {
+      "cloud_regime": {
+       "description": "What the clouds are made of: 'water' is the only regime this model was built for.",
+       "title": "Cloud Regime",
+       "type": "string"
+      },
+      "gravity_mps2": {
+       "description": "Surface gravity in m/s^2.",
+       "title": "Gravity Mps2",
+       "type": "number"
+      },
+      "radius_km": {
+       "description": "Planet radius in km.",
+       "title": "Radius Km",
+       "type": "number"
+      },
+      "rotation_period_days": {
+       "description": "Rotation period in Earth days; negative = retrograde spin.",
+       "title": "Rotation Period Days",
+       "type": "number"
+      },
+      "scale_height_km": {
+       "description": "Atmospheric scale height in km.",
+       "title": "Scale Height Km",
+       "type": "number"
+      }
+     },
+     "required": [
+      "rotation_period_days",
+      "radius_km",
+      "gravity_mps2",
+      "scale_height_km",
+      "cloud_regime"
+     ],
+     "title": "PhysicsOut",
+     "type": "object"
+    },
+    "ZonalRow": {
+     "additionalProperties": true,
+     "properties": {
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Earth's mean cloud fraction at this latitude.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Mean cloud fraction of this map at this latitude.",
+       "title": "Generated"
+      },
+      "lat_deg": {
+       "title": "Lat Deg",
+       "type": "number"
+      },
+      "target": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the climate model aimed for at this latitude.",
+       "title": "Target"
+      }
+     },
+     "required": [
+      "lat_deg"
+     ],
+     "title": "ZonalRow",
+     "type": "object"
+    }
+   },
+   "additionalProperties": true,
+   "properties": {
+    "elapsed_seconds": {
+     "title": "Elapsed Seconds",
+     "type": "number"
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Error"
+    },
+    "estimate_seconds": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Estimate Seconds"
+    },
+    "job_id": {
+     "title": "Job Id",
+     "type": "string"
+    },
+    "kind": {
+     "title": "Kind",
+     "type": "string"
+    },
+    "message": {
+     "title": "Message",
+     "type": "string"
+    },
+    "progress": {
+     "description": "0..1; never goes backwards.",
+     "title": "Progress",
+     "type": "number"
+    },
+    "result": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/GenerationOut"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Present when status is done."
+    },
+    "status": {
+     "description": "queued, running, done, failed or cancelled.",
+     "title": "Status",
+     "type": "string"
+    }
+   },
+   "required": [
+    "job_id",
+    "kind",
+    "status",
+    "progress",
+    "message",
+    "elapsed_seconds"
+   ],
+   "title": "JobOut",
+   "type": "object"
+  }
+ },
+ "list_presets": {
+  "input": {
+   "properties": {},
+   "title": "list_presetsArguments",
+   "type": "object"
+  },
+  "output": {
+   "$defs": {
+    "CapabilitiesOut": {
+     "additionalProperties": true,
+     "properties": {
+      "default": {
+       "description": "The mode used when `compute` is left out: 'auto'.",
+       "title": "Default",
+       "type": "string"
+      },
+      "devices": {
+       "$ref": "#/$defs/ComputeDevicesOut"
+      },
+      "engine": {
+       "description": "The engine that answers: 'rust' for the real engine ('mock' for the test stand-in served by --mock).",
+       "title": "Engine",
+       "type": "string"
+      },
+      "modes": {
+       "description": "Always the four modes auto, cpu, gpu, hybrid, in that order.",
+       "items": {
+        "$ref": "#/$defs/ComputeModeOut"
+       },
+       "title": "Modes",
+       "type": "array"
+      }
+     },
+     "required": [
+      "default",
+      "engine",
+      "modes",
+      "devices"
+     ],
+     "title": "CapabilitiesOut",
+     "type": "object"
+    },
+    "ComputeDevicesOut": {
+     "additionalProperties": true,
+     "properties": {
+      "cpu": {
+       "$ref": "#/$defs/CpuDeviceOut"
+      },
+      "gpu": {
+       "anyOf": [
+        {
+         "$ref": "#/$defs/GpuDeviceOut"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The GPU an engine would use; null when there is none."
+      }
+     },
+     "required": [
+      "cpu"
+     ],
+     "title": "ComputeDevicesOut",
+     "type": "object"
+    },
+    "ComputeModeOut": {
+     "additionalProperties": true,
+     "properties": {
+      "available": {
+       "description": "False: asking for this mode explicitly is an error that gives `reason`.",
+       "title": "Available",
+       "type": "boolean"
+      },
+      "description": {
+       "description": "What the mode does.",
+       "title": "Description",
+       "type": "string"
+      },
+      "detail": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "A short extra, for example '1 thread'; null when there is none.",
+       "title": "Detail"
+      },
+      "key": {
+       "description": "The value of the `compute` argument: 'auto', 'cpu', 'gpu' or 'hybrid'.",
+       "title": "Key",
+       "type": "string"
+      },
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "reason": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Why the mode is not available and what to do instead; null when it is available.",
+       "title": "Reason"
+      }
+     },
+     "required": [
+      "key",
+      "label",
+      "available",
+      "description"
+     ],
+     "title": "ComputeModeOut",
+     "type": "object"
+    },
+    "CpuDeviceOut": {
+     "additionalProperties": true,
+     "properties": {
+      "name": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The processor name when the system reports one, else null.",
+       "title": "Name"
+      },
+      "threads": {
+       "description": "Hardware threads of this machine.",
+       "title": "Threads",
+       "type": "integer"
+      }
+     },
+     "required": [
+      "threads"
+     ],
+     "title": "CpuDeviceOut",
+     "type": "object"
+    },
+    "GpuDeviceOut": {
+     "additionalProperties": true,
+     "properties": {
+      "backend": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The graphics API in use: Vulkan, DX12, Metal, WebGPU...",
+       "title": "Backend"
+      },
+      "df64": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The double-single arithmetic configuration that is exact on this device (for example fma+barrier), null when unknown.",
+       "title": "Df64"
+      },
+      "float64": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Whether the device has native 64-bit floats (WGSL has none).",
+       "title": "Float64"
+      },
+      "name": {
+       "description": "The adapter name, for example NVIDIA GeForce RTX 5080.",
+       "title": "Name",
+       "type": "string"
+      }
+     },
+     "required": [
+      "name"
+     ],
+     "title": "GpuDeviceOut",
+     "type": "object"
+    },
+    "PresetInfo": {
+     "additionalProperties": true,
+     "properties": {
+      "cloud_regime": {
+       "default": "water",
+       "title": "Cloud Regime",
+       "type": "string"
+      },
+      "experiment_required": {
+       "description": "True when the clouds are not water: generate only with experiment=true, and do not trust the amount of cloud.",
+       "title": "Experiment Required",
+       "type": "boolean"
+      },
+      "gravity_mps2": {
+       "title": "Gravity Mps2",
+       "type": "number"
+      },
+      "key": {
+       "description": "Pass this as `preset`.",
+       "title": "Key",
+       "type": "string"
+      },
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "note": {
+       "default": "",
+       "title": "Note",
+       "type": "string"
+      },
+      "radius_km": {
+       "title": "Radius Km",
+       "type": "number"
+      },
+      "rotation_period_days": {
+       "title": "Rotation Period Days",
+       "type": "number"
+      },
+      "scale_height_km": {
+       "title": "Scale Height Km",
+       "type": "number"
+      }
+     },
+     "required": [
+      "key",
+      "label",
+      "rotation_period_days",
+      "radius_km",
+      "gravity_mps2",
+      "scale_height_km",
+      "experiment_required"
+     ],
+     "title": "PresetInfo",
+     "type": "object"
+    }
+   },
+   "additionalProperties": true,
+   "properties": {
+    "compute": {
+     "$ref": "#/$defs/CapabilitiesOut",
+     "description": "Where maps can be computed: which of the `compute` modes auto, cpu, gpu and hybrid this server offers (available, and the reason when not) and the devices it found. The same data as the resource cloud-map-generator://capabilities."
+    },
+    "estimate_seconds": {
+     "additionalProperties": {
+      "type": "number"
+     },
+     "description": "Typical generation seconds per width on a quiet CPU.",
+     "title": "Estimate Seconds",
+     "type": "object"
+    },
+    "limits": {
+     "additionalProperties": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array"
+     },
+     "description": "[min, max] of the seed and of each physics input.",
+     "title": "Limits",
+     "type": "object"
+    },
+    "max_width": {
+     "description": "The largest width THIS server accepts (its --max-width).",
+     "title": "Max Width",
+     "type": "integer"
+    },
+    "output_folder": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Absolute path of the server output folder: every generate_map result is saved in a subfolder, and view_map(path), measure_map and bake_bodies read files only from here or from a read_dirs entry. Write a bodies file here (or pass bake_bodies `bodies` inline).",
+     "title": "Output Folder"
+    },
+    "presets": {
+     "items": {
+      "$ref": "#/$defs/PresetInfo"
+     },
+     "title": "Presets",
+     "type": "array"
+    },
+    "read_dirs": {
+     "description": "Extra directories the server was started with (--read-dir) from which files may be read; usually empty.",
+     "items": {
+      "type": "string"
+     },
+     "title": "Read Dirs",
+     "type": "array"
+    },
+    "widths": {
+     "description": "Map widths the generator supports, in pixels (the height is half).",
+     "items": {
+      "type": "integer"
+     },
+     "title": "Widths",
+     "type": "array"
+    }
+   },
+   "required": [
+    "presets",
+    "limits",
+    "widths",
+    "max_width",
+    "estimate_seconds",
+    "compute"
+   ],
+   "title": "ListPresetsOut",
+   "type": "object"
+  }
+ },
+ "measure_map": {
+  "input": {
+   "properties": {
+    "path": {
+     "description": "A coverage PNG inside the output folder or a --read-dir directory.",
+     "title": "Path",
+     "type": "string"
+    }
+   },
+   "required": [
+    "path"
+   ],
+   "title": "measure_mapArguments",
+   "type": "object"
+  },
+  "output": {
+   "$defs": {
+    "MetricRow": {
+     "additionalProperties": true,
+     "properties": {
+      "comparable": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "False when this row cannot be compared with Earth at the map width measured (spectrum, object sizes and coherence need width 2048 or more): ignore its gap. True otherwise; null if unknown.",
+       "title": "Comparable"
+      },
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on Earth's reference map.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "The value measured on this map.",
+       "title": "Generated"
+      },
+      "hint": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What to change to close the gap.",
+       "title": "Hint"
+      },
+      "key": {
+       "title": "Key",
+       "type": "string"
+      },
+      "label": {
+       "title": "Label",
+       "type": "string"
+      },
+      "relative_gap": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "(generated - earth) / earth; near 0 is Earth-like; null when the Earth value is 0.",
+       "title": "Relative Gap"
+      }
+     },
+     "required": [
+      "key",
+      "label"
+     ],
+     "title": "MetricRow",
+     "type": "object"
+    },
+    "ZonalRow": {
+     "additionalProperties": true,
+     "properties": {
+      "earth": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Earth's mean cloud fraction at this latitude.",
+       "title": "Earth"
+      },
+      "generated": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Mean cloud fraction of this map at this latitude.",
+       "title": "Generated"
+      },
+      "lat_deg": {
+       "title": "Lat Deg",
+       "type": "number"
+      },
+      "target": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the climate model aimed for at this latitude.",
+       "title": "Target"
+      }
+     },
+     "required": [
+      "lat_deg"
+     ],
+     "title": "ZonalRow",
+     "type": "object"
+    }
+   },
+   "additionalProperties": true,
+   "properties": {
+    "height": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Height"
+    },
+    "metrics": {
+     "items": {
+      "$ref": "#/$defs/MetricRow"
+     },
+     "title": "Metrics",
+     "type": "array"
+    },
+    "path": {
+     "title": "Path",
+     "type": "string"
+    },
+    "summary": {
+     "title": "Summary",
+     "type": "string"
+    },
+    "warnings": {
+     "description": "For example: metrics are only comparable with Earth at width 2048 or more.",
+     "items": {
+      "type": "string"
+     },
+     "title": "Warnings",
+     "type": "array"
+    },
+    "width": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Width"
+    },
+    "zonal": {
+     "items": {
+      "$ref": "#/$defs/ZonalRow"
+     },
+     "title": "Zonal",
+     "type": "array"
+    }
+   },
+   "required": [
+    "path",
+    "metrics",
+    "zonal",
+    "summary"
+   ],
+   "title": "MeasureOut",
+   "type": "object"
+  }
+ },
+ "start_generation": {
+  "input": {
+   "$defs": {
+    "PhysicsOverrides": {
+     "additionalProperties": false,
+     "properties": {
+      "cloud_regime": {
+       "anyOf": [
+        {
+         "maxLength": 64,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "What the clouds are made of, a free word such as 'methane'. 'water' (default) is the only regime the model is built for; anything else is refused unless the TOP-LEVEL argument experiment=true is also passed (not an overrides field), and gives an experiment, not a prediction.",
+       "title": "Cloud Regime"
+      },
+      "gravity_mps2": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Surface gravity in m/s^2 (Earth 9.81). Allowed range 0.1 to 100.",
+       "title": "Gravity Mps2"
+      },
+      "radius_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Planet radius in km (Earth 6371). Allowed range 500 to 30000.",
+       "title": "Radius Km"
+      },
+      "rotation_period_days": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Sidereal rotation period in Earth DAYS (not hours: 36 h = 1.5, 9.6 h = 0.4); NEGATIVE means a retrograde spin (the planet turns backwards and the cyclones reverse). Allowed range -400 to 400.",
+       "title": "Rotation Period Days"
+      },
+      "scale_height_km": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "default": null,
+       "description": "Atmospheric scale height in km (Earth 8). Allowed range 0.5 to 100.",
+       "title": "Scale Height Km"
+      }
+     },
+     "title": "PhysicsOverrides",
+     "type": "object"
+    }
+   },
+   "properties": {
+    "compute": {
+     "default": "auto",
+     "description": "Where the work runs. 'auto' (default): the engine picks the GPU when one is available and the map is large enough for the upload to pay, otherwise the CPU; it never fails for lack of a device. 'cpu': every stage on the CPU. 'gpu': the per-texel stages on the GPU, in float32 (the same map to float32 rounding and statistically, not bit for bit). 'hybrid': row bands shared between the GPU and the CPU threads. 'gpu' and 'hybrid' need a GPU-capable engine: an explicit mode that is not available is an ERROR that gives the reason (never a silent fallback). Check what is offered in the resource cloud-map-generator://capabilities or the `compute` key of list_presets. This server (engine python) offers: auto, cpu; not available: gpu, hybrid. The result's `compute` says what was used.",
+     "enum": [
+      "auto",
+      "cpu",
+      "gpu",
+      "hybrid"
+     ],
+     "title": "Compute",
+     "type": "string"
+    },
+    "experiment": {
+     "default": false,
+     "description": "Allow a cloud regime other than water (a preset with experiment_required=true, or cloud_regime in overrides). The cloud amount is still Earth's water-cloud amount, so the result is an experiment, not a prediction. Never needed for water planets.",
+     "title": "Experiment",
+     "type": "boolean"
+    },
+    "isotropic": {
+     "default": false,
+     "description": "A baseline without the flow: no cyclones, fronts or jets, just noise with the same latitude profile. Use it only to compare against the real map; it is not a planet.",
+     "title": "Isotropic",
+     "type": "boolean"
+    },
+    "match_earth": {
+     "default": false,
+     "description": "Force the map's statistics toward Earth's (histogram, zonal profile, scale by scale), meant for widths of 2048 or more. Leave it false when you want to MEASURE how close a planet is to Earth: with true the closeness is built in and proves nothing.",
+     "title": "Match Earth",
+     "type": "boolean"
+    },
+    "overrides": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/PhysicsOverrides"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Physics that differ from the preset (or that define the planet on their own): any of rotation_period_days, radius_km, gravity_mps2, scale_height_km, cloud_regime. Example: {'rotation_period_days': 4.0} on preset 'earth'."
+    },
+    "preset": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Key of a built-in planet from list_presets, for example 'earth'. Optional when `overrides` gives all four physics fields.",
+     "title": "Preset"
+    },
+    "save": {
+     "default": true,
+     "description": "true (default): write the PNG/R8/JSON files to a subfolder of the output folder and return their paths. false: nothing is written; the result stays viewable with view_map(id) for this server session.",
+     "title": "Save",
+     "type": "boolean"
+    },
+    "seed": {
+     "default": 42,
+     "description": "Random seed (0 to 2147483647). The same physics, options and seed always give the same map.",
+     "maximum": 2147483647,
+     "minimum": 0,
+     "title": "Seed",
+     "type": "integer"
+    },
+    "surface": {
+     "default": "none",
+     "description": "'none': a world with no land. 'synthetic': a made-up world of five continents and a range, so land and relief act on the clouds (marine decks, dry land, uplift and rain shadow). To use your own land and relief, bake a bodies file with bake_bodies.",
+     "enum": [
+      "none",
+      "synthetic"
+     ],
+     "title": "Surface",
+     "type": "string"
+    },
+    "width": {
+     "default": 512,
+     "description": "Map width in pixels, one of 256, 512, 1024, 2048, 4096 (the height is half). This server accepts up to 2048.",
+     "title": "Width",
+     "type": "integer"
+    }
+   },
+   "title": "start_generationArguments",
+   "type": "object"
+  },
+  "output": {
+   "additionalProperties": true,
+   "properties": {
+    "estimate_seconds": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Estimate Seconds"
+    },
+    "job_id": {
+     "title": "Job Id",
+     "type": "string"
+    },
+    "next": {
+     "title": "Next",
+     "type": "string"
+    },
+    "queued_ahead": {
+     "description": "Jobs running or waiting before this one (0 = starts now).",
+     "title": "Queued Ahead",
+     "type": "integer"
+    },
+    "status": {
+     "title": "Status",
+     "type": "string"
+    },
+    "width": {
+     "title": "Width",
+     "type": "integer"
+    }
+   },
+   "required": [
+    "job_id",
+    "status",
+    "width",
+    "queued_ahead",
+    "next"
+   ],
+   "title": "StartOut",
+   "type": "object"
+  }
+ },
+ "view_map": {
+  "input": {
+   "properties": {
+    "id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Result id from generate_map or get_generation.",
+     "title": "Id"
+    },
+    "lat_deg": {
+     "default": 20.0,
+     "description": "Globe centre latitude in degrees, -90 to 90: 90 looks down on the north pole, -90 on the south pole, 0 on the equator.",
+     "maximum": 90,
+     "minimum": -90,
+     "title": "Lat Deg",
+     "type": "number"
+    },
+    "lon_deg": {
+     "default": 0.0,
+     "description": "Globe centre longitude in degrees, east positive; any value is wrapped to -180..180. Ignored when lat_deg is exactly 90 or -90.",
+     "title": "Lon Deg",
+     "type": "number"
+    },
+    "path": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "A coverage PNG (8 or 16 bit gray, 2:1) inside a readable directory.",
+     "title": "Path"
+    },
+    "product": {
+     "default": "coverage",
+     "enum": [
+      "coverage",
+      "type",
+      "high_share",
+      "wind"
+     ],
+     "title": "Product",
+     "type": "string"
+    },
+    "size": {
+     "default": 512,
+     "description": "Image width (map) or diameter (globe) in pixels.",
+     "maximum": 1024,
+     "minimum": 64,
+     "title": "Size",
+     "type": "integer"
+    },
+    "view": {
+     "default": "map",
+     "enum": [
+      "map",
+      "globe"
+     ],
+     "title": "View",
+     "type": "string"
+    }
+   },
+   "title": "view_mapArguments",
+   "type": "object"
+  },
+  "output": {
+   "additionalProperties": true,
+   "properties": {
+    "description": {
+     "title": "Description",
+     "type": "string"
+    },
+    "height_px": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Height Px"
+    },
+    "lat_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Lat Deg"
+    },
+    "lon_deg": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Lon Deg"
+    },
+    "product": {
+     "title": "Product",
+     "type": "string"
+    },
+    "source": {
+     "description": "'result <id>' or the resolved file name that was drawn.",
+     "title": "Source",
+     "type": "string"
+    },
+    "view": {
+     "title": "View",
+     "type": "string"
+    },
+    "width_px": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Width Px"
+    }
+   },
+   "required": [
+    "source",
+    "view",
+    "product",
+    "description"
+   ],
+   "title": "ViewOut",
+   "type": "object"
+  }
+ }
+}

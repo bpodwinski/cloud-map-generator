@@ -1,0 +1,150 @@
+{
+ "format": 1,
+ "id": "warped_voronoi.single_point.s4",
+ "group": "tiles",
+ "function": "cloudgen.tiles.warped_voronoi",
+ "doc": "DEGENERATE: a size field of 2.0 (a cell larger than the tile) accepts exactly one point, so the k=2 query has no second neighbor: scipy returns distance inf (and index n), border = inf everywhere and s_cell is that point's size. Never reached by the generator (sizes are at most 0.2); pins the cKDTree k > n semantics (inf, not an error). The output holds infinities (equal to themselves in the check). Draws in call order: plan0 = the Poisson candidates and keep mask of poisson_points(size_field, seed) (default spacing 0.85; the thinning that produced the keep mask from uniforms is pinned by the poisson.* cases, input thin_u), plan1 and plan2 = the white noise of the two warp fBms (low 3, slope 3, seeds seed + 1 and seed + 2); the warp is BORDER_WARP (0.12) x the local size x the fBm, added to the texel center and wrapped with np.mod(., 1.0); the 2 nearest points come from a periodic KD tree (boxsize 1). Outputs: border = (F2 - F1) / size of the nearest cell; s_cell = the size of the nearest cell, a COPY of a size_field value (a port that is handed size_field copies it: bit-exact; it is compared at 1e-12 relative only because the Python check recomputes size_field with the local FFT, which may differ by an ulp from the frozen one); and the accepted Poisson points, an intermediate (exact: copies of the drawn candidates). Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: border max |diff| 8.6e-15 (F2 - F1 cancels), s_cell unchanged in every trial (the nearest cell never flipped), so border rtol 1e-9 / atol 1e-10, s_cell rtol 1e-12.",
+ "params": {
+  "size": 4,
+  "seed": 32,
+  "n_points": 1,
+  "constants": {
+   "BORDER_WARP": 0.12
+  },
+  "literals": {
+   "poisson_spacing": 0.85,
+   "warp_low": 3.0,
+   "warp_slope": 3.0,
+   "warp_seed_offsets": [
+    1,
+    2
+   ],
+   "kd_k": 2
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.poisson",
+    "seed": 32,
+    "spacing": 0.85
+   },
+   {
+    "index": 1,
+    "kind": "tile.fbm",
+    "size": 4,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 33
+   },
+   {
+    "index": 2,
+    "kind": "tile.fbm",
+    "size": 4,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 34
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "size_field",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 128
+  },
+  {
+   "name": "plan0.cand",
+   "dtype": "f64",
+   "shape": [
+    3,
+    2
+   ],
+   "offset": 128,
+   "nbytes": 48
+  },
+  {
+   "name": "plan0.keep",
+   "dtype": "bool",
+   "shape": [
+    3
+   ],
+   "offset": 176,
+   "nbytes": 3
+  },
+  {
+   "name": "plan1.white",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 184,
+   "nbytes": 128
+  },
+  {
+   "name": "plan2.white",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 312,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "border",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 440,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "s_cell",
+   "dtype": "f64",
+   "shape": [
+    4,
+    4
+   ],
+   "offset": 568,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-12,
+    "atol": 1e-15
+   }
+  },
+  {
+   "name": "points",
+   "dtype": "f64",
+   "shape": [
+    1,
+    2
+   ],
+   "offset": 696,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "287d390b7a6abcdc20f9753e3c3c13d0270835b60d42ee251880c61900ed1fa6"
+}

@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.near_quarter_turn",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Half angle 1.5 rad (tan = 14.1, close to the 90 degree limit where the tangent plane goes to infinity): the corners are almost on the great circle 90 degrees away. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": -0.4,
+  "lat0": 0.2,
+  "half_angle": 1.5,
+  "n": 7
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    7,
+    7,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1176,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b3e8fcd00c8ee2e55c693d7b613c9f1220e5993cdc0779e3f5e68bafa950f532"
+}

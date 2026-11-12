@@ -1,0 +1,36 @@
+{
+ "format": 1,
+ "id": "standardize.single_element",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "One element (the smallest legal array): its std is 0, the fallback applies, the result is 0. Exact.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 4
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "cd61894d7dc59d4b00ea918af3772460a9838c4378ae88142916d5b0363d27be"
+}

@@ -1,0 +1,63 @@
+{
+ "format": 1,
+ "id": "generate.rejects_non_water",
+ "group": "pipeline",
+ "function": "cloudgen.generate.generate",
+ "doc": "A Mars-like body with cloud_regime \"thin water ice\" and the default GenParams: generate() raises ValueError (climate.is_bakeable is false and allow_any_regime is off). The output is 1 when it raised. Exact.",
+ "params": {
+  "body": {
+   "rotation_period_days": 1.02596,
+   "radius_km": 3389.5,
+   "gravity_mps2": 3.721,
+   "scale_height_km": 11.1,
+   "cloud_regime": "thin water ice"
+  },
+  "seed": 1,
+  "width": 16,
+  "gen_params": {
+   "structure_width": 512,
+   "a_moisture": 1.0,
+   "a_ascent": 0.5,
+   "a_mid": 0.3,
+   "a_fine": 0.6,
+   "moisture_noise": 0.45,
+   "advect_mid": 0.6,
+   "advect_fine": 0.25,
+   "mid_frequency": 6.0,
+   "fine_frequency": 48.0,
+   "cumulus_cell_km": 1.4,
+   "fine_top": 0.95,
+   "fine_gain": 0.65,
+   "fine_billow": false,
+   "fine_min_texels": 2.0,
+   "shield_ramp": 0.35,
+   "cumulus_depth": 1.6,
+   "cumulus_max": 0.5,
+   "shield_texture": 0.3,
+   "threshold_smooth_deg": 2.0,
+   "regime_texture": true,
+   "isotropic": false,
+   "allow_any_regime": false,
+   "surface_terms": true,
+   "sensitivity_step": 0.05
+  }
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "raises_value_error",
+   "dtype": "u8",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 1,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a"
+}

@@ -1,0 +1,9 @@
+[package]
+name = "cloud-map-generator-golden"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Reader and comparer of the golden cases (golden/README.md): the oracle of the Rust port"
+
+[dependencies]
+serde_json = { workspace = true }

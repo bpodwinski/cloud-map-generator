@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "surface._gauss.convergence",
+ "group": "texture_surface",
+ "function": "cloudgen.surface._gauss",
+ "doc": "surface._gauss(x, 0, 0.3) in float64 (the convergence-zone dip of land_contrast): even in x, 1 at 0, underflows to 0 at +-1e3. 1e-9 (measured against math.exp scalars: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp)).",
+ "params": {
+  "mu": 0.0,
+  "s": 0.3
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    165
+   ],
+   "offset": 0,
+   "nbytes": 1320
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    165
+   ],
+   "offset": 1320,
+   "nbytes": 1320,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "51fe27466e1dd63d2d2ead3c3445fbaaaea99440a783831bb9d5bf125cdd515a"
+}

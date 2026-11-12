@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "fbm.fftfreq_inexact.s14",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "NUMPY ARTIFACT: fftfreq(14) * 14 gives 4.999999999999999 for k = 5 (it is computed as (i * (1/14)) * 14, not an exact integer), so the modes (+-5, 0) and (0, +-5) have radius just BELOW low = 5.0 and are dropped, where an exact-integer k would keep them. Power-of-two sizes (every size the product uses) are exact and unaffected; a port that wants this case computes k as (i as f64 * (1.0 / n as f64)) * n as f64, i in 0..n/2 then -n/2..-1. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: the spread under nudges is the same as the other fBm cases (max |diff| 1e-15); the artifact itself moves the output by 0.11 (max |diff|; 123 of 196 modes are kept, 127 with an exact k), so the case does tell the two apart.",
+ "params": {
+  "size": 14,
+  "low": 5.0,
+  "slope": 3.0,
+  "seed": 24,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 14,
+    "low": 5.0,
+    "slope": 3.0,
+    "seed": 24
+   }
+  ]
+ },
+ "tags": [
+  "artifact"
+ ],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    14,
+    14
+   ],
+   "offset": 0,
+   "nbytes": 1568
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    14,
+    14
+   ],
+   "offset": 1568,
+   "nbytes": 1568,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "356316a85087665b723b4f7e1072e58d49fed089217bd05a70e13cefebe9cb02"
+}

@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "climatological_zonal_mps.fast_rotator",
+ "group": "products_generate",
+ "function": "cloudgen.products.climatological_zonal_mps",
+ "doc": "A 0.4-day rotator: Hadley edge 12.03 degrees, so x reaches 7.5 (the polar smoothstep is saturated over most of the hemisphere) and the scale is gh / (omega_a / omega_a_earth) = 0.4. 181 float64 latitudes -90..90 every degree. Float64 closed form (gaussians, a smoothstep, a scale): rtol 1e-9. Arguments: lat (input, rad), hadley_deg and body (params). Measured: one-ulp nudges of every float input and parameter change it by at most 6.7e-15 (worst of 6 random trials); the tolerance is about 2e4x that spread.",
+ "params": {
+  "hadley_deg": 12.032849679625377,
+  "body": {
+   "name": "fast rotator",
+   "rotation_period_days": 0.4,
+   "radius_km": 6371.0,
+   "gravity_mps2": 9.81,
+   "scale_height_km": 8.0,
+   "cloud_regime": "water"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    181
+   ],
+   "offset": 0,
+   "nbytes": 1448
+  }
+ ],
+ "outputs": [
+  {
+   "name": "u",
+   "dtype": "f64",
+   "shape": [
+    181
+   ],
+   "offset": 1448,
+   "nbytes": 1448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0e41f1b36717730b1f2e2ec86d263ca40475e5b7655a7798bd8dea0b564ec55d"
+}

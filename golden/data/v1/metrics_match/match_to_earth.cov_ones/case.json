@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "match_to_earth.cov_ones",
+ "group": "metrics_match",
+ "function": "cloudgen.match.match_to_earth",
+ "doc": "match_to_earth(cov, earth, hadley_deg, levels, strength): sigmas 2^k (k < levels) in Earth texels, scaled by the width ratio for the generated map; band_layers of both (float32), each generated layer quantile-matched per latitude zone to the same Earth layer (_match_by_zone, Earth zones from lat at hadley 30 with rows past 67.5 degrees excluded), summed with strength * matched + (1 - strength) * original, plus the matched residual, clipped to [0, 1], then matched once more as a whole to Earth's own map, and blended again by strength; the result is float32. Extra output block_mean8 = float64 means of the 8x8 blocks of `out`, computed by the case: a robust summary that bounds the texels `out` lets differ. Tolerance: no blurred layer feeds the quantile tables here, so the f32 pipeline and a float64 one agree to 6e-8: the golden float32 tolerance, no outliers. The stored map reaches the tables as it is, and its tied texels sit on plateaus: a one-ulp change of the INPUT moves the output by up to 8e-2 through the 1e-9 ladder, so hand the function exactly the stored values. A fully overcast 64x32 map (all 1): the layers are 0 and the residual 1, a flat run at 1 (do not nudge it). Input convention: the u8 input(s) cov, earth are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "hadley_deg": 30.0,
+  "levels": 3,
+  "strength": 1.0,
+  "u8_inputs": {
+   "cov": "float32(u8) / float32(255), the division in float32",
+   "earth": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "cov",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  },
+  {
+   "name": "earth",
+   "dtype": "u8",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 2048,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 10240,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "block_mean8",
+   "dtype": "f64",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 18432,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e860b196b072d9c04870c823ece9d8f0de6d074cfdc6e2eb35923096a0df82a4"
+}

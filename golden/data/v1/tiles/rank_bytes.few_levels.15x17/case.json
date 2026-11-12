@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.few_levels.15x17",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "Five distinct values (1, 7, 100, 30 and 117 texels, scattered) on 15x17 = 255 texels: mean ranks 0, 4, 57.5, 122.5 and 196 (half-integers for the even-sized groups), bytes 0, 4, 57, 122, 196 = floor(256 mean / 255). 1.0 and the next float64 above it are DIFFERENT values (exact comparison, no epsilon). Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   15,
+   17
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    15,
+    17
+   ],
+   "offset": 0,
+   "nbytes": 2040
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    15,
+    17
+   ],
+   "offset": 2040,
+   "nbytes": 255,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f1c71ec3ac5639d8de8605e545c32341a80758dba0505d394107b17abaa18e94"
+}

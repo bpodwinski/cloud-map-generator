@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "perlin3.table",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Perlin3.__init__",
+ "doc": "The constructor doubles the 256-entry permutation to a 512-entry table (perm[i + 256] = perm[i], so the kernel can index p[A + 1] up to 511 without a wrap). The permutation is the recorded draw (an input: a port draws its own); the output is the doubled int32 table, exact.",
+ "params": {
+  "seed": 5,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 5
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 0,
+   "nbytes": 1024
+  }
+ ],
+ "outputs": [
+  {
+   "name": "table",
+   "dtype": "i32",
+   "shape": [
+    512
+   ],
+   "offset": 1024,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "393bafb36761ecb5a9e1f85d48318ed980834976ed90e06a7ee4afdc05528464"
+}

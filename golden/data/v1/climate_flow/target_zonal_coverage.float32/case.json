@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "target_zonal_coverage.float32",
+ "group": "climate_flow",
+ "function": "cloudgen.climate.target_zonal_coverage",
+ "doc": "Cloud fraction with a float32 latitude array: the shift and the ITCZ gaussian are float64 (the code converts), the smoothsteps stay float32 and the sum is float64. Shifts 0 and 8 degrees (inputs). Tolerance rtol 1e-5, atol 1e-6 (the default): measured against the float64-promoted computation (max abs 5.6e-8) and a one-ulp nudge of the latitudes (max abs 1.8e-7, 0.03 of the default band).",
+ "params": {
+  "hadley_deg": 30.0,
+  "dtype_chain": "lat float32: x = |lat| / hadley is float32 and feeds the two smoothsteps (float32); lat is converted by np.asarray(float64), so the shift fade, x_itcz and the ITCZ gaussian are float64 and the final sum (0.20 + float64 + float32 + float32) is float64: the output is float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat_deg",
+   "dtype": "f32",
+   "shape": [
+    361
+   ],
+   "offset": 0,
+   "nbytes": 1444
+  },
+  {
+   "name": "itcz_shift_deg",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 1448,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    2,
+    361
+   ],
+   "offset": 1464,
+   "nbytes": 5776,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "961aa71bc01b7803e6b3296ccb5a80afd09dc5db311def39eb7bc2947a09aaec"
+}

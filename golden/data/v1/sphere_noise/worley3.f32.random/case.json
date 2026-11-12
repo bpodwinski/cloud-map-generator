@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "worley3.f32.random",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "F1 and F2 (distances to the nearest and second-nearest feature point, in cell units, one jittered point per unit cell, the 27 neighbor cells searched) at 1500 random float32 points in [-4, 4]^3 (cells of both signs: a negative cell index is wrapped by & 1023). float32 outputs, F1 <= F2, F1 < 1.08 and F2 < 1.2 over these points. Measured against the float64 evaluation of the same inputs: 1.3e-7 at most; the default tolerance (1e-5 rel, 1e-6 abs) is 10x that. The values are continuous in the point (min of distances), so there is no hard threshold even where the nearest cell changes. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 11,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 11
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f32",
+   "shape": [
+    1500,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 18000
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 18000,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 26192,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    1500
+   ],
+   "offset": 38480,
+   "nbytes": 6000,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    1500
+   ],
+   "offset": 44480,
+   "nbytes": 6000,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "936802d72cc94f426748bcecad4d719cd46ec187872fafd736ec49b7f1d70742"
+}

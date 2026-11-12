@@ -1,0 +1,163 @@
+{
+ "format": 1,
+ "id": "regime_weights.total_near_one.threshold",
+ "group": "texture_surface",
+ "function": "cloudgen.texture.regime_weights",
+ "doc": "Twelve points whose raw total closed + open + street lies within a hair of the normalization threshold 1 (Hadley 30, 5 deg of poleward back-trace, latitudes found by bisection): raw totals 0.995, 0.9999, 1 - 1e-6, 1 + 1e-6, 1 + 1e-4, 1.0006, 1.002, 1.006, 1.0099 (rising side, 32.6-32.9 deg), 1.0005 and 1.0085 (falling side, 36.6-36.9 deg) and the 1.002 point mirrored to the south (see total_raw in the outputs). Above 1 the weights are divided by the total (so they shrink by the excess, from 1e-6 up to 1 percent), at or below 1 they are untouched: the case pins the threshold to 1 itself (a threshold of 1.0001, 1.001, 1.01 or 0.99 changes the weights by far more than the tolerance). Float64 closed form: 1e-9 (as the sweeps). Outputs closed/open/street are the function result; convective (climate.convective_tendency of the latitude in degrees), cold (the cold-air ramp smoothstep(0, 8, |back lat| - |lat|) in degrees) and total_raw (closed + open + street before the normalization, which divides by it where it exceeds 1) are intermediates, there to localize a mismatch; they share the tolerance. params.constants holds the knees and weights written in the code.",
+ "params": {
+  "hadley_deg": 30.0,
+  "constants": {
+   "closed_rise": [
+    0.4,
+    0.7
+   ],
+   "closed_fall": [
+    1.1,
+    1.5
+   ],
+   "open_rise": [
+    0.8,
+    1.2
+   ],
+   "cold_ramp_deg": [
+    0.0,
+    8.0
+   ],
+   "street_gauss_mu_s": [
+    0.55,
+    0.3
+   ],
+   "street_cold": 0.6,
+   "normalize_above": 1.0,
+   "scale_total_floor": 1e-09,
+   "convective_tendency": {
+    "hadley_min": 0.001,
+    "base": 0.15,
+    "itcz_gauss": [
+     0.85,
+     0.0,
+     0.3
+    ],
+    "storm_gauss": [
+     0.4,
+     1.7,
+     0.35
+    ],
+    "polar_ramp": [
+     -0.05,
+     2.0,
+     2.6
+    ]
+   }
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 0,
+   "nbytes": 96
+  },
+  {
+   "name": "lat_back",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 96,
+   "nbytes": 96
+  }
+ ],
+ "outputs": [
+  {
+   "name": "closed",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 192,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "open",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 288,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "street",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 384,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "convective",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 480,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "cold",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 576,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "total_raw",
+   "dtype": "f64",
+   "shape": [
+    12
+   ],
+   "offset": 672,
+   "nbytes": 96,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c81c981291b1dd047d4d5a340632bcb1f84cefd0f68581979f9baa0365853dd2"
+}

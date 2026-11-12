@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.f64.wide",
+ "group": "products_generate",
+ "function": "cloudgen.generate._smoothstep",
+ "doc": "The helper with a = 2, b = 2.6 (the other windows of the code have this shape) on a ladder of huge and negative x, -1e9 .. 1e9, around a fine ramp: clipped to exactly 0 and 1 without overflow. Float64 closed form: rtol 1e-9. Measured: one-ulp nudges of every float input and parameter change it by at most 2.2e-15 (worst of 6 random trials); the tolerance is about 2e4x that spread.",
+ "params": {
+  "a": 2.0,
+  "b": 2.6
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    40
+   ],
+   "offset": 0,
+   "nbytes": 320
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    40
+   ],
+   "offset": 320,
+   "nbytes": 320,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a13005baa4dfcca2a1acd09b7c3fc4d30d6927d33aaf5e24b4ba2b4044a32968"
+}

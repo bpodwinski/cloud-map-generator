@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "genparams.defaults",
+ "group": "products_generate",
+ "function": "cloudgen.generate.GenParams",
+ "doc": "PIN CASE for the class GenParams: params = asdict(GenParams()) (recomputed at check time so a changed default fails the check) and the single output is the number of fields, so a field added or removed on either side shows. A port pins its own defaults against params. Exact.",
+ "params": {
+  "structure_width": 512,
+  "a_moisture": 1.0,
+  "a_ascent": 0.5,
+  "a_mid": 0.3,
+  "a_fine": 0.6,
+  "moisture_noise": 0.45,
+  "advect_mid": 0.6,
+  "advect_fine": 0.25,
+  "mid_frequency": 6.0,
+  "fine_frequency": 48.0,
+  "cumulus_cell_km": 1.4,
+  "fine_top": 0.95,
+  "fine_gain": 0.65,
+  "fine_billow": false,
+  "fine_min_texels": 2.0,
+  "shield_ramp": 0.35,
+  "cumulus_depth": 1.6,
+  "cumulus_max": 0.5,
+  "shield_texture": 0.3,
+  "threshold_smooth_deg": 2.0,
+  "regime_texture": true,
+  "isotropic": false,
+  "allow_any_regime": false,
+  "surface_terms": true,
+  "sensitivity_step": 0.05
+ },
+ "tags": [
+  "pin"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "n_fields",
+   "dtype": "i32",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 4,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0623ccb9b1619bd388284a438034d8cb6431964ba727d8b1c450303105735488"
+}

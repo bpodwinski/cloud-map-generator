@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "zonal_profile.single_row",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.zonal_profile",
+ "doc": "Row means grouped in 5-degree latitude bands (edges arange(-90, 90 + band, band), band k holds rows with a <= lat < b, lat = degrees of the row center); centers are the band midpoints. The smallest image, one row at latitude 0 (grid_lonlat: 90 - 0.5 * 180): only the [0, 5) band is not NaN. The row latitude is exactly 0.0 (pi / 2 - 0.5 pi), a tie that resolves the same in any language: a >= 0 goes to the band starting at 0. Centers are float64 closed-form (1e-9). The profile is a mean of float32 rows (float32 pairwise accumulation, stored dtype follows the image): float32 tolerance, measured 8e-8 absolute (1.3e-7 relative) against the same rows promoted to float64. An empty band is NaN (numpy warns).",
+ "params": {
+  "band_deg": 5.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    1,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "centers",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 16,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "profile",
+   "dtype": "f32",
+   "shape": [
+    36
+   ],
+   "offset": 304,
+   "nbytes": 144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a4a5a00e12b13ebc49af2798f4a33d54d5a05431298e77528661bf111645ddf8"
+}

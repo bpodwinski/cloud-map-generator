@@ -1,0 +1,40 @@
+{
+ "format": 1,
+ "id": "encode_wind.from_wind_map.64",
+ "group": "products_generate",
+ "function": "cloudgen.products.encode_wind",
+ "doc": "A realistic field: the (32, 64, 2) float32 output of wind_map for Earth with the ten vortices (stored as the input), encoded to RGB bytes (R east, G north, B 0). Exact bytes.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgb",
+   "dtype": "u8",
+   "shape": [
+    32,
+    64,
+    3
+   ],
+   "offset": 16384,
+   "nbytes": 6144,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "37fa788f58674498b3fb29ce541e904b540ad665a175b6699aef1410ca27eaab"
+}

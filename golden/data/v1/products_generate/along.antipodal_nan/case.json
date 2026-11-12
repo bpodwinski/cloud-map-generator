@@ -1,0 +1,52 @@
+{
+ "format": 1,
+ "id": "along.antipodal_nan",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "Degenerate input: back = -p (the first four points, exact negation) with f = 0.5 gives a zero vector, which normalizes to NaN (0 / 0 in IEEE, numpy warning suppressed); the last two points are ordinary. NaN equals NaN in the comparison; documents what the oracle does, a caller never passes an exactly antipodal back (the flow moves a point at most ~1 rad). Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: float64 promotion changes the two finite points by at most 4.0e-8; the four antipodal points are discrete inputs (a one-ulp nudge would turn the NaN into a finite vector) and are not perturbed.",
+ "params": {
+  "f": 0.5
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    6,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 72
+  },
+  {
+   "name": "back",
+   "dtype": "f32",
+   "shape": [
+    6,
+    3
+   ],
+   "offset": 72,
+   "nbytes": 72
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f32",
+   "shape": [
+    6,
+    3
+   ],
+   "offset": 144,
+   "nbytes": 72,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5d3427667b56e99986e491ea95e796ca5e51ef44f70389610344f9437159487e"
+}

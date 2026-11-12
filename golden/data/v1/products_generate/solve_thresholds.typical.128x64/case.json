@@ -1,0 +1,86 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.typical.128x64",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "The pipeline call without offset: 64 rows x 128, float32 s, fine, streak and subtexel, the zonal target of climate.target_zonal_coverage per row (stored), default GenParams, offset left at its default 0.0. 36 bisection steps on [-10, 10]: the result is the midpoint of a final bracket 20 / 2^36 = 2.9e-10 wide, a dyadic number. A decision flips only when a row mean lies within an ulp of the target. What limits agreement is the conditioning: a float32 rounding of 1 + a_fine fine, or a one-ulp change of an input, moves the root by about 1e-8 (see the measurement). Tolerance is the golden float32 default. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 1.7e-8; one-ulp nudges of every float input and parameter change it by at most 4.7e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 65536,
+   "nbytes": 512
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 66048,
+   "nbytes": 32768
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 98816,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    64
+   ],
+   "offset": 131584,
+   "nbytes": 512,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "32446a66b0763f91f791cf0c1822e59faf87d5e7aa2ac09dc277509ce8a2a759"
+}

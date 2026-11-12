@@ -1,0 +1,149 @@
+{
+ "format": 1,
+ "id": "judge_surface.one_map.nan",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.judge_surface",
+ "doc": "judge_surface(ref, maps): one row per judged metric (SURFACE_JUDGED order, params.judged; inputs hold the columns params.keys: the six judged ones then the two season terms). v = the metric over the maps; spread = sample std (ddof 1; NaN for one map); season = |ref[season term]| or 0; tolerance = max(2.2 * spread, floor) + season with floor 2.5 for itcz_lat and 0.01 otherwise; diff = mean(v) - ref; pass = tolerance finite and |diff| <= tolerance. Python max(nan, floor) is NaN (the first argument wins when a comparison fails): do not port it as floor. Float64 arithmetic on a handful of numbers: 1e-9; no verdict sits within 1e-6 of a tie, except in exact_ties and just_over_ties, which sit ON one (or an ulp past it) by construction, from exactly representable operations. A single map: the spread is NaN, so tolerance = NaN + season = NaN and every verdict is False (np.isfinite(tol) fails), even a metric whose diff is 0.",
+ "params": {
+  "keys": [
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat",
+   "deck_minus_open",
+   "ocean_north_minus_south",
+   "ocean_midlat_north_minus_south"
+  ],
+  "judged": [
+   "land_minus_ocean",
+   "subtropics_land_minus_ocean",
+   "north_minus_south",
+   "midlat_north_minus_south",
+   "itcz_lat",
+   "deck_minus_open"
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "ref",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64
+  },
+  {
+   "name": "maps",
+   "dtype": "f64",
+   "shape": [
+    1,
+    8
+   ],
+   "offset": 64,
+   "nbytes": 64
+  }
+ ],
+ "outputs": [
+  {
+   "name": "reference",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 128,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 176,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "spread",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 224,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "season",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 272,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "tolerance",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 320,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "diff",
+   "dtype": "f64",
+   "shape": [
+    6
+   ],
+   "offset": 368,
+   "nbytes": 48,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "pass",
+   "dtype": "bool",
+   "shape": [
+    6
+   ],
+   "offset": 416,
+   "nbytes": 6,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "1d89fcbd39f758d0b65c98cfbe07c9900181eb8216df3974c05f3eeb05cac6f0"
+}

@@ -1,0 +1,90 @@
+{
+ "format": 1,
+ "id": "bake_tiles.defaults.no_args.stub_tile",
+ "group": "tiles",
+ "function": "bake_tiles.main",
+ "doc": "NO flag at all: --size defaults to tiles.TILE_SIZE = 1024, --version to v2, --seed to 1, so the script asks build_tile for (1024, 1) and names its files cloud_cell_tiles_1024_v2. A real 1024 bake is too big for a case, so build_tile is replaced by a stand-in that returns the stored 8x8 tile (a fixed byte pattern, arange * 37 mod 256): the sidecar then says size 1024 over an 8x8 tile, which a real bake never does, and the only thing this case checks is the defaults (build_args, the file names and the sidecar fields) plus the encodings of an arbitrary tile. bake_tiles.py is a script: function names its main() (the encodings, not an importable core), run here as __main__ with a __file__ in a temporary folder (its output root) and sys.argv = [bake_tiles.py] + params.argv (the flags are --version, --seed and --size, with the defaults v2, 1 and TILE_SIZE = 1024) and the files it wrote decoded; their compressed bytes are not frozen. Input `tile`: the (size, size, 4) uint8 tile that build_tile returned (data here, not re-derived: raw_channels and build_tile have their own cases). Outputs: rgba = the gunzipped cloud_cell_tiles_<size>_<version>.rgba.gz, RGBA8 rows in order (row 0 first, the tile has no north), 4 bytes a texel in R heaps, G closed, B open, A sheet order = tile.reshape(-1); preview = the 8-bit grey PNG decoded, (4 size, 4 size): one band of `size` rows a channel in CHANNELS order, each band = [the channel rank | the coverage mask at 0.3 | 0.5 | 0.7, as 0 or 255]; sidecar_json = the .json the script writes, as canonical JSON bytes (parsed then re-dumped with sorted keys and separators , and :, ASCII; a port compares the parsed values, the script writes indent 2 and the platform line ending); files = the sorted paths written under the output root, one a line, with / separators (output/tiles/<version>/<stem>.rgba.gz, _preview.png and .json, stem = cloud_cell_tiles_<size>_<version>); build_args = (size, seed) as bake_tiles passed them to build_tile, int64 (2,). Pure byte layout and text: exact.",
+ "params": {
+  "argv": [],
+  "stub_tile": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "tile",
+   "dtype": "u8",
+   "shape": [
+    8,
+    8,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 256
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rgba",
+   "dtype": "u8",
+   "shape": [
+    256
+   ],
+   "offset": 256,
+   "nbytes": 256,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "preview",
+   "dtype": "u8",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 512,
+   "nbytes": 1024,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "sidecar_json",
+   "dtype": "u8",
+   "shape": [
+    518
+   ],
+   "offset": 1536,
+   "nbytes": 518,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "files",
+   "dtype": "u8",
+   "shape": [
+    147
+   ],
+   "offset": 2056,
+   "nbytes": 147,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "build_args",
+   "dtype": "i64",
+   "shape": [
+    2
+   ],
+   "offset": 2208,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "830b1382834db0fb55a3287d0c04894f1f57b5e56f40dad587e51992d5a8bdc3"
+}

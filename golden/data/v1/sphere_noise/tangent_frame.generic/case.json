@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "tangent_frame.generic",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.tangent_frame",
+ "doc": "East = normalize(z x c), north = c x east, for 30 unit centers (the antimeridian at lon +-pi, mid and high latitudes, 20 random directions); the function takes one center and the case applies it to each row. float64 closed form: rtol 1e-9, atol 1e-12 (components that are 0 up to rounding, e.g. 1e-16 at the antimeridian).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "center",
+   "dtype": "f64",
+   "shape": [
+    30,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 720
+  }
+ ],
+ "outputs": [
+  {
+   "name": "east",
+   "dtype": "f64",
+   "shape": [
+    30,
+    3
+   ],
+   "offset": 720,
+   "nbytes": 720,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "north",
+   "dtype": "f64",
+   "shape": [
+    30,
+    3
+   ],
+   "offset": 1440,
+   "nbytes": 720,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5ba64798f5abbd275f0082dbcc73f207812c5b17aa0f0032e645d5bf8183e8b8"
+}

@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "id": "high_share.out_of_contract",
+ "group": "products_generate",
+ "function": "cloudgen.products.high_share",
+ "doc": "Out-of-contract inputs on purpose (the pipeline's shield is in [0, 1] and its coverage in [0, 1]): a NEGATIVE shield (-0.5, -0.05, -1e-3) takes the lower bound of clip(shield / max(coverage, 0.05), 0, 1), so shield_share is exactly 0 and the extra terms vanish: the result is the bare MODIS base np.interp(x, ...); crossed with coverage 0.6, 0.0 (floored to 0.05) and -0.4 (floored too), at 0, 45 and 90 degrees (Hadley 30), with ascent 0.5 and 1.7. The final clip to [0, 1] cannot trigger anywhere (base + (1 - base) extra stays in [0.2, 0.63]). Pipeline dtypes; tolerance is the golden float32 default. Arguments: shield, ascent, coverage and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The MODIS table and the two coefficients it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 0 (worst of 6 random trials); no difference was observed at all.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    3,
+    9
+   ],
+   "offset": 0,
+   "nbytes": 216
+  },
+  {
+   "name": "ascent",
+   "dtype": "f32",
+   "shape": [
+    3,
+    9
+   ],
+   "offset": 216,
+   "nbytes": 108
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 328,
+   "nbytes": 24
+  },
+  {
+   "name": "coverage",
+   "dtype": "f32",
+   "shape": [
+    3,
+    9
+   ],
+   "offset": 352,
+   "nbytes": 108
+  }
+ ],
+ "outputs": [
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    3,
+    9
+   ],
+   "offset": 464,
+   "nbytes": 108,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3423edbcbcd21cdd05b5349de0378920a7aba67b8895eabf242ca7984c854094"
+}

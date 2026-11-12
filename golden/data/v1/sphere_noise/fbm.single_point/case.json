@@ -1,0 +1,119 @@
+{
+ "format": 1,
+ "id": "fbm.single_point",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.fbm",
+ "doc": "A single point (shape (1, 3), output shape (1,)): the smallest legal input. Chained float32: recomputed in float64, with the matmul written out in both orders, with an alternative lerp and with the points nudged by one float32 ulp either way: the largest observed difference is 1.3e-05; tolerance rtol 1e-4 + atol 0.00013 (10x). The Python casts the points to float32 and accumulates the octaves in float32; neither is enforced (the tolerance was measured with float64 recomputes, so a float64 pipeline passes). The Python evaluates in chunks of 1 << 20 points: a port may chunk differently (checked at build time with chunks of 7 and 97 points: the same field within this tolerance). The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "frequency": 7.0,
+  "octaves": 3,
+  "seed": 19,
+  "gain": 0.5,
+  "lacunarity": 2.03,
+  "billow": false,
+  "constants": {
+   "PERLIN3_STD": 0.2692,
+   "PERLIN3_ABS_MEAN": 0.2171,
+   "PERLIN3_ABS_STD": 0.1542
+  },
+  "plans": [
+   {
+    "index": 0,
+    "kind": "perlin3",
+    "seed": 1264954011
+   },
+   {
+    "index": 1,
+    "kind": "fbm",
+    "seed": 19,
+    "perlin_seed": 1264954011,
+    "frequency": 7.0,
+    "octaves": 3,
+    "gain": 0.5,
+    "lacunarity": 2.03,
+    "billow": false,
+    "norm": 3.242464936641789
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "points",
+   "dtype": "f32",
+   "shape": [
+    1,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 12
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i32",
+   "shape": [
+    256
+   ],
+   "offset": 16,
+   "nbytes": 1024
+  },
+  {
+   "name": "plan1.amp",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 1040,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.freq",
+   "dtype": "f64",
+   "shape": [
+    3
+   ],
+   "offset": 1064,
+   "nbytes": 24
+  },
+  {
+   "name": "plan1.rot",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3,
+    3
+   ],
+   "offset": 1088,
+   "nbytes": 108
+  },
+  {
+   "name": "plan1.off",
+   "dtype": "f32",
+   "shape": [
+    3,
+    3
+   ],
+   "offset": 1200,
+   "nbytes": 36
+  }
+ ],
+ "outputs": [
+  {
+   "name": "value",
+   "dtype": "f32",
+   "shape": [
+    1
+   ],
+   "offset": 1240,
+   "nbytes": 4,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 0.00013
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "2ae273e585382a892e2da9d6b23247fb7ed7375564468e27dcd87df48a7241e2"
+}

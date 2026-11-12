@@ -1,0 +1,82 @@
+# Builds the WebAssembly engine and the page (scripts/build-web.mjs) and deploys web/ to GitHub Pages.
+#
+# The site is static: no server, and GitHub Pages cannot set the headers that give a page SharedArrayBuffer, so the engine
+# uses a pool of Web Workers (no WebAssembly threads) and WebGPU through wgpu (see docs/web-plan.html, web/README.md).
+#
+# Setup once, in the repository's settings: Pages > Build and deployment > Source: GitHub Actions.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push replaces a run that has not finished.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "rust -> target/web"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The wasm-bindgen CLI must be the version of the wasm-bindgen crate in rust/Cargo.lock (the build script checks it).
+      - name: Read the wasm-bindgen version from Cargo.lock
+        id: bindgen
+        run: |
+          version=$(awk '/^name = "wasm-bindgen"$/ {getline; gsub(/[version = "]/, ""); print; exit}' rust/Cargo.lock)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@${{ steps.bindgen.outputs.version }}
+
+      # Optional: wasm-opt shrinks and speeds up the module; the build script uses it when it is on the PATH.
+      - name: Install binaryen (wasm-opt)
+        run: sudo apt-get update && sudo apt-get install -y binaryen
+
+      # The gate of the in-browser CPU engine: a map cut in bands equals the one-piece engine to float rounding.
+      - name: Test the banded CPU engine
+        run: cargo test -p cloud-map-generator-wasm --release --target-dir target/web
+        working-directory: rust
+
+      - name: Build the site
+        run: node scripts/build-web.mjs
+
+      - name: Keep GitHub Pages from running Jekyll over the site
+        run: touch web/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

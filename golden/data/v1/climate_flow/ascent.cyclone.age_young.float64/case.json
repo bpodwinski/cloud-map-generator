@@ -1,0 +1,56 @@
+{
+ "format": 1,
+ "id": "ascent.cyclone.age_young.float64",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "The same young cyclone (age 0.25) with float64 directions: the gaussians are float64 and only the final weight is cast to float32, so the output is float32 rounded from float64 (up to a float32 ulp of rounding). Tolerance rtol 1e-5, atol 1e-6 (the default): the output is float32, so a float64 nudge of the inputs changes nothing (0 observed) and the other float64 order (reversed vortices, one cast at the end of an all-float64 accumulation) differs by at most 2.4e-7 (0.03 of the band). Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": 0.3490658503988659,
+    "lat": 0.8726646259971648,
+    "radius": 0.2,
+    "omega": 0.75,
+    "ascent": 1.0,
+    "age": 0.25
+   }
+  ],
+  "dtype_chain": "p float64: d2, exp, the comma head and the eye are float64 per vortex; each vortex term is cast to float32 and accumulated in float32, in vortex order (float64 math per vortex, float32 accumulation). The output is float32."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    1681,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 40344
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    1681
+   ],
+   "offset": 40344,
+   "nbytes": 6724,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "95007c6f1563a43615744d66f07408b4401c0e3124158d460e2cd764285b8dbe"
+}

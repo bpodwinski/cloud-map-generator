@@ -1,0 +1,47 @@
+{
+ "format": 1,
+ "id": "velocity.zonal_only",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.velocity",
+ "doc": "Tangent velocity of the default zonal flow (no vortices) at 622 float64 unit directions: both poles (the velocity is exactly 0 there: cross(z, p) = 0), the equator at nine longitudes with both antimeridian columns, a pair straddling it, mid-latitudes. Float64: a few products and sums of the float64 rate: rtol 1e-9, atol 1e-12. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "dtype_chain": "p float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    622,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 14928
+  }
+ ],
+ "outputs": [
+  {
+   "name": "v",
+   "dtype": "f64",
+   "shape": [
+    622,
+    3
+   ],
+   "offset": 14928,
+   "nbytes": 14928,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a91a96b2e9586df5cbaa973b7fa9536291f4af8af9fdb74ca70ebeaf73b17c5b"
+}

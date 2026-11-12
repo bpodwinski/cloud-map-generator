@@ -1,0 +1,57 @@
+{
+ "format": 1,
+ "id": "fbm.tiny_std.low20.slope10.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "THE STD GUARD, above it: low 20 and slope 10 on 64x64 keep only the modes of radius 20 to 45 with an amplitude radius^-5 (3e-7 down to 5e-9), so the field BEFORE normalization has a population std of 8.9e-8 (tiny but not zero). The guard max(std, 1e-12) must not touch it: the output has std exactly 1 (a guard of 1e-6 would give 0.09, one of 1e-7 would give 0.9). Never reached by the shipped parameters (low <= 12, slope <= 3); it pins the guard as a floor at 1e-12 and nothing larger. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: max |diff| 1.8e-15 (4.4e-13 relative on values above 1e-3; scipy.fft 1.3e-15): the filter is applied to the spectrum, so the tiny amplitude costs no relative accuracy. 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 64,
+  "low": 20.0,
+  "slope": 10.0,
+  "seed": 30,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 64,
+    "low": 20.0,
+    "slope": 10.0,
+    "seed": 30
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "520c79cd6d7bd739b495786cae54f582d99d89eecc7e2d31e70a5cb6d3c7de7a"
+}

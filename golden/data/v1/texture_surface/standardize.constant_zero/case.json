@@ -1,0 +1,38 @@
+{
+ "format": 1,
+ "id": "standardize.constant_zero",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._standardize",
+ "doc": "A constant field has std 0: the divisor falls back to 1.0 (the `sd > 0` branch), so the result is v - mean = 0, never NaN. Exact. See also constant_non_dyadic, where a float32 constant does NOT give std 0.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 128,
+   "nbytes": 128,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+}

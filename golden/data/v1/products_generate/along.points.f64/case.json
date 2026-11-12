@@ -1,0 +1,52 @@
+{
+ "format": 1,
+ "id": "along.points.f64",
+ "group": "products_generate",
+ "function": "cloudgen.generate.along",
+ "doc": "The blend in float64 (f = 0.6): the float32 variants above read this as the closed form. rtol 1e-9. Arguments: p and back (inputs, direction vectors of shape (..., 3)) and f (params): q = normalize(p (1 - f) + back f), with normalize(v) = v / ||v|| over the last axis (sphere.py) and NO epsilon guard: a zero vector gives 0 / 0 = NaN, not 0. The blend and the norm run in the dtype of the inputs (float32 vectors: float32 norm). Measured: one-ulp nudges of every float input and parameter change it by at most 3.3e-16 (worst of 6 random trials); the tolerance is about 7e4x that spread.",
+ "params": {
+  "f": 0.6
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f64",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 4800
+  },
+  {
+   "name": "back",
+   "dtype": "f64",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 4800,
+   "nbytes": 4800
+  }
+ ],
+ "outputs": [
+  {
+   "name": "q",
+   "dtype": "f64",
+   "shape": [
+    200,
+    3
+   ],
+   "offset": 9600,
+   "nbytes": 4800,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "4f8a8226ce8ee7c45d190bd6d2882946a30ac4d247f2a33b03a7ab7d5e3a7541"
+}

@@ -1,0 +1,73 @@
+{
+ "format": 1,
+ "id": "match_by_zone.f64_gen",
+ "group": "metrics_match",
+ "function": "cloudgen.match._match_by_zone",
+ "doc": "Quantile-map each row of `gen` onto Earth's distribution at its zone, interpolated linearly between zone centers: per zone present in both gen (zone of each gen row from _zone_index(lat_g, hadley)) and `ze`, a source table src = np.quantile(gen rows of the zone, QUANTILES) + k * 1e-9 and a destination table dst = np.quantile(earth rows with ze == z, QUANTILES) (linear method: virtual index (n - 1) q, lerp between the two neighbours, float64 even for float32 data; the float64 `+ arange * 1e-9` makes src strictly increasing); per row the two nearest zone centers (z + 0.5) * 5 around the row's Earth-equivalent latitude (np.searchsorted side left, minus 1, clipped), weight t = clip((el - c_i) / (c_j - c_i), 0, 1) (0 when only one zone is left or i == j), a = np.interp(row, src_i, dst_i) (clamps to dst[0] / dst[-1] outside the table, returns dst[j] exactly at a node, slope * (x - xp[j]) + fp[j] otherwise), b likewise for zone j (skipped when t == 0), out = a + t (b - a). The result has the dtype of `gen`. Tolerance: a port-style implementation (own sort-based quantile with the float64 lerp, an interp written as slope * (x - xp) + fp and as a lerp, float32 and float64 neighbour differences) differs from numpy by at most 6e-8 on the stored inputs (the float32 rounding of the stored output): the golden float32 tolerance. The function is NOT stable against its INPUTS: a one-ulp change of a gen texel that equals a plateau value of its zone (maps from bytes have many) moves that texel by up to 2.5e-4 through the 1e-9 ladder; hand it the exact stored inputs. Gen: the isotropic generated map at 64x32 (float32); earth: Earth at 128x64 (stored u8, / 255 in float32); ze as match_to_earth builds it (zones of the Earth rows at hadley 30, -1 beyond 67.5 degrees). A float64 gen: the output is float64 (np.empty_like(gen)), the tables are the same float64; a port-style float64 implementation differs by 3.3e-10 (slopes up to 1e6 amplify the 1e-16 rounding of the tables), so 1e-8 / 5e-9.  Input convention: the u8 input(s) earth are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "hadley_deg": 30.0,
+  "u8_inputs": {
+   "earth": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "gen",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "earth",
+   "dtype": "u8",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 16384,
+   "nbytes": 8192
+  },
+  {
+   "name": "lat_g",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 24576,
+   "nbytes": 256
+  },
+  {
+   "name": "ze",
+   "dtype": "i64",
+   "shape": [
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 512
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 25344,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-08,
+    "atol": 5e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7cbae50b1ebb80f1f610b44a9842a26596d71a3057c1deeec6b1b2f02b61631a"
+}

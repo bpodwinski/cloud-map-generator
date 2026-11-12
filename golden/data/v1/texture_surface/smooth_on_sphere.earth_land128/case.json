@@ -1,0 +1,49 @@
+{
+ "format": 1,
+ "id": "smooth_on_sphere.earth_land128",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.smooth_on_sphere",
+ "doc": "Semantics a port must reproduce (verified by an independent direct convolution with no scipy: it agrees to 5.8e-8 on every smoothing case): each row is filtered along longitude with its own sigma s = min(w/4, sigma_km / (px_km max(cos lat, 1e-3))) pixels, px_km = 2 pi R / w, only when s > 0.3 (otherwise the row is copied); then every column is filtered with sigma_km / px_km. scipy gaussian_filter1d: kernel taps -r..r with r = int(4 s + 0.5), weights exp(-0.5 x^2 / s^2) normalized to sum 1, accumulated in float64 and rounded to float32 once per pass; mode \"wrap\" is periodic (indices modulo w, even when r >= w), mode \"nearest\" repeats the edge row. The synthetic 128x64 land mask smoothed at 300 km (CONTINENTALITY_KM) on Earth (6371 km): rows near the equator use sigma = 0.96 px, rows near the poles are capped at w/4 = 32 px. Float32 chain of two filter passes: default tolerance 1e-5/1e-6; measured worst difference against the float64 convolution 5.8e-8 (a direct float64 convolution with no scipy and no float32 stage). params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "sigma_km": 300.0,
+  "radius_km": 6371.0,
+  "constants": {
+   "CONTINENTALITY_KM": 300.0,
+   "row_min_sigma_px": 0.3,
+   "row_max_sigma_px_fraction_of_width": 0.25,
+   "cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "smoothed",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 32768,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "287235664d71e844b6af7ae8ad91743ee49f9d15438c45b72119569c207ae303"
+}

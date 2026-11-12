@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "tangent_frame.threshold_bracket",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.tangent_frame",
+ "doc": "The pole guard |z x c| < 1e-9 bracketed from both sides: 16 centers c = t * (-0.6, 0.8, 0) + (0, 0, +-1) with t in {0.9999, 1.0001, 0.999, 1.001, 0.99, 1.01, 0.9, 1.1} x 1e-9 (so |z x c| = hypot(cx, cy) = t, exact inputs: the 3-4-5 direction keeps the norm free of rounding trouble up to 1e-16 relative). Rows with t < 1e-9 take the fixed fallback east = (0, 1, 0) (north = c x east = (-cz, 0, cx) = (-+1, 0, -0.6t)); rows with t > 1e-9 give the regular east = (-0.8, -0.6, 0), which differs from the fallback by O(1), so a threshold anywhere outside [0.9999e-9, 1.0001e-9] (that is +-1e-4 relative) flips at least one row (checked by mutation: 1.001e-9, 0.999e-9, 1.01e-9 and 0.99e-9 all fail). Every row is at least 9e-5 (relative) away from the threshold, far above the 1e-16 rounding of any way to compute the norm (hypot or sqrt of the sum of squares), and the exact threshold is not a case. float64: rtol 1e-9, atol 1e-12 (north components are ~1e-9).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "center",
+   "dtype": "f64",
+   "shape": [
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "east",
+   "dtype": "f64",
+   "shape": [
+    16,
+    3
+   ],
+   "offset": 384,
+   "nbytes": 384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "north",
+   "dtype": "f64",
+   "shape": [
+    16,
+    3
+   ],
+   "offset": 768,
+   "nbytes": 384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "27e3f8560e2375ad4f5c5065261b47b2de2bc6eb308d710d91d39a90f35e839c"
+}

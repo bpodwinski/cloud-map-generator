@@ -1,0 +1,83 @@
+{
+ "format": 1,
+ "id": "compare.generated_vs_earth",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.compare",
+ "doc": "compare(gen, ref) from the two measure dicts (inputs: gen_zonal_lat, gen_zonal, gen_hist and ref_zonal_lat, ref_zonal, ref_hist, the keys of measure()): zonal_rmse = sqrt(mean((gen.zonal - ref.zonal)^2)) over the bands with |gen.zonal_lat| < 70 (strict; the latitudes come from the GENERATED dict and ref_zonal_lat is never read), hist_l1 = sum |gen.hist - ref.hist|; returned here as [zonal_rmse, hist_l1]. Float64 arithmetic on lists: 1e-9. The isotropic generated map against the 256x128 Earth reference (zonal profile and histogram computed by zonal_profile and area_histogram; the float32 profile values are stored as float64; both maps share the grid, so ref_zonal_lat equals gen_zonal_lat).",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "gen_zonal_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 0,
+   "nbytes": 288
+  },
+  {
+   "name": "gen_zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 288,
+   "nbytes": 288
+  },
+  {
+   "name": "ref_zonal_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 576,
+   "nbytes": 288
+  },
+  {
+   "name": "ref_zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 864,
+   "nbytes": 288
+  },
+  {
+   "name": "gen_hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 1152,
+   "nbytes": 80
+  },
+  {
+   "name": "ref_hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 1232,
+   "nbytes": 80
+  }
+ ],
+ "outputs": [
+  {
+   "name": "result",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 1312,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d2ce4968a83694db46bc6e56ce383f55e8f4267564ea0958d9cfb7d60bb5865e"
+}

@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "patches.earth256.samples",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.patches",
+ "doc": "metrics.patches: 7 latitudes x 8 longitudes = 56 gnomonic patches of 256x256 (half-angle 10 deg) sampled bilinearly from the float32 map (stored here as u8, converted u8 / 255 in float32), returned as float64 (the lerp weights are float64). Outputs: the integer lat and lon of each patch, and the patches sampled at the texels listed in params.stride_idx (a subset, to keep the case small: a port computes the whole patch and compares these texels). The 256x128 Earth reference: low-resolution texels interpolated ~18x, so the patches are smooth. Patches at longitude -180 straddle the antimeridian (the lerp wraps columns) and the 55 degree rows reach 65 degrees of latitude (rows clamp only beyond the poles, never here). The geometry is float64 (sin, cos, tan, arctan2, arcsin, floor), so a port is within 1e-9 (probe: relative noise of 4 ulp on the sampled directions moves a texel by <= 2.1e-13). Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "stride_idx": [
+   0,
+   28,
+   56,
+   85,
+   113,
+   141,
+   170,
+   198,
+   226,
+   255
+  ],
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lat",
+   "dtype": "i32",
+   "shape": [
+    56
+   ],
+   "offset": 32768,
+   "nbytes": 224,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "lon",
+   "dtype": "i32",
+   "shape": [
+    56
+   ],
+   "offset": 32992,
+   "nbytes": 224,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "samples",
+   "dtype": "f64",
+   "shape": [
+    56,
+    10,
+    10
+   ],
+   "offset": 33216,
+   "nbytes": 44800,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "935e9f4ce87882ca0488855a90f0ad4f01ef87e56ae01443cbfaefb0c3668f54"
+}

@@ -1,0 +1,42 @@
+{
+ "format": 1,
+ "id": "blur.f64.noise",
+ "group": "metrics_match",
+ "function": "cloudgen.match._blur",
+ "doc": "scipy.ndimage.gaussian_filter(img, sigma, mode=(\"nearest\", \"wrap\")): truncate 4.0 (radius int(4 sigma + 0.5), taps exp(-x^2 / (2 sigma^2)) normalized to sum 1, computed in float64), axis 0 (rows: \"nearest\" = clamp at the poles) THEN axis 1 (columns: \"wrap\" = periodic, folded as many times as the radius needs, also when it exceeds the width), each pass accumulating in float64 and rounding to the input dtype (so a float32 image is rounded to float32 between the two passes); sigma <= 1e-15 returns a copy, a radius that rounds to 0 (sigma < 0.125) is the identity. A float64 image keeps float64 end to end (no rounding between passes): 1e-9, and an independent float64 re-implementation agrees to 8e-16. ",
+ "params": {
+  "sigma": 1.5
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    16,
+    24
+   ],
+   "offset": 0,
+   "nbytes": 3072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    16,
+    24
+   ],
+   "offset": 3072,
+   "nbytes": 3072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e2efe86919390b7823eb09b7086acb1a4ee42d016c570c2cdda62d9d0aacf5d9"
+}

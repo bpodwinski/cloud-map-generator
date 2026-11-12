@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "smoothstep.f64.ramp0_8",
+ "group": "texture_surface",
+ "function": "cloudgen.texture._smoothstep",
+ "doc": "Cubic smoothstep(a=0, b=8, x) in float64, a sweep across both knees (x = a and x = b give exactly 0 and 1) plus 0, -0 and +-1e30 (the clip leaves no overflow). Closed form: float64 tolerance 1e-9; measured against math-module scalars: bit-identical to a math-module scalar evaluation on this machine (6e-17 at most for exp).",
+ "params": {
+  "a": 0.0,
+  "b": 8.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    207
+   ],
+   "offset": 0,
+   "nbytes": 1656
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    207
+   ],
+   "offset": 1656,
+   "nbytes": 1656,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "cce0952f1ab07ea635e08c6621a561c2c85c1fedcbb8004bdc0eab3d4a3ef78c"
+}

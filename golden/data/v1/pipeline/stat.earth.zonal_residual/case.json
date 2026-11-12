@@ -1,0 +1,195 @@
+{
+ "format": 1,
+ "id": "stat.earth.zonal_residual",
+ "group": "pipeline",
+ "function": "pipeline.stat.zonal_residual",
+ "doc": "The zonal mean coverage of the seed-1 Earth map in 5-degree bands (metrics.zonal_profile) against climate.target_zonal_coverage: the per-row calibration solves each row's mean to the target (bisection to 1e-9 on the unsmoothed thresholds), so what remains is the smoothing of the thresholds over 2 degrees, the sub-texel noise and the 5-degree banding. Outputs: the band centers, the map's band means, the target at the band centers, the target averaged over the rows of each band (the like-for-like value), the residual (band mean - band-mean target), the row-level residual (row mean - target at the row, 512 rows) and its largest absolute value, and the mean and std (ddof 1) of the band residual over seeds 1 to 8. A port keeps its band residual inside mean +- 3 std of the seeds. Measured on seed 1: the row residual has an rms of 0.017 and a maximum of 0.067 away from the poles, but the first and last rows of the map are far off (north pole rows 0 to 6: +0.15, -0.06, -0.34, -0.27, -0.17, -0.15, -0.19: a pole row is one point, so its coverage cannot follow its target, and the 2-degree smoothing of the thresholds spreads that across the neighbouring rows); the polar bands of the 5-degree profile carry the same residual (-0.078 in the last band). Tolerance: 10x the change of a band mean under +-1e-4 noise (1.1e-5) for the band values (2e-4), 1e-3 for the row residual (a row mean of 1024 texels).",
+ "params": {
+  "body": {
+   "rotation_period_days": 0.99727,
+   "radius_km": 6371.0,
+   "gravity_mps2": 9.81,
+   "scale_height_km": 8.0,
+   "cloud_regime": "water"
+  },
+  "width": 1024,
+  "height": 512,
+  "gen_params": {
+   "structure_width": 512,
+   "a_moisture": 1.0,
+   "a_ascent": 0.5,
+   "a_mid": 0.3,
+   "a_fine": 0.6,
+   "moisture_noise": 0.45,
+   "advect_mid": 0.6,
+   "advect_fine": 0.25,
+   "mid_frequency": 6.0,
+   "fine_frequency": 48.0,
+   "cumulus_cell_km": 1.4,
+   "fine_top": 0.95,
+   "fine_gain": 0.65,
+   "fine_billow": false,
+   "fine_min_texels": 2.0,
+   "shield_ramp": 0.35,
+   "cumulus_depth": 1.6,
+   "cumulus_max": 0.5,
+   "shield_texture": 0.3,
+   "threshold_smooth_deg": 2.0,
+   "regime_texture": true,
+   "isotropic": false,
+   "allow_any_regime": false,
+   "surface_terms": true,
+   "sensitivity_step": 0.05
+  },
+  "reference": "data/earth_cloud_fraction_bluemarble_2048.png",
+  "reference_sha256": "6ce88a6446612de058b6f37f3afc66609af7c9b4d2d0a313d0ab570317d5d969",
+  "resampling": "none: measure.load box-averages maps WIDER than 2048 down to the reference; the 1024 map is measured as generated (patches are bilinear samples of it)",
+  "seed": 1,
+  "seeds": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8
+  ],
+  "n_sigma": 3
+ },
+ "tags": [
+  "stat",
+  "slow"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "band_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 0,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 288,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 0.0002
+   }
+  },
+  {
+   "name": "target_at_centers",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 576,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "target_band_mean",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 864,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 0.0
+   }
+  },
+  {
+   "name": "residual",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 1152,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.0002
+   }
+  },
+  {
+   "name": "row_residual",
+   "dtype": "f64",
+   "shape": [
+    512
+   ],
+   "offset": 1440,
+   "nbytes": 4096,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.001
+   }
+  },
+  {
+   "name": "residual_mean",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 5536,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.0002
+   }
+  },
+  {
+   "name": "residual_std",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 5824,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.0002
+   }
+  },
+  {
+   "name": "max_abs_row_residual",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 6112,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0,
+    "atol": 0.001
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "94b98194565af3ea16742aedb0ebdec58c7b61fa235bae61086d6458634d55ea"
+}

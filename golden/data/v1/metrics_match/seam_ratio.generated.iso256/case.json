@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "seam_ratio.generated.iso256",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.seam_ratio",
+ "doc": "Mean |first column - last column| over mean |neighbour column difference| (the seam is NOT wrapped in the inner term). Means of float32 rows: the quotient is float32 and the tolerance float32 (observed 6.2e-8 relative against the same image promoted to float64). An isotropic generated map (no seam by construction: ~1). Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e184ae382dce505007d38db91fdd96c898b0538cc90f8b4741bc91716bdce3f7"
+}

@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "seam_ratio.width2",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.seam_ratio",
+ "doc": "The narrowest map (2 columns): the only neighbour difference IS the seam, so the ratio is exactly 1. Mean |first column - last column| over mean |neighbour column difference| (the seam is NOT wrapped in the inner term). Means of float32 rows: the quotient is float32 and the tolerance float32 (observed 6.2e-8 relative against the same image promoted to float64). ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    2,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 16,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8e849a554d96b1fd050ae329a63c93340d401933383a68b0bb04244693911e79"
+}

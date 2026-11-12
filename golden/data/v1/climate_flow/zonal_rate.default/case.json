@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "zonal_rate.default",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.zonal_rate",
+ "doc": "Zonal drift profile (jet minus trades minus the polar easterlies, relative to the storm track) of the default flow (hadley 30) on 721 latitudes from -90 to +90 degrees in radians, both poles and the equator included. Float64 closed form of gaussians and a smoothstep: rtol 1e-9; the value is zero at x = 1.7 (lat 51) up to rounding, which atol 1e-12 absorbs.",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 0,
+   "nbytes": 5768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rate",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 5768,
+   "nbytes": 5768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "417a1644aa0c21bd7cf5a146864fe55d7de0afd24a8561217dcb65855d9714b8"
+}

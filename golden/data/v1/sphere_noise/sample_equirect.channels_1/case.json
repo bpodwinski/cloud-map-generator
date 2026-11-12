@@ -1,0 +1,51 @@
+{
+ "format": 1,
+ "id": "sample_equirect.channels_1",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.sample_equirect",
+ "doc": "A (8, 16, 1) image: the ndim == 3 branch is channel-generic (the weights get a trailing axis of length 1 and broadcast over the 1 channel), the output is (60, 1) float64. 60 unit directions including the poles and the axes. float64, rtol 1e-9.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 512
+  },
+  {
+   "name": "dirs",
+   "dtype": "f64",
+   "shape": [
+    60,
+    3
+   ],
+   "offset": 512,
+   "nbytes": 1440
+  }
+ ],
+ "outputs": [
+  {
+   "name": "out",
+   "dtype": "f64",
+   "shape": [
+    60,
+    1
+   ],
+   "offset": 1952,
+   "nbytes": 480,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "79d5d2e6894348c109532d13b7bd2be8959c0cb78d2327f888f4a3a6950e63e3"
+}

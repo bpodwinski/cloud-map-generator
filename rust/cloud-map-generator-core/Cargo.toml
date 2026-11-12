@@ -1,0 +1,22 @@
+[package]
+name = "cloud-map-generator-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Physics-driven cloud coverage maps: the Rust port of the Python generator"
+
+[features]
+# Multi-threaded generation (rayon): every parallel loop is an order-preserving map over independent texels or rows and
+# every reduction runs in fixed blocks combined in order, so the result is bit-identical for any thread count. Off by
+# default: the core builds for wasm32 without it (the same loops then run on the calling thread).
+default = []
+rayon = ["dep:rayon"]
+
+[dependencies]
+num-traits = { workspace = true }
+rustfft = { workspace = true }
+rayon = { workspace = true, optional = true }
+
+[dev-dependencies]
+cloud-map-generator-golden = { path = "../cloud-map-generator-golden" }
+serde_json = { workspace = true }

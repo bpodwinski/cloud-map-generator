@@ -1,0 +1,261 @@
+{
+ "format": 1,
+ "id": "measure.earth256",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.measure",
+ "doc": "metrics.measure on a map: global_mean, zonal profile (5-degree bands: centers and means), area-weighted 10-bin histogram, the 56 gnomonic patches (patches) each measured by coherence, spectral_slope and object_stats, then coherence and spectral_slope = mean over patches (np.nanmean for the slope: NaN patches are skipped), coherence_by_lat = mean over the 8 longitudes of each of the 7 latitudes (PATCH_LATS order), big_object_share = mean of the per-patch shares, median_object_km2 = np.median over the 56 per-patch medians (even count: mean of the middle two), seam_ratio, pole_std. Extra outputs patch_coherence, patch_slope, patch_big, patch_median are the 56 per-patch values (patches order: latitude-major) recomputed by the case through the same calls, to localize a difference. The 256x128 Earth reference (smooth: its patches are ~18x upsampled, coherence ~0.84, slope ~-5.1). Tolerances, measured by moving every texel of the map by -1, 0 or +1 float32 ulp at random (6 trials on each of four maps, Earth at 256 and 512, an isotropic and a stirred generated map) and by promoting the map to float64, each set to about 10x the largest change seen: global_mean 5e-9, zonal 1.2e-7 and seam_ratio 2.4e-7 and pole_std 8e-8 (float32 row statistics: the float32 default); aggregated coherence 1.5e-9 and coherence_by_lat 5.3e-9 (1e-7 relative), spectral_slope 1.2e-8 (3e-8 relative), per-patch coherence 2.7e-8 (5e-7) and per-patch slope 3.2e-7 (1e-6): the sensitivity of a float64 chain to float32 rounding of the map, which a port that samples its patches in float64 never sees; hist and the bin ties: see area_histogram (1e-9 holds for a port that sends a texel equal to a float32 edge to the upper bin, which u8 / 255 maps do for 0.2, 0.4, 0.6, 0.8); the per-patch big share and median are hard thresholds (a texel crossing 0.5 can move a whole object across 1e5 km^2; no flip occurred in 24 nudged runs, the largest change was 3.8e-6) and carry a `frac` of 0.05 (2 of 56 patches may differ), the aggregated values the default floor.  Input convention: the u8 input(s) img are maps stored as bytes, and the function receives them as float32(u8) / float32(255) (`u8.astype(np.float32) / 255.0`: the division is done, and correctly rounded, in float32, as measure.load reads an 8-bit map), NOT as the raw bytes and NOT as a float64 quotient (a texel on a histogram edge or a threshold would move). params.u8_inputs lists them.",
+ "params": {
+  "patch_lats": [
+   -55,
+   -40,
+   -20,
+   0,
+   20,
+   40,
+   55
+  ],
+  "patch_lons": [
+   -180,
+   -135,
+   -90,
+   -45,
+   0,
+   45,
+   90,
+   135
+  ],
+  "input": "u8 / 255 as float32 (the 8-bit map measure.py loads)",
+  "u8_inputs": {
+   "img": "float32(u8) / float32(255), the division in float32"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "global_mean",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "zonal_lat",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 32776,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "zonal",
+   "dtype": "f64",
+   "shape": [
+    36
+   ],
+   "offset": 33064,
+   "nbytes": 288,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "hist",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 33352,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 33432,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 2e-08,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "coherence_by_lat",
+   "dtype": "f64",
+   "shape": [
+    7
+   ],
+   "offset": 33440,
+   "nbytes": 56,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-07,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "spectral_slope",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 33496,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 3e-08,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "big_object_share",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 33504,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 1e-05
+   }
+  },
+  {
+   "name": "median_object_km2",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 33512,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "seam_ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 33520,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "pole_std",
+   "dtype": "f64",
+   "shape": [
+    2
+   ],
+   "offset": 33528,
+   "nbytes": 16,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "patch_coherence",
+   "dtype": "f64",
+   "shape": [
+    56
+   ],
+   "offset": 33544,
+   "nbytes": 448,
+   "tol": {
+    "mode": "close",
+    "rtol": 5e-07,
+    "atol": 1e-08
+   }
+  },
+  {
+   "name": "patch_slope",
+   "dtype": "f64",
+   "shape": [
+    56
+   ],
+   "offset": 33992,
+   "nbytes": 448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-06,
+    "atol": 1e-08
+   }
+  },
+  {
+   "name": "patch_big",
+   "dtype": "f64",
+   "shape": [
+    56
+   ],
+   "offset": 34440,
+   "nbytes": 448,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 4e-05,
+    "frac": 0.05
+   }
+  },
+  {
+   "name": "patch_median",
+   "dtype": "f64",
+   "shape": [
+    56
+   ],
+   "offset": 34888,
+   "nbytes": 448,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06,
+    "frac": 0.05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "9b65a98bab35dfaa8a11a1d5ef49d9fc2cf1e6cb8249b689370e2f72392c0b10"
+}

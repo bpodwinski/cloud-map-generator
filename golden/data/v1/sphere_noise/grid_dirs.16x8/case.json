@@ -1,0 +1,34 @@
+{
+ "format": 1,
+ "id": "grid_dirs.16x8",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_dirs",
+ "doc": "Unit directions of the texel centers of a 16x8 north-up equirectangular grid, float32 (z north). Computed in float64 and rounded to float32 once, so a float64 port matches within half a float32 ulp (6e-8); measured against the same grid with float32 trigonometry: 1.2e-7 at most, so the tolerance is 10x that (2e-6 abs, 1e-5 rel).",
+ "params": {
+  "width": 16,
+  "height": 8,
+  "dtype": "float32"
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    8,
+    16,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1536,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3d9291819680ada9e45ee82751e02fa9908f7288832f073d7a8ed93b8f9cd6e1"
+}

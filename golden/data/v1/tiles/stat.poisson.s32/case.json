@@ -1,0 +1,128 @@
+{
+ "format": 1,
+ "id": "stat.poisson.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.poisson_points",
+ "doc": "Variable-radius Poisson discs over two FIXED size fields (the inputs: open 12 to 48 km and closed 8 to 32 km, 32x32); only the candidate draws vary with the seed. STATISTICAL: 30 seeds (1000..1029), 4 metrics (names and definitions in params). The port draws its own random numbers, so it cannot reproduce `values`; it computes each metric exactly as defined, for its own seeds, and checks |metric - mean| <= n_sigma * std per metric for one seed (n_sigma * std / sqrt(m) for the mean of m seeds). mean and std (ddof = 1) are what the Python code produces; the recomputation check holds them at 1e-9 (no flipped texel in the nudge experiments).",
+ "params": {
+  "seeds": [
+   1000,
+   1001,
+   1002,
+   1003,
+   1004,
+   1005,
+   1006,
+   1007,
+   1008,
+   1009,
+   1010,
+   1011,
+   1012,
+   1013,
+   1014,
+   1015,
+   1016,
+   1017,
+   1018,
+   1019,
+   1020,
+   1021,
+   1022,
+   1023,
+   1024,
+   1025,
+   1026,
+   1027,
+   1028,
+   1029
+  ],
+  "metrics": [
+   "n_open",
+   "n_closed",
+   "nn_ratio_open",
+   "nn_ratio_closed"
+  ],
+  "definitions": [
+   "number of accepted points, open field",
+   "number of accepted points, closed field",
+   "mean over accepted points of (periodic distance to the nearest other accepted point) / (field size at the point, nearest-texel sample), open field",
+   "the same, closed field"
+  ],
+  "n_sigma": 4.0,
+  "spacing": 0.85
+ },
+ "tags": [
+  "stat",
+  "slow"
+ ],
+ "inputs": [
+  {
+   "name": "field_open",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  },
+  {
+   "name": "field_closed",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "values",
+   "dtype": "f64",
+   "shape": [
+    30,
+    4
+   ],
+   "offset": 16384,
+   "nbytes": 960,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 17344,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  },
+  {
+   "name": "std",
+   "dtype": "f64",
+   "shape": [
+    4
+   ],
+   "offset": 17376,
+   "nbytes": 32,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ef27f7fab48b87739d7f0d5e1d16920d04a40e7c3384ba1771ea2bb9bd6e6bd1"
+}

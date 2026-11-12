@@ -1,0 +1,81 @@
+{
+ "format": 1,
+ "id": "type_map.pure_regimes",
+ "group": "products_generate",
+ "function": "cloudgen.products.type_map",
+ "doc": "One column per (shield in {0, 1, 0.5}) x (all closed, all open, all street, none of the three, a mix) pair, eleven latitudes from the equator (where c clips at exactly 1) to both poles (+-90 exact): shield 0 returns the bare cumulus level (0.45, 0.85, 0.8, 0.7 for the broken remainder), shield 1 the bare convective tendency. Float64 shield, float32 weights; tolerance as type_map.earth.hadley30. Arguments: shield, the weights (w_closed, w_open, w_street = the dict entries closed, open, street) and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The four type levels and the other constants it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 6.0e-8; one-ulp nudges of every float input and parameter change it by at most 1.2e-7 (worst of 6 random trials); the tolerance is 68x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    11,
+    15
+   ],
+   "offset": 0,
+   "nbytes": 1320
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    11
+   ],
+   "offset": 1320,
+   "nbytes": 88
+  },
+  {
+   "name": "w_closed",
+   "dtype": "f32",
+   "shape": [
+    11,
+    15
+   ],
+   "offset": 1408,
+   "nbytes": 660
+  },
+  {
+   "name": "w_open",
+   "dtype": "f32",
+   "shape": [
+    11,
+    15
+   ],
+   "offset": 2072,
+   "nbytes": 660
+  },
+  {
+   "name": "w_street",
+   "dtype": "f32",
+   "shape": [
+    11,
+    15
+   ],
+   "offset": 2736,
+   "nbytes": 660
+  }
+ ],
+ "outputs": [
+  {
+   "name": "type",
+   "dtype": "f32",
+   "shape": [
+    11,
+    15
+   ],
+   "offset": 3400,
+   "nbytes": 660,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "407f589a00e83ce6d0dbfdd37fadb48eb9feef075ed5fd696ce27bbac60cf8d5"
+}

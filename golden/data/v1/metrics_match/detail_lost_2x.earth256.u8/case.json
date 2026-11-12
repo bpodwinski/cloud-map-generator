@@ -1,0 +1,44 @@
+{
+ "format": 1,
+ "id": "detail_lost_2x.earth256.u8",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.detail_lost_2x",
+ "doc": "Share of the variance lost by a 2x2 box average brought back bilinearly (rows clamp, columns wrap): the image is converted to float64 first, then every step is float64 (floor, clip, bilinear lerp, population variance), so a port is within 1e-9 (numpy against exactly rounded math.fsum sums: < 5e-16 relative). The same map as raw bytes 0..255: the measure is scale-free (scripts/lib/cloud_map_stats.mjs runs on byte maps), so it equals the float case up to the float32 rounding of u8 / 255. Raw u8 input(s): img.",
+ "params": {
+  "dtype": "u8",
+  "u8_inputs": {
+   "img": "raw bytes 0..255, handed to the function as stored"
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "u8",
+   "shape": [
+    128,
+    256
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lost",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 32768,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "417ff82ac052b56c4c1ccc01e1a5b2f88d94e077e622ead41cc2a74d42bedb91"
+}

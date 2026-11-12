@@ -1,0 +1,91 @@
+{
+ "format": 1,
+ "id": "zonal_rate.hadley_and_shear",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.zonal_rate",
+ "doc": "Zonal drift profile for the (hadley_deg, jet, trades, polar_easterlies) rows of params.flows, on the same latitudes: hadley 10 and 90 (the clamp bounds, where the polar smoothstep saturates early and never), all-zero shear (the profile is exactly 0), the weak-shear flow of a body with no storm track (0.3, 0.1, 0), and negative or large coefficients. Output row i is flows[i]. Float64: rtol 1e-9.",
+ "params": {
+  "flows": [
+   [
+    10.0,
+    0.35,
+    0.05,
+    0.25
+   ],
+   [
+    21.2,
+    0.35,
+    0.05,
+    0.25
+   ],
+   [
+    30.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   [
+    45.0,
+    0.35,
+    0.05,
+    0.25
+   ],
+   [
+    90.0,
+    0.35,
+    0.05,
+    0.25
+   ],
+   [
+    30.0,
+    0.3,
+    0.1,
+    0.0
+   ],
+   [
+    12.0,
+    1.0,
+    -0.5,
+    0.5
+   ],
+   [
+    30.0,
+    -0.35,
+    0.05,
+    0.25
+   ]
+  ],
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    721
+   ],
+   "offset": 0,
+   "nbytes": 5768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rate",
+   "dtype": "f64",
+   "shape": [
+    8,
+    721
+   ],
+   "offset": 5768,
+   "nbytes": 46144,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "fdb4c300fe8e010e8be65e22b1c5477b21cce5d74e018dbbe653fd5c84ba9966"
+}

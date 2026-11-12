@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "id": "high_share.hadley90",
+ "group": "products_generate",
+ "function": "cloudgen.products.high_share",
+ "doc": "Hadley edge 90: x <= 1, so only the first four table entries (0 .. 1.0) are used, and the rows nearest the equator have x = 0.0156, just above the first knot. Pipeline dtypes; tolerance as high_share.earth.hadley30. Arguments: shield, ascent, coverage and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The MODIS table and the two coefficients it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 6.0e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 90.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "ascent",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 8192
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 24576,
+   "nbytes": 256
+  },
+  {
+   "name": "coverage",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 24832,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3665095b9bc07ae9d78238b7725c34fd8dda295d07a2b26a7e4eac3da2ad816a"
+}

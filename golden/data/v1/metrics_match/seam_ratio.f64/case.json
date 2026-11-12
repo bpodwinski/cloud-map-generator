@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "seam_ratio.f64",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.seam_ratio",
+ "doc": "Float64 image, 1e-9. Mean |first column - last column| over mean |neighbour column difference| (the seam is NOT wrapped in the inner term). Means of float32 rows: the quotient is float32 and the tolerance float32 (observed 6.2e-8 relative against the same image promoted to float64). ",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f64",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "ratio",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 4096,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a1e42ed1b39f8f95d2df57d28339c4c85de5b0062bc8d2364e3a1d1a98458dad"
+}

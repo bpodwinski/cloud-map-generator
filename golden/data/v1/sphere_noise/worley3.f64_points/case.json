@@ -1,0 +1,82 @@
+{
+ "format": 1,
+ "id": "worley3.f64_points",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.Worley3.__call__",
+ "doc": "FLOAT64 points (800 in [-50, 50]^3): the cell index is floor() in float64, then the fractional part is rounded to float32, and the distances are float32: the outputs stay float32. The float32 kernel is the same as for float32 input; only the cell/fraction split differs. At this magnitude (float32 spacing 4e-6) a port that rounds the points to float32 BEFORE splitting still passes the default tolerance: worley3.f64_points.large is the case that pins the order. Default tolerance. The permutation input plan<i>.perm is the draw as recorded (256 entries for Perlin3, 1024 for Worley3); the kernel indexes it DOUBLED, concat(perm, perm) (512 or 2048 entries, so p[i + 256] = p[i]): a port that indexes the stored array directly runs off its end (see the .table cases).",
+ "params": {
+  "seed": 14,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "worley3",
+    "seed": 14
+   }
+  ],
+  "perm_doubled": true
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "pts",
+   "dtype": "f64",
+   "shape": [
+    800,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 19200
+  },
+  {
+   "name": "plan0.perm",
+   "dtype": "i64",
+   "shape": [
+    1024
+   ],
+   "offset": 19200,
+   "nbytes": 8192
+  },
+  {
+   "name": "plan0.jitter",
+   "dtype": "f32",
+   "shape": [
+    1024,
+    3
+   ],
+   "offset": 27392,
+   "nbytes": 12288
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f32",
+   "shape": [
+    800
+   ],
+   "offset": 39680,
+   "nbytes": 3200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f32",
+   "shape": [
+    800
+   ],
+   "offset": 42880,
+   "nbytes": 3200,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ec11d224c5fff24668997dea58e9a216b8694e98ec2cad82eb38484ef3b65f14"
+}

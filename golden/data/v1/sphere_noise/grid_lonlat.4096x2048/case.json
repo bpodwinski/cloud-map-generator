@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "grid_lonlat.4096x2048",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_lonlat",
+ "doc": "A 4096x2048 map: 4096 longitudes and 2048 latitudes, float64 closed form (-pi + (i + 0.5) * (2 pi / W): the multiplication is before the addition, in this order). rtol 1e-9, atol 1e-12.",
+ "params": {
+  "width": 4096,
+  "height": 2048
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    4096
+   ],
+   "offset": 0,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    2048
+   ],
+   "offset": 32768,
+   "nbytes": 16384,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "83edf5b545f2896eae4167fab4f64560d3f8810d57f79f2f505f4a3e030603db"
+}

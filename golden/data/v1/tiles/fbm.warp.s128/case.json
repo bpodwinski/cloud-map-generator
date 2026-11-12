@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.warp.s128",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "The border-warp fBm (low 3) on a 128x128 tile: the larger tile size through the FFT. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 128,
+  "low": 3.0,
+  "slope": 3.0,
+  "seed": 104,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 128,
+    "low": 3.0,
+    "slope": 3.0,
+    "seed": 104
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 131072
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 131072,
+   "nbytes": 131072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "006148d85af8442f2fd133d351fe9e97918f0297848a1e6769f541e340ae4cca"
+}

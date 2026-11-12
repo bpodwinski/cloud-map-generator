@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "coherence.nearflat.trace_below_1e-9",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. The two floors of the function: the per-pixel coherence is disc / max(trace, 1e-12) and the weighted mean is sum(coh * trace) / max(sum(trace), 1e-12). The patch is white noise scaled down to a tiny amplitude (values near 0, so the float64 chain keeps its full relative precision: no offset to absorb the digits). Scale 1e-5: per-pixel trace 4.0e-13..7.9e-13 (under the 1e-12 pixel floor, so every coherence is divided by 1e-12), total trace 1.46e-10 (between 1e-12 and 1e-9: the total floor does not bind, but a floor of 1e-9 would). The result 0.139 is not the coherence of the field (0.244, what a port without the pixel floor returns). Float64 chain with no data-dependent branch: an independent float64 reimplementation (explicit reflect-padded kernel sums) agrees to 2.2e-16, a float64 one-ulp nudge of every texel moves the value by <= 4.4e-16; tolerance 1e-9. ",
+ "params": {
+  "sigma": 4.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 2048,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "0542edd1fe506488ccdac18c39cc3cf0e6bef4fae69395d4c8795a9537dddb5d"
+}

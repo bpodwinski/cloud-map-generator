@@ -1,0 +1,35 @@
+{
+ "format": 1,
+ "id": "gnomonic_patch.pole_threshold.inside",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.gnomonic_patch",
+ "doc": "Center 5e-10 rad from the pole: |z x c| = 5e-10 < 1e-9, so the fallback frame is used although lon0 = 2 would give a different east: the frame jumps at the threshold. float64 closed form: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "lon0": 2.0,
+  "lat0": 1.5707963262948965,
+  "half_angle": 0.2,
+  "n": 7
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "patch",
+   "dtype": "f64",
+   "shape": [
+    7,
+    7,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1176,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6bd7652e41f6d517aadb1685242fa51639fede168673b5c6014d0408450218cc"
+}

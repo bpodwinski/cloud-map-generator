@@ -1,0 +1,44 @@
+{
+ "format": 1,
+ "id": "ascent.empty_flow",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.ascent",
+ "doc": "A flow with no vortices: the ascent is exactly zero (float32 zeros of the right shape), the loop is never entered. 100 float32 directions. Exact. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "dtype_chain": "p float32: a = float32 zeros; per vortex the center is cast to float32, d2, exp and the gaussians are float32 (a cyclone takes _comma_ascent, float32; a tropical subtracts its float32 eye); the term is np.float32(ascent) * g.astype(float32) and a += term accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    100,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 1200
+  }
+ ],
+ "outputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    100
+   ],
+   "offset": 1200,
+   "nbytes": 400,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e6605b60225df02641eb17113e6f46401bf26f3e7b57c2b2ab02485038713be2"
+}

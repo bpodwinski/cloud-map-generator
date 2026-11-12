@@ -1,0 +1,69 @@
+{
+ "format": 1,
+ "id": "worley.single_cell.f1",
+ "group": "tiles",
+ "function": "cloudgen.tiles.tileable_worley",
+ "doc": "freq = 1: all nine neighbors read the same jitter (index % 1 = 0), so F1 is the distance to the one point and F2 the distance to its nearest periodic image: the wrap with the smallest lattice. The jitter grid the seed draws is the input plan0.jitter (freq, freq, 2: [row][col][x, y] offset inside the cell). Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 7.1e-15 over the seven worley cases (6.7e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute; F1 and F2 are continuous in the jitter, no tie flips.",
+ "params": {
+  "size": 16,
+  "freq": 1,
+  "seed": 9,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.worley",
+    "size": 16,
+    "freq": 1,
+    "seed": 9
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.jitter",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 16,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16
+   ],
+   "offset": 2064,
+   "nbytes": 2048,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f4a518c69e633997c9da573315b1ffcf07304cbe8d14166b244730523858ea23"
+}

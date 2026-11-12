@@ -1,0 +1,34 @@
+{
+ "format": 1,
+ "id": "grid_dirs.odd.7x5",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_dirs",
+ "doc": "Odd sizes 7x5, float32: the centre texel is (1, 0, 0) and the rows are symmetric about the equator (z of row j = -z of row 4-j). Same tolerance as grid_dirs.16x8.",
+ "params": {
+  "width": 7,
+  "height": 5,
+  "dtype": "float32"
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "dirs",
+   "dtype": "f32",
+   "shape": [
+    5,
+    7,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 420,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d03c34569502777e30f9a089d95d6125f69d74dba90480c19bc9dcbb72b1e228"
+}

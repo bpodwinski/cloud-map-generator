@@ -1,0 +1,255 @@
+{
+ "format": 1,
+ "id": "velocity.earth.float32",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.velocity",
+ "doc": "The same flow and points with float32 directions: the vortex centers, the shear and the products are float32 (p.dtype), so the output is float32. Float32 chain (cross, exp of a float32 distance, a sum over 23 vortices). Tolerance rtol 1e-4, atol 1e-5: the float64-promoted computation differs by at most 3.5e-7 (0.28 of the default band), a one-ulp nudge of the directions by 1.1e-6 (0.91; the cross product next to a vortex center cancels), reversing the vortex order by 1.2e-7; tolerance 10 times the worst. Values reach 1. Conventions of cloudgen.sphere read here: lonlat_to_dir(lon, lat) = (cos lat cos lon, cos lat sin lon, sin lat) with float64 numpy cos and sin (right-handed, z north, longitude grows east; a vortex center is that direction); normalize(v) = v / |v| (plain division, no epsilon: a zero vector gives NaN).",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [
+   {
+    "kind": "cyclone",
+    "lon": -2.9670597283903604,
+    "lat": 0.8639379797371931,
+    "radius": 0.17,
+    "omega": 0.99,
+    "ascent": 1.0,
+    "age": 0.3
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -2.3387411976724017,
+    "lat": 0.5410520681182421,
+    "radius": 0.27,
+    "omega": -1.32,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -1.710422666954443,
+    "lat": 0.9075712110370514,
+    "radius": 0.2,
+    "omega": 1.8899999999999997,
+    "ascent": 1.0,
+    "age": 0.7
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -1.0821041362364843,
+    "lat": 0.5585053606381855,
+    "radius": 0.28500000000000003,
+    "omega": -1.08,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -0.4537856055185257,
+    "lat": 0.8901179185171081,
+    "radius": 0.22,
+    "omega": 3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 0.17453292519943295,
+    "lat": 0.5759586531581288,
+    "radius": 0.30000000000000004,
+    "omega": -1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 0.8028514559173916,
+    "lat": 0.9250245035569946,
+    "radius": 0.19,
+    "omega": 4.14,
+    "ascent": 1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 1.4311699866353502,
+    "lat": 0.5934119456780721,
+    "radius": 0.315,
+    "omega": -1.38,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.059488517353309,
+    "lat": 0.8726646259971648,
+    "radius": 0.15,
+    "omega": 3.6975,
+    "ascent": 1.0,
+    "age": 1.45
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 2.6878070480712677,
+    "lat": 0.6108652381980153,
+    "radius": 0.33,
+    "omega": -1.02,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -2.6179938779914944,
+    "lat": -0.8813912722571364,
+    "radius": 0.15,
+    "omega": -3.6975,
+    "ascent": 1.0,
+    "age": 1.45
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -1.9896753472735358,
+    "lat": -0.5235987755982988,
+    "radius": 0.28,
+    "omega": 1.02,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -1.361356816555577,
+    "lat": -0.9337511498169663,
+    "radius": 0.19,
+    "omega": -4.14,
+    "ascent": 1.0,
+    "age": 1.2
+   },
+   {
+    "kind": "anticyclone",
+    "lon": -0.7330382858376184,
+    "lat": -0.5410520681182421,
+    "radius": 0.29000000000000004,
+    "omega": 1.38,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": -0.10471975511965978,
+    "lat": -0.8988445647770797,
+    "radius": 0.22,
+    "omega": -3.0,
+    "ascent": 1.0,
+    "age": 1.0
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 0.5235987755982988,
+    "lat": -0.5585053606381855,
+    "radius": 0.30000000000000004,
+    "omega": 1.2,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 1.1519173063162575,
+    "lat": -0.9162978572970231,
+    "radius": 0.2,
+    "omega": -1.8899999999999997,
+    "ascent": 1.0,
+    "age": 0.7
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 1.7802358370342162,
+    "lat": -0.5759586531581288,
+    "radius": 0.31000000000000005,
+    "omega": 1.08,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "cyclone",
+    "lon": 2.4085543677521746,
+    "lat": -0.8726646259971648,
+    "radius": 0.17,
+    "omega": -0.99,
+    "ascent": 1.0,
+    "age": 0.3
+   },
+   {
+    "kind": "anticyclone",
+    "lon": 3.036872898470133,
+    "lat": -0.5934119456780721,
+    "radius": 0.32,
+    "omega": 1.32,
+    "ascent": -0.45,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": -0.6981317007977318,
+    "lat": 0.2617993877991494,
+    "radius": 0.05,
+    "omega": 12.5,
+    "ascent": 1.6,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": 2.2689280275926285,
+    "lat": 0.20943951023931956,
+    "radius": 0.058,
+    "omega": 10.8,
+    "ascent": 1.6,
+    "age": 1.0
+   },
+   {
+    "kind": "tropical",
+    "lon": 1.2217304763960306,
+    "lat": -0.24434609527920614,
+    "radius": 0.052,
+    "omega": -11.5,
+    "ascent": 1.6,
+    "age": 1.0
+   }
+  ],
+  "dtype_chain": "p float32: lat = arcsin(clip(p_z)) float32; zonal_rate(lat) is float64 (see zonal_rate, float32 lat) and is cast to float32; z = (0, 0, 1) float32; cross(z, p) float32; each vortex center is the float64 direction cast to float32; d2, exp and the omega weight are float32; v accumulates in float32, in vortex order."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "p",
+   "dtype": "f32",
+   "shape": [
+    891,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 10692
+  }
+ ],
+ "outputs": [
+  {
+   "name": "v",
+   "dtype": "f32",
+   "shape": [
+    891,
+    3
+   ],
+   "offset": 10696,
+   "nbytes": 10692,
+   "tol": {
+    "mode": "close",
+    "rtol": 0.0001,
+    "atol": 1e-05
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b6fefa0c95810504a2862939a655eb559f1434164406b3168bc525bc4446a3cd"
+}

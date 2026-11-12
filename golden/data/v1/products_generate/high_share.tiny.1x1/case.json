@@ -1,0 +1,71 @@
+{
+ "format": 1,
+ "id": "high_share.tiny.1x1",
+ "group": "products_generate",
+ "function": "cloudgen.products.high_share",
+ "doc": "One texel (1, 1) at 45 degrees (x = 1.5, a knot of the table), shield 0.4, ascent 0.5, coverage 0.6, Hadley 30: the smallest legal shape. Pipeline dtypes; tolerance is the golden float32 default. Arguments: shield, ascent, coverage and lat_rows (the latitude of each row in rad, broadcast over the columns as generate() does with np.broadcast_to(lat[:, None], shape)); hadley_deg is in params. lat_rows is the CONVECTION latitude: generate() passes lat - radians(itcz_shift_deg) (the ITCZ-shifted latitude), not the grid latitude; this case takes it as given, applying the shift is the pipeline group's job. The MODIS table and the two coefficients it reads are pinned in constants.products and read from the source. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 3.0e-8 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "hadley_deg": 30.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "shield",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  },
+  {
+   "name": "ascent",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 8,
+   "nbytes": 4
+  },
+  {
+   "name": "lat_rows",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 16,
+   "nbytes": 8
+  },
+  {
+   "name": "coverage",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 24,
+   "nbytes": 4
+  }
+ ],
+ "outputs": [
+  {
+   "name": "high_share",
+   "dtype": "f32",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 32,
+   "nbytes": 4,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "6780029821a3a0d72ab7c02ee463385ef49a61cc2ac74bf8a58d2092d76cf74e"
+}

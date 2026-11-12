@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "coherence.f32.noise32",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.coherence",
+ "doc": "Structure-tensor coherence: gaussian_filter(patch, 1.0) (default mode reflect, truncate 4.0; axis 0 then axis 1; the output keeps the input dtype), np.gradient (central differences inside, one-sided at the borders), products smoothed by gaussian_filter(sigma), coherence sqrt((jxx - jyy)^2 + 4 jxy^2) / (jxx + jyy) weighted by the trace. The same noise as a float32 patch: scipy rounds to float32 after each of the two passes of every gaussian_filter and np.gradient / the products stay float32, so the result differs from the float64 one by 8.2e-9 (relative); the golden float32 tolerance.",
+ "params": {
+  "sigma": 4.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "patch",
+   "dtype": "f32",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coherence",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 4096,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "e24b7620c1b80c28089455b5c91acd049ff6051a0ec9d1a1a0dd6211ead2a77c"
+}

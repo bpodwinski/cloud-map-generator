@@ -1,0 +1,39 @@
+{
+ "format": 1,
+ "id": "area_mean.huge_negative",
+ "group": "products_generate",
+ "function": "cloudgen.generate.area_mean",
+ "doc": "Float32 values of 1e30 and -3e29 (huge, negative, mixed): the float32 row sums stay finite (32 x 1e30 < 3.4e38) and the weighted mean is about 3.5e29. Tolerance is the golden float32 default (rtol 1e-5): the huge magnitude makes the absolute error large, the relative one not. Arguments: a, the field (h, w), north-up. Weights: c_i = cos(lat_i) at the cell centres of grid_lonlat(w, h), row i at lat_i = 90 deg - (i + 0.5) 180 deg / h (row 0 is north, float64 radians pi/2 - (i + 0.5) pi / h); result = sum_i(mean_j a[i, j] c_i) / sum_i c_i, a float64 scalar stored as a one-element array. The row mean runs in the dtype of a (float32 rows are averaged in float32, numpy pairwise summation), the weighting in float64. Measured: promoting the float32 inputs to float64 changes the output by at most 0; one-ulp nudges of every float input and parameter change it by at most 1.7e+22 (worst of 6 random trials); the tolerance is about 2e2x the larger of the two spreads.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "a",
+   "dtype": "f32",
+   "shape": [
+    16,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 2048
+  }
+ ],
+ "outputs": [
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 2048,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "96edd2c9b9703e74c8e64d980eab3f41d7ac9c414ef11df133c72b0329277952"
+}

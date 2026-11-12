@@ -1,0 +1,36 @@
+[package]
+name = "cloud-map-generator-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "cloud-map-generator-mcp: the Model Context Protocol server of cloud-map-generator (tools, resources, prompts; stdio and local HTTP), replacing cloud_map_generator_mcp/"
+
+[lib]
+name = "cloud_map_generator_mcp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "cloud-map-generator-mcp"
+path = "src/main.rs"
+
+[features]
+# The GPU compute kernels (wgpu) of the real engine (the service crate's feature). Default on; 
+# `--no-default-features` builds a server whose real engine is the CPU one.
+default = ["gpu", "rayon"]
+# Multi-threaded CPU engine (the service crate's feature, default on).
+rayon = ["cloud-map-generator-service/rayon"]
+gpu = ["cloud-map-generator-service/gpu"]
+
+[dependencies]
+cloud-map-generator-service = { path = "../cloud-map-generator-service", default-features = false }
+rmcp = { workspace = true }
+tokio = { workspace = true }
+axum = { workspace = true }
+base64 = { workspace = true }
+clap = { workspace = true }
+png = { workspace = true }
+flate2 = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+rmcp = { workspace = true, features = ["client", "transport-child-process"] }

@@ -1,0 +1,26 @@
+[package]
+name = "cloud-map-generator-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "cloud-map-generator in the browser: the Rust core compiled to WebAssembly (wasm-bindgen), driven by a pool of Web Workers that each take a band of rows"
+
+[lib]
+# cdylib: the .wasm the page loads. rlib: the native tests (the banded engine is checked against the one-piece core).
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Default features only: no rayon on wasm32 (a static host cannot give a page SharedArrayBuffer, so no threads).
+cloud-map-generator-core = { path = "../cloud-map-generator-core" }
+# The CPU engine and the encodings; no wgpu in this build (default-features = false).
+cloud-map-generator-service = { path = "../cloud-map-generator-service", default-features = false }
+serde_json = { workspace = true }
+num-traits = { workspace = true }
+# Pinned to the wasm-bindgen CLI that builds the page (scripts/build_web.mjs checks the versions agree).
+wasm-bindgen = "=0.2.126"
+
+# The GPU path exists only in the browser build: wgpu's WebGPU backend (cloud-map-generator-gpu compiles to wasm32 with its
+# readbacks awaited). Natively this crate is the CPU engine's rlib for the tests, with no wgpu in it.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+cloud-map-generator-gpu = { path = "../cloud-map-generator-gpu" }
+wasm-bindgen-futures = "0.4"

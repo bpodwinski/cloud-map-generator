@@ -1,0 +1,75 @@
+{
+ "format": 1,
+ "id": "orographic_anomaly.westerly_ridge128",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.orographic_anomaly",
+ "doc": "Coverage anomaly of decision record 3: 0.25 tanh(w / 0.05 m/s) for the uplift, w = u dh/dx + v dh/dy from centered differences (wrap in longitude, dx = 2 pi R / w max(cos lat, 1e-3), dh/dy zero at the two pole rows), minus 0.2 x the rain shadow: the strongest uplift sampled 0.15, 0.35, 0.6 and 1.0 x 800 km upwind weighted by (1 - 0.5 frac) and by smoothstep(0.2, 1.0 km) of the descent from the upwind ground, times (1 - the local uplift). Only the elevation of the surface is read (a surface of another width than the wind is resampled by `at` first). Tolerance: the field is float64 sampling of float32 arrays and a tanh of slope 20 per m/s; measured worst difference 4.7e-8 against an all-float64 evaluation and 1.9e-7 when the elevation and the wind move by one float32 ulp: atol 2e-6, rtol 1e-5 (10x). The synthetic world (a 3 km range on the west coast of the north-American-like continent), a uniform 10 m/s westerly: windward uplift on the west slope, a rain shadow to its east. params.constants lists the module constants and the inline numbers the function reads (a port copies them from its own source and may assert that they equal these).",
+ "params": {
+  "radius_km": 6371.0,
+  "wind_width": 128,
+  "surface_width": 128,
+  "constants": {
+   "OROGRAPHIC_AMPLITUDE": 0.25,
+   "RAIN_SHADOW_AMPLITUDE": 0.2,
+   "OROGRAPHIC_W0_MPS": 0.05,
+   "RAIN_SHADOW_KM": 800.0,
+   "SHADOW_DESCENT_KM": [
+    0.2,
+    1.0
+   ],
+   "shadow_fractions": [
+    0.15,
+    0.35,
+    0.6,
+    1.0
+   ],
+   "shadow_weight_per_fraction": 0.5,
+   "dx_cos_floor": 0.001,
+   "speed_floor_mps": 0.001,
+   "backtrace_cos_floor": 0.001
+  }
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  },
+  {
+   "name": "wind",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128,
+    2
+   ],
+   "offset": 32768,
+   "nbytes": 65536
+  }
+ ],
+ "outputs": [
+  {
+   "name": "anomaly",
+   "dtype": "f32",
+   "shape": [
+    64,
+    128
+   ],
+   "offset": 98304,
+   "nbytes": 32768,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "855d146bd2411910ec296788b7421111fd53de62cf3362920ccf409f350e78de"
+}

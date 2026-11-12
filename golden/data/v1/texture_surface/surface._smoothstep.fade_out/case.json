@@ -1,0 +1,41 @@
+{
+ "format": 1,
+ "id": "surface._smoothstep.fade_out",
+ "group": "texture_surface",
+ "function": "cloudgen.surface._smoothstep",
+ "doc": "surface._smoothstep(2.2, 2.8, x) in float64 (the polar fade of land_contrast). Same sweep. 1e-9.",
+ "params": {
+  "a": 2.2,
+  "b": 2.8
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "x",
+   "dtype": "f64",
+   "shape": [
+    188
+   ],
+   "offset": 0,
+   "nbytes": 1504
+  }
+ ],
+ "outputs": [
+  {
+   "name": "y",
+   "dtype": "f64",
+   "shape": [
+    188
+   ],
+   "offset": 1504,
+   "nbytes": 1504,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "3f78735f3b5404710387eb4a7a84f1a98d44c484427f842b5c2da3311c4e9c31"
+}

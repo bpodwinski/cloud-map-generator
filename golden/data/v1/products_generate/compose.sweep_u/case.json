@@ -1,0 +1,60 @@
+{
+ "format": 1,
+ "id": "compose.sweep_u",
+ "group": "products_generate",
+ "function": "cloudgen.generate.compose",
+ "doc": "One row of u = s - t sweeping -3e38 .. 3e38 through every regime (clear air below -1.6, the cumulus window, the shield ramp 0.5 +- 0.175, overcast), for fine = -1, 0, +1 (three rows), t = 0 as a python float: float32 chain, overflow of u / 0.35 to infinity at +-3e38 clipped to exactly 0 and 1. No streak, no subtexel. Tolerance is the golden float32 default. Arguments: s, fine, t, streak and subtexel are the inputs of that name when listed; an unlisted t, streak (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads (the others keep their defaults). params.result_dtype (\"f64\" or \"f32\") is the dtype numpy gives the result by promotion (a float64 t array or float64 inputs give f64, a python-float t with float32 fields keeps f32); it is informational, the stored output has that dtype. Measured: promoting the float32 inputs to float64 changes the output by at most 1.1e-7; one-ulp nudges of every float input and parameter change it by at most 2.4e-7 (worst of 6 random trials); the tolerance is 23x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "t": 0.0,
+  "result_dtype": "f64"
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    3,
+    247
+   ],
+   "offset": 0,
+   "nbytes": 2964
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    3,
+    247
+   ],
+   "offset": 2968,
+   "nbytes": 2964
+  }
+ ],
+ "outputs": [
+  {
+   "name": "coverage",
+   "dtype": "f64",
+   "shape": [
+    3,
+    247
+   ],
+   "offset": 5936,
+   "nbytes": 5928,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "f82917da8315f0b58aede13ea85d8516383ded5083715736cc2681fe3fa32d76"
+}

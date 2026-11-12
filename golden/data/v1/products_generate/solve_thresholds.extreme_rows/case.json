@@ -1,0 +1,77 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.extreme_rows",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "Ten rows of the same synoptic row with different targets and streaks, no subtexel, offset 0.0. Row 0: target 0.5, interior. Row 1: target 0.0, the root is the smallest t with a cloud-free row, max(s) + cumulus_depth. Row 2: target 1.0 with a streak that dips the shield: unreachable, the mean is never above the target so the result runs down to the lower bound (about -10). Row 3: 0.95 with streak = +1 (shield capped at 0.7, coverage at 0.94): unreachable, lower bound. Row 4: target 1.0 with streak = -1, where the row IS exactly 1 at low t: mean > 1 is never true (strict comparison), so again the lower bound. Row 5: 0.999 with streak -1, reachable, near min(s) - 0.175 where the first texel leaves full shield. Rows 6 and 7: targets 1.2 and -0.2 (lower bound -10 and upper bound +10). Row 8: a small reachable 0.02. Row 9: 0.97 with streak -1, reachable. The bounds are exact up to the final bracket 20 / 2^36 (the result is the bracket midpoint); the target of rows 1 and 4 is exact, a port must compare strictly (>) in float64. Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: promoting the float32 inputs to float64 changes the output by at most 5.5e-9; one-ulp nudges of every float input and parameter change it by at most 2.4e-7 (worst of 6 random trials); the tolerance is about 1e2x the larger of the two spreads.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "offset": 0.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f32",
+   "shape": [
+    10,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 2560
+  },
+  {
+   "name": "fine",
+   "dtype": "f32",
+   "shape": [
+    10,
+    64
+   ],
+   "offset": 2560,
+   "nbytes": 2560
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 5120,
+   "nbytes": 80
+  },
+  {
+   "name": "streak",
+   "dtype": "f32",
+   "shape": [
+    10,
+    64
+   ],
+   "offset": 5200,
+   "nbytes": 2560
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 7760,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "8d8b506ba81dbcf371b49f4124fad4f0243d98fe3a1842fc2923d2fac94d3840"
+}

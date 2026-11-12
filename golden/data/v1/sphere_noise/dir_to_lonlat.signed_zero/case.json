@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "dir_to_lonlat.signed_zero",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.dir_to_lonlat",
+ "doc": "Signed zeros through arctan2 (IEEE atan2, as C99): y = +0.0 on the negative x axis gives lon = +pi and y = -0.0 gives -pi (both are the antimeridian: sample_equirect returns the same value for either); at a pole (x = y = 0) the longitude is 0, +pi, -0 or -pi by the signs of the zeros, which has no geometric meaning. Tagged degenerate: a port that does not reproduce signed-zero atan2 (WGSL does not guarantee it) may skip this case, as long as it treats both antimeridian cases alike. lat is exact.",
+ "params": {},
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "dir",
+   "dtype": "f64",
+   "shape": [
+    10,
+    3
+   ],
+   "offset": 0,
+   "nbytes": 240
+  }
+ ],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 240,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    10
+   ],
+   "offset": 320,
+   "nbytes": 80,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "a6704e8402978d3dff306a923b8be9bf94ba31198d9011649adcc5365d4ea2f8"
+}

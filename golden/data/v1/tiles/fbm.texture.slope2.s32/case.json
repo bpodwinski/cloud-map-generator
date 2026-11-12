@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.texture.slope2.s32",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "The closed-cell texture setting (low 12, slope 2) on a 32x32 tile: a flatter spectrum, highest radial frequency 22.6, more than half of the modes pass the low cut. The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 1.8e-15 (6e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute.",
+ "params": {
+  "size": 32,
+  "low": 12.0,
+  "slope": 2.0,
+  "seed": 110,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 32,
+    "low": 12.0,
+    "slope": 2.0,
+    "seed": 110
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 0,
+   "nbytes": 8192
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    32,
+    32
+   ],
+   "offset": 8192,
+   "nbytes": 8192,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "761b0cf2af323043cbfed74e53e1ec9d5d4624b92a7f4fd104e63f5de98f1f54"
+}

@@ -1,0 +1,87 @@
+{
+ "format": 1,
+ "id": "solve_thresholds.all_f64",
+ "group": "products_generate",
+ "function": "cloudgen.generate.solve_thresholds",
+ "doc": "The typical call at 64x32 with every input float64 (the arithmetic of a float64 port): the only difference between two correct implementations is the summation order of the row mean, which flips a decision only within an ulp of the target, so the result is reproduced to a few final-bracket widths (atol 1e-9 = 3.5 x 2.9e-10). Arguments: s, fine, target, streak, subtexel and offset are the inputs of that name when listed; an unlisted streak or offset (default 0.0) is the scalar in params, an unlisted subtexel is None; prm holds the GenParams fields compose reads. The 36 steps and the bracket [-10, 10] are literals of the source. Measured: one-ulp nudges of every float input and parameter change it by at most 0 (worst of 6 random trials); no difference was observed at all.",
+ "params": {
+  "prm": {
+   "shield_ramp": 0.35,
+   "shield_texture": 0.3,
+   "cumulus_max": 0.5,
+   "cumulus_depth": 1.6,
+   "a_fine": 0.6
+  },
+  "offset": 0.0
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "s",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 16384
+  },
+  {
+   "name": "fine",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 16384,
+   "nbytes": 16384
+  },
+  {
+   "name": "target",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 32768,
+   "nbytes": 256
+  },
+  {
+   "name": "streak",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 33024,
+   "nbytes": 16384
+  },
+  {
+   "name": "subtexel",
+   "dtype": "f64",
+   "shape": [
+    32,
+    64
+   ],
+   "offset": 49408,
+   "nbytes": 16384
+  }
+ ],
+ "outputs": [
+  {
+   "name": "thr",
+   "dtype": "f64",
+   "shape": [
+    32
+   ],
+   "offset": 65792,
+   "nbytes": 256,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-09
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "b5af26767433ce3e361e326deebc45f389391eac4a048f7e4286b211fc8e4405"
+}

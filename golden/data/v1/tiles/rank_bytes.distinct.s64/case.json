@@ -1,0 +1,43 @@
+{
+ "format": 1,
+ "id": "rank_bytes.distinct.s64",
+ "group": "tiles",
+ "function": "cloudgen.tiles.rank_bytes",
+ "doc": "A 64x64 field of distinct values: the rank histogram is exactly uniform, 16 texels per byte level, and the byte is a monotone function of the value. Ranks are integers in float64 arithmetic: byte = floor(rank * 256 / n) with the MEAN rank of equal values; byte output: exact.",
+ "params": {
+  "shape": [
+   64,
+   64
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 0,
+   "nbytes": 32768
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rank",
+   "dtype": "u8",
+   "shape": [
+    64,
+    64
+   ],
+   "offset": 32768,
+   "nbytes": 4096,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c0b2c5abd2593962167eef4c36432c2eb01bdb62a8b00850ee680448d9406eef"
+}

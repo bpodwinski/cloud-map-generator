@@ -1,0 +1,68 @@
+{
+ "format": 1,
+ "id": "fbm.stat.6oct.plain",
+ "group": "sphere_noise",
+ "function": "cloudgen.noise.fbm",
+ "doc": "Statistics of fbm over 200000 random points, 6 octave(s), billow False: pins the PERLIN3_STD / PERLIN3_ABS_MEAN / PERLIN3_ABS_STD normalization (the output is meant to have unit variance and zero mean). Per seed s = 0..15: 200000 points uniform on the unit sphere (seeded with 100 + s), frequency 40, fbm seed 7000 + s; the outputs are the 16 means and 16 standard deviations. Measured over the 16 seeds: mean -0.0005 (sd over seeds 0.0048), std 1.0035 (sd 0.0107). The mean is 0 and the std 1.003 within the spread over seeds. A port draws its own points and tables: its mean and std over 200000 points (one value per run) must lie within params.expect.mean +- k_sigma * mean_sd and std +- k_sigma * std_sd (k_sigma = 4). The Python recompute is compared at rtol 1e-5 + atol 2e-6: float32 variants of the chain (float64, other matmul order, points nudged by one ulp) move a 200000-point mean by 1.3e-7 and the std by 6e-8 at most.",
+ "params": {
+  "n_points": 200000,
+  "frequency": 40.0,
+  "octaves": 6,
+  "billow": false,
+  "gain": 0.5,
+  "lacunarity": 2.03,
+  "seeds": 16,
+  "point_seed_base": 100,
+  "fbm_seed_base": 7000,
+  "points": "uniform on the unit sphere",
+  "constants": {
+   "PERLIN3_STD": 0.2692,
+   "PERLIN3_ABS_MEAN": 0.2171,
+   "PERLIN3_ABS_STD": 0.1542
+  },
+  "expect": {
+   "mean": -0.0005,
+   "mean_sd": 0.0048,
+   "std": 1.0035,
+   "std_sd": 0.0107,
+   "k_sigma": 4.0
+  }
+ },
+ "tags": [
+  "stat",
+  "slow"
+ ],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "mean",
+   "dtype": "f64",
+   "shape": [
+    16
+   ],
+   "offset": 0,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  },
+  {
+   "name": "std",
+   "dtype": "f64",
+   "shape": [
+    16
+   ],
+   "offset": 128,
+   "nbytes": 128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 2e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "7a79853b5358ed7c44e98e37abad7092d6a976e9130935fc835eb78c340be4de"
+}

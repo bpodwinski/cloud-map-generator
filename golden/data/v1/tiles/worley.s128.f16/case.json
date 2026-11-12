@@ -1,0 +1,69 @@
+{
+ "format": 1,
+ "id": "worley.s128.f16",
+ "group": "tiles",
+ "function": "cloudgen.tiles.tileable_worley",
+ "doc": "A 128x128 tile at 16 cells (8 texels a cell): the larger tile size. The jitter grid the seed draws is the input plan0.jitter (freq, freq, 2: [row][col][x, y] offset inside the cell). Measured: every random input nudged by one float64 ulp (8 trials) and numpy.fft replaced by scipy.fft: max |diff| 7.1e-15 over the seven worley cases (6.7e-13 relative on values above 1e-3), so 1e-9 relative / 1e-10 absolute; F1 and F2 are continuous in the jitter, no tie flips.",
+ "params": {
+  "size": 128,
+  "freq": 16,
+  "seed": 7,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.worley",
+    "size": 128,
+    "freq": 16,
+    "seed": 7
+   }
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "plan0.jitter",
+   "dtype": "f64",
+   "shape": [
+    16,
+    16,
+    2
+   ],
+   "offset": 0,
+   "nbytes": 4096
+  }
+ ],
+ "outputs": [
+  {
+   "name": "f1",
+   "dtype": "f64",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 4096,
+   "nbytes": 131072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  },
+  {
+   "name": "f2",
+   "dtype": "f64",
+   "shape": [
+    128,
+    128
+   ],
+   "offset": 135168,
+   "nbytes": 131072,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "c260d6ec3fddc66e672f2e46ab84c17c8de9c9f069f32b7990e08c919378da64"
+}

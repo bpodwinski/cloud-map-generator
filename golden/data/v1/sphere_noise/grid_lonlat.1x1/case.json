@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "grid_lonlat.1x1",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.grid_lonlat",
+ "doc": "Smallest legal grid, 1x1: the single texel center is lon 0, lat 0, both EXACTLY 0.0 here (-pi + pi and pi/2 - pi/2). Same tolerance.",
+ "params": {
+  "width": 1,
+  "height": 1
+ },
+ "tags": [],
+ "inputs": [],
+ "outputs": [
+  {
+   "name": "lon",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  },
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    1
+   ],
+   "offset": 8,
+   "nbytes": 8,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb"
+}

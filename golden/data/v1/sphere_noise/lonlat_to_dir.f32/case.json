@@ -1,0 +1,48 @@
+{
+ "format": 1,
+ "id": "lonlat_to_dir.f32",
+ "group": "sphere_noise",
+ "function": "cloudgen.sphere.lonlat_to_dir",
+ "doc": "float32 lon and lat give float32 output (all the trigonometry in float32, not in float64). The poles (float32 pi/2 is 1.5707964 > pi/2, so cos = -4.4e-8, not 0), the antimeridian and unreduced angles (1e3, 100.5) are included. Measured against the float64 evaluation of the same float32 inputs: 7.2e-8 at most; the golden.store default (1e-5 rel, 1e-6 abs) is more than 10x that.",
+ "params": {},
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lon",
+   "dtype": "f32",
+   "shape": [
+    306
+   ],
+   "offset": 0,
+   "nbytes": 1224
+  },
+  {
+   "name": "lat",
+   "dtype": "f32",
+   "shape": [
+    306
+   ],
+   "offset": 1224,
+   "nbytes": 1224
+  }
+ ],
+ "outputs": [
+  {
+   "name": "dir",
+   "dtype": "f32",
+   "shape": [
+    306,
+    3
+   ],
+   "offset": 2448,
+   "nbytes": 3672,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-05,
+    "atol": 1e-06
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "d0ce3abd4ab878948c804965c6ef10733bba1515ff4e940bd8157554f3903275"
+}

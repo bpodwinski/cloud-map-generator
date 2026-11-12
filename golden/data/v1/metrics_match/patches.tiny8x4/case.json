@@ -1,0 +1,50 @@
+{
+ "format": 1,
+ "id": "patches.tiny8x4",
+ "group": "metrics_match",
+ "function": "cloudgen.metrics.patches",
+ "doc": "metrics.patches on a float32 8x4 map: each patch spans a couple of texels, so every sample mixes the four nearest texels, wraps in longitude and clamps rows at the top and bottom edge. Output: the patches sampled at texels 0, 51, ..., 255 (params.stride_idx). Float64 geometry: 1e-9.",
+ "params": {
+  "stride_idx": [
+   0,
+   51,
+   102,
+   153,
+   204,
+   255
+  ]
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "img",
+   "dtype": "f32",
+   "shape": [
+    4,
+    8
+   ],
+   "offset": 0,
+   "nbytes": 128
+  }
+ ],
+ "outputs": [
+  {
+   "name": "samples",
+   "dtype": "f64",
+   "shape": [
+    56,
+    6,
+    6
+   ],
+   "offset": 128,
+   "nbytes": 16128,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-10
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "855cceec1787f7043dab4e6c7fa9f501343b94094e8def9303232a082fe41925"
+}

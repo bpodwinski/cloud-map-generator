@@ -1,0 +1,54 @@
+{
+ "format": 1,
+ "id": "from_elevation.negative_sea_level.f32",
+ "group": "texture_surface",
+ "function": "cloudgen.surface.Surface.from_elevation",
+ "doc": "A float32 elevation and a NEGATIVE sea level (-0.25): e + 0.25 is -1.75 for the first cell (sea, elevation 0) and positive for the others (land, elevation raised by 0.25). Exact (one float32 subtraction).",
+ "params": {
+  "sea_level_km": -0.25,
+  "source": ""
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "elevation_in_km",
+   "dtype": "f32",
+   "shape": [
+    1,
+    4
+   ],
+   "offset": 0,
+   "nbytes": 16
+  }
+ ],
+ "outputs": [
+  {
+   "name": "land",
+   "dtype": "f32",
+   "shape": [
+    1,
+    4
+   ],
+   "offset": 16,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  },
+  {
+   "name": "elevation_km",
+   "dtype": "f32",
+   "shape": [
+    1,
+    4
+   ],
+   "offset": 32,
+   "nbytes": 16,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ac45510a35ddb408d653de566c5c9ebde97bec7d2f73d65a26961175eaf9bc3c"
+}

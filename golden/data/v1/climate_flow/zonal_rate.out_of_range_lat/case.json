@@ -1,0 +1,45 @@
+{
+ "format": 1,
+ "id": "zonal_rate.out_of_range_lat",
+ "group": "climate_flow",
+ "function": "cloudgen.flow.Flow.zonal_rate",
+ "doc": "Zonal drift profile at latitudes beyond +-pi/2 (the arcsin of the callers never produces them, but the formula uses |lat| and is defined), signed zeros and radians(51), where the rate is 0. Float64: rtol 1e-9, atol 1e-12.",
+ "params": {
+  "hadley_deg": 30.0,
+  "jet": 0.35,
+  "trades": 0.05,
+  "polar_easterlies": 0.25,
+  "vortices": [],
+  "dtype_chain": "lat float64: everything float64."
+ },
+ "tags": [],
+ "inputs": [
+  {
+   "name": "lat",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 0,
+   "nbytes": 64
+  }
+ ],
+ "outputs": [
+  {
+   "name": "rate",
+   "dtype": "f64",
+   "shape": [
+    8
+   ],
+   "offset": 64,
+   "nbytes": 64,
+   "tol": {
+    "mode": "close",
+    "rtol": 1e-09,
+    "atol": 1e-12
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "49b7e58287b7929d0992a830487d19b3f40007de41ac9005ae8b486e5ddec1d9"
+}

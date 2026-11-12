@@ -1,0 +1,55 @@
+{
+ "format": 1,
+ "id": "fbm.smallest.s1",
+ "group": "tiles",
+ "function": "cloudgen.tiles.periodic_fbm",
+ "doc": "The smallest legal size, 1x1: k = [0], radius 0 < low, so the field is 0 (one value minus its mean, over the std guard). The white noise the seed draws is the input plan0.white (size, size). FFT convention: numpy fft2 unnormalized forward, ifft2 divides by size^2, k = fftfreq(size) * size. Exactly 0: exact.",
+ "params": {
+  "size": 1,
+  "low": 1.0,
+  "slope": 3.0,
+  "seed": 26,
+  "plans": [
+   {
+    "index": 0,
+    "kind": "tile.fbm",
+    "size": 1,
+    "low": 1.0,
+    "slope": 3.0,
+    "seed": 26
+   }
+  ]
+ },
+ "tags": [
+  "degenerate"
+ ],
+ "inputs": [
+  {
+   "name": "plan0.white",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 0,
+   "nbytes": 8
+  }
+ ],
+ "outputs": [
+  {
+   "name": "field",
+   "dtype": "f64",
+   "shape": [
+    1,
+    1
+   ],
+   "offset": 8,
+   "nbytes": 8,
+   "tol": {
+    "mode": "exact"
+   }
+  }
+ ],
+ "data": "data.bin",
+ "sha256": "ffabca03d766afdca0c2732dca84e94aad8c4f739fc9d652ca8632df92a5ebf8"
+}
