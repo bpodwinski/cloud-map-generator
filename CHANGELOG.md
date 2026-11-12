@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.5.0...v0.6.0) (2026-11-12)
+
+
+### Features
+
+* enhance banded map processing with direct sink communication and improved memory management ([66e327a](https://github.com/bpodwinski/cloud-map-generator/commit/66e327a6b050f12369cb6ac7e697201db3669801))
+
 ## [0.5.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.4.0...v0.5.0) (2026-11-12)
 
 
