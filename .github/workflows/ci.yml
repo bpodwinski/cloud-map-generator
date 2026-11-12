@@ -1,0 +1,26 @@
+# Checks, on every push and pull request, that the site still builds: the same toolchains, engine test and build as
+# pages.yml (the shared .github/actions/build-site), without the deployment. The site itself is only deployed on a
+# release (release-please.yml), so this is where a breakage shows first.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or pull request replaces a run that has not finished.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-site:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/build-site

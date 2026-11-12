@@ -2,7 +2,8 @@
 #
 # Commits on main must follow Conventional Commits (feat:, fix:, perf:, feat!: / BREAKING CHANGE:, ...).
 # The action keeps a "release PR" up to date: it bumps the version (rust/Cargo.toml, rust/Cargo.lock,
-# .release-please-manifest.json) and writes CHANGELOG.md. Merging that PR creates the git tag vX.Y.Z and the GitHub Release.
+# .release-please-manifest.json) and writes CHANGELOG.md. Merging that PR creates the git tag vX.Y.Z and the GitHub Release,
+# then deploys the site (pages.yml): GitHub Pages shows the last release, not the last commit.
 # Config: release-please-config.json and .release-please-manifest.json.
 #
 # Setup once, in the repository's settings: Actions > General > Workflow permissions >
@@ -20,8 +21,21 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-24.04
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - id: release
+        uses: googleapis/release-please-action@v5
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  # Only on the push that merged the release PR: build and deploy that commit (the one the tag points at).
+  pages:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml

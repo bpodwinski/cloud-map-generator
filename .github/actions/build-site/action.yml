@@ -1,0 +1,57 @@
+# Builds the static site in web/: the WebAssembly engine (tested first) and the page (scripts/build-web.mjs).
+# Shared by pages.yml (which then deploys web/) and ci.yml (which only checks that it builds). Run after a checkout.
+name: Build the site
+description: Rust and wasm toolchain, the banded CPU engine test, then node scripts/build-web.mjs into web/.
+
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: "rust -> target/web"
+
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 22
+
+    # The wasm-bindgen CLI must be the version of the wasm-bindgen crate in rust/Cargo.lock (the build script checks it).
+    - name: Read the wasm-bindgen version from Cargo.lock
+      id: bindgen
+      shell: bash
+      run: |
+        version=$(awk '/^name = "wasm-bindgen"$/ {getline; gsub(/[version = "]/, ""); print; exit}' rust/Cargo.lock)
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: wasm-bindgen@${{ steps.bindgen.outputs.version }}
+
+    # Optional: wasm-opt shrinks and speeds up the module; the build script uses it when it is on the PATH.
+    # A pinned binaryen release, not Ubuntu's package: its binaryen 108 broke wasm-bindgen's externref table
+    # ("Table.grow(): failed to grow table" in the browser). The build script checks the table after wasm-opt.
+    - name: Install binaryen (wasm-opt)
+      shell: bash
+      env:
+        BINARYEN: version_133
+      run: |
+        url="https://github.com/WebAssembly/binaryen/releases/download/$BINARYEN/binaryen-$BINARYEN-x86_64-linux.tar.gz"
+        curl -sSfL -o /tmp/binaryen.tar.gz "$url"
+        curl -sSfL -o /tmp/binaryen.tar.gz.sha256 "$url.sha256"
+        echo "$(cut -d' ' -f1 /tmp/binaryen.tar.gz.sha256)  /tmp/binaryen.tar.gz" | sha256sum -c -
+        tar -xzf /tmp/binaryen.tar.gz -C /tmp
+        echo "/tmp/binaryen-$BINARYEN/bin" >> "$GITHUB_PATH"
+        "/tmp/binaryen-$BINARYEN/bin/wasm-opt" --version
+
+    # The gate of the in-browser CPU engine: a map cut in bands equals the one-piece engine to float rounding.
+    - name: Test the banded CPU engine
+      shell: bash
+      working-directory: rust
+      run: cargo test -p cloud-map-generator-wasm --release --target-dir target/web
+
+    - name: Build the site
+      shell: bash
+      run: node scripts/build-web.mjs
