@@ -203,7 +203,8 @@ impl Png16Sink {
 }
 
 /// The 2048-wide box downsamples, accumulated band by band (a group of `width / 2048` rows makes one slice row).
-struct SliceSink {
+/// Public for the browser's banded engine (`cloud-map-generator-wasm`), which keeps its files in memory.
+pub struct SliceSink {
     width: usize,
     f: usize,
     slice_w: usize,
@@ -213,7 +214,7 @@ struct SliceSink {
 }
 
 impl SliceSink {
-    fn new(width: usize, height: usize) -> SliceSink {
+    pub fn new(width: usize, height: usize) -> SliceSink {
         let (slice_w, f) = if width > REF_W { (REF_W, width / REF_W) } else { (width, 1) };
         let slice_h = height / f;
         let _ = slice_h;
@@ -272,6 +273,16 @@ impl SliceSink {
         }
     }
 
+    /// One finished band, north to south.
+    pub fn band(&mut self, out: &BandOut<'_>) {
+        self.push(out.rows, [Some(out.coverage), out.kind, out.high_share]);
+    }
+
+    /// The slices, once every band went through [`SliceSink::band`].
+    pub fn into_slices(self) -> Slices {
+        self.out
+    }
+
     fn flush_carry(&mut self) {
         for k in 0..3 {
             if !self.carry[k].is_empty() {
@@ -315,7 +326,7 @@ impl BandSink for LargeSink {
         if let Some(m) = self.master.as_mut() {
             m.band(out)?;
         }
-        self.slices.push(out.rows, [Some(out.coverage), out.kind, out.high_share]);
+        self.slices.band(out);
         Ok(())
     }
 }
@@ -485,8 +496,24 @@ fn compute_use(used: Used, note: Option<String>, workers: &[&dyn BandCompute], r
     ComputeUse { used, devices, note: (!note.is_empty()).then(|| note.join(" ")) }
 }
 
-#[allow(clippy::too_many_arguments, clippy::type_complexity)]
-fn finish_files(
+/// What a banded run makes besides its two big files, in memory: the sidecar (without its `files`), the 8-bit preview
+/// of the coverage slice, the encoded products, the measures against Earth, the warnings and the note on the
+/// resolution of the metrics. [`finish_files`] writes them to disk; the browser keeps them as bytes.
+pub struct LargeParts {
+    pub meta: J,
+    /// The coverage slice as 8-bit gray, `slice_width` x `slice_height`.
+    pub preview8: Vec<u8>,
+    pub slice_width: usize,
+    pub slice_height: usize,
+    pub products: cloud_map_generator_core::export::EncodedProducts,
+    pub measured: Measured,
+    pub warnings: Vec<String>,
+    pub metrics_note: Option<String>,
+}
+
+/// The in-memory half of a banded run's ending (see [`LargeParts`]).
+#[allow(clippy::too_many_arguments)]
+pub fn finish_parts(
     reference: &Reference,
     job: &LargeJob,
     params: &GenParams,
@@ -495,8 +522,7 @@ fn finish_files(
     slices: &Slices,
     compute: &ComputeUse,
     engine_seconds: f64,
-    names: &cloud_map_generator_core::export::MapFiles,
-) -> Result<(Vec<FileInfo>, J, Measured, Vec<String>, Option<String>), RunError> {
+) -> LargeParts {
     let opt = job.options;
     let (width, height) = (job.width, job.width / 2);
     let mut meta = gen_meta(&job.body, params, &done.meta, engine_seconds);
@@ -523,7 +549,6 @@ fn finish_files(
             ("slice_width", J::uint(slices.width as u64)),
         ]),
     );
-
     let (sw, sh) = (slices.width, slices.height);
     let wind = banded.info().wind;
     let products = encode_products(
@@ -534,6 +559,42 @@ fn finish_files(
         },
         &job.stem,
     );
+    meta.push(
+        "products",
+        J::obj([
+            ("type", J::s(products.sidecar.type_)),
+            ("high_share", J::s(products.sidecar.high_share)),
+            ("wind", J::s(products.sidecar.wind.as_str())),
+            ("files", J::obj(products.sidecar.files.iter().map(|(k, n)| (*k, J::s(n.as_str()))))),
+        ]),
+    );
+    let itcz = done.meta.surface.as_ref().map_or(0.0, |s| s.itcz_shift_deg);
+    let measured = measure_map(reference, &slices.coverage, sh, sw, Some((done.meta.hadley_edge_deg, itcz)));
+    let mut warnings = body_warnings(&job.body, cyclones_per_hemisphere(&job.body));
+    if opt.isotropic {
+        warnings.push("Isotropic baseline: no flow, no vortices; the surface is ignored. The type, high-share and wind maps still come from the same fields.".to_string());
+    }
+    let metrics_note = Some(format!(
+        "Measured on the {sw}-px downsample of the {width}-px map (box means, as measure does for any map wider than the reference), not on its {} megatexels.",
+        (width * height) as f64 / 1e6
+    ));
+    LargeParts { meta, preview8: preview_u8(&slices.coverage), slice_width: sw, slice_height: sh, products, measured, warnings, metrics_note }
+}
+
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn finish_files(
+    reference: &Reference,
+    job: &LargeJob,
+    params: &GenParams,
+    done: &BandedDone,
+    banded: &Banded<'_>,
+    slices: &Slices,
+    compute: &ComputeUse,
+    engine_seconds: f64,
+    names: &cloud_map_generator_core::export::MapFiles,
+) -> Result<(Vec<FileInfo>, J, Measured, Vec<String>, Option<String>), RunError> {
+    let LargeParts { mut meta, preview8, slice_width: sw, slice_height: sh, products, measured, warnings, metrics_note } =
+        finish_parts(reference, job, params, done, banded, slices, compute, engine_seconds);
     let io = |p: &Path, e: crate::fail::Fail| RunError::Failed(format!("{}: {e}", p.display()));
     let mut files: Vec<FileInfo> = Vec::new();
     let size = |p: &Path| std::fs::metadata(p).map(|m| m.len()).unwrap_or(0);
@@ -544,17 +605,8 @@ fn finish_files(
     push(&mut files, "master", job.out_dir.join(&names.master));
     push(&mut files, "r8gz", job.out_dir.join(&names.r8gz));
     let preview_path = job.out_dir.join(format!("{}_preview_{sw}x{sh}.png", job.stem));
-    crate::imageio::write_gray8(&preview_path, sw, sh, &preview_u8(&slices.coverage)).map_err(|e| io(&preview_path, e))?;
+    crate::imageio::write_gray8(&preview_path, sw, sh, &preview8).map_err(|e| io(&preview_path, e))?;
     push(&mut files, "preview", preview_path);
-    meta.push(
-        "products",
-        J::obj([
-            ("type", J::s(products.sidecar.type_)),
-            ("high_share", J::s(products.sidecar.high_share)),
-            ("wind", J::s(products.sidecar.wind.as_str())),
-            ("files", J::obj(products.sidecar.files.iter().map(|(k, n)| (*k, J::s(n.as_str()))))),
-        ]),
-    );
     for (key, name) in &products.sidecar.files {
         let img = match *key {
             "type" => products.type_png.as_ref(),
@@ -577,17 +629,6 @@ fn finish_files(
     );
     crate::imageio::write_file(&meta_path, dumps(&meta).as_bytes()).map_err(|e| io(&meta_path, e))?;
     push(&mut files, "meta", meta_path);
-
-    let itcz = done.meta.surface.as_ref().map_or(0.0, |s| s.itcz_shift_deg);
-    let measured = measure_map(reference, &slices.coverage, sh, sw, Some((done.meta.hadley_edge_deg, itcz)));
-    let mut warnings = body_warnings(&job.body, cyclones_per_hemisphere(&job.body));
-    if opt.isotropic {
-        warnings.push("Isotropic baseline: no flow, no vortices; the surface is ignored. The type, high-share and wind maps still come from the same fields.".to_string());
-    }
-    let metrics_note = Some(format!(
-        "Measured on the {sw}-px downsample of the {width}-px map (box means, as measure does for any map wider than the reference), not on its {} megatexels.",
-        (width * height) as f64 / 1e6
-    ));
     Ok((files, meta, measured, warnings, metrics_note))
 }
 

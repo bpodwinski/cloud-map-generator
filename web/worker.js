@@ -98,6 +98,67 @@ const ops = {
     return true;
   },
 
+  // The server's banded engine (src/large.rs): a run opened in each worker that takes part, the three passes per band on
+  // this worker's CPU or its GPU, the two barriers, and the sink (the last worker) that writes the files.
+  large_open({ request, caps, band_rows }) {
+    wasm.large_open(request, caps, band_rows);
+    return true;
+  },
+  large_close() {
+    wasm.large_close();
+    return true;
+  },
+  large_pass_a({ band }) {
+    const m = wasm.large_pass_a(band);
+    return { result: m, transfer: [m.buffer] };
+  },
+  large_pass_b({ band }) {
+    const t = wasm.large_pass_b(band);
+    return { result: t, transfer: [t.buffer] };
+  },
+  large_pass_c({ band }) {
+    const rows = wasm.large_pass_c(band);
+    return { result: rows, transfer: [rows.buffer] };
+  },
+  large_gpu_open() {
+    wasm.large_gpu_open();
+    return true;
+  },
+  large_gpu_close() {
+    wasm.large_gpu_close();
+    return true;
+  },
+  async large_gpu_pass_a({ band }) {
+    const m = await wasm.large_gpu_pass_a(band);
+    return { result: m, transfer: [m.buffer] };
+  },
+  async large_gpu_pass_b({ band }) {
+    const t = await wasm.large_gpu_pass_b(band);
+    return { result: t, transfer: [t.buffer] };
+  },
+  async large_gpu_pass_c({ band }) {
+    const rows = await wasm.large_gpu_pass_c(band);
+    return { result: rows, transfer: [rows.buffer] };
+  },
+  large_set_moments: ({ flat }) => {
+    wasm.large_set_moments(flat);
+    return true;
+  },
+  large_set_thresholds: ({ thr_raw, sensitivity }) => {
+    wasm.large_set_thresholds(thr_raw, sensitivity);
+    return true;
+  },
+  large_sink_begin: () => {
+    wasm.large_sink_begin();
+    return true;
+  },
+  large_sink_band: ({ band, data }) => {
+    wasm.large_sink_band(band, data);
+    return true;
+  },
+  large_finish: (a) =>
+    finished(wasm.large_finish(a.id, a.used, a.devices, a.note ?? undefined, a.anomaly_min, a.anomaly_max, a.engine_seconds, a.elapsed_before)),
+
   // Barriers and the answer.
   merge_moments: ({ flat }) => wasm.merge_moments(flat),
   smooth: ({ thr_raw }) => {

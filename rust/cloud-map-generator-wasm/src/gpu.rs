@@ -12,7 +12,7 @@ use crate::finalize::{finish, now_ms, params_of, Run};
 use crate::{parse, parse_caps, Finished};
 use cloud_map_generator_core::generate::GenParams;
 use cloud_map_generator_gpu::df64;
-use cloud_map_generator_gpu::pipeline::GpuPipeline;
+use cloud_map_generator_gpu::pipeline::{GpuBandState, GpuPipeline};
 use cloud_map_generator_gpu::GpuContext;
 use cloud_map_generator_service::engine::{ComputeUse, DeviceKind, DeviceUse, SurfaceChoice, Used};
 use cloud_map_generator_service::pyjson::J;
@@ -149,4 +149,59 @@ pub async fn run_gpu(request_json: String, caps_json: String, id: String, note: 
     };
     let inner = finish(Run { req: &req, id: &id, compute, engine_seconds: seconds, elapsed_before: elapsed_before + seconds }, output)?;
     Ok(Finished { inner })
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// The GPU as a unit of the banded engine (see `crate::large`): the native GPU band worker's passes, awaited
+
+thread_local! {
+    /// What the banded run keeps on the device between bands (the vortex table, the coarse back-trace).
+    static BAND_STATE: RefCell<Option<Rc<GpuBandState>>> = const { RefCell::new(None) };
+}
+
+fn band_unit(band: usize) -> Result<(Rc<Gpu>, Rc<cloud_map_generator_core::banded::Banded<'static>>, Rc<GpuBandState>, (usize, usize)), String> {
+    let gpu = GPU.with(|g| g.borrow().clone()).ok_or("the GPU was not probed in this worker: call gpu_probe first")?;
+    let banded = crate::large::banded()?;
+    let state = BAND_STATE.with(|s| s.borrow().clone()).ok_or("the GPU's banded run is not open: call large_gpu_open")?;
+    let range = crate::large::check_band(&banded, band)?;
+    Ok((gpu, banded, state, range))
+}
+
+/// Opens the GPU side of the banded run this worker opened with `large_open`.
+#[wasm_bindgen]
+pub fn large_gpu_open() -> Result<(), String> {
+    let gpu = GPU.with(|g| g.borrow().clone()).ok_or("the GPU was not probed in this worker: call gpu_probe first")?;
+    let banded = crate::large::banded()?;
+    let state = GpuBandState::new(&gpu.pipeline, &banded)?;
+    BAND_STATE.with(|s| *s.borrow_mut() = Some(Rc::new(state)));
+    Ok(())
+}
+
+#[wasm_bindgen]
+pub fn large_gpu_close() {
+    BAND_STATE.with(|s| *s.borrow_mut() = None);
+}
+
+/// Pass A of a band on the GPU (the same flat form as `large_pass_a`).
+#[wasm_bindgen]
+pub async fn large_gpu_pass_a(band: usize) -> Result<Vec<f64>, String> {
+    let (gpu, banded, state, (r0, r1)) = band_unit(band)?;
+    let m = state.pass_a(&gpu.pipeline, &banded, r0, r1).await;
+    Ok(crate::large::moments_to_flat(&m))
+}
+
+#[wasm_bindgen]
+pub async fn large_gpu_pass_b(band: usize) -> Result<Vec<f64>, String> {
+    let (gpu, banded, state, (r0, r1)) = band_unit(band)?;
+    let norm = crate::large::norm()?;
+    let t = state.pass_b(&gpu.pipeline, &banded, &norm, r0, r1).await;
+    Ok(crate::large::thresholds_to_flat(&t))
+}
+
+#[wasm_bindgen]
+pub async fn large_gpu_pass_c(band: usize) -> Result<Vec<f32>, String> {
+    let (gpu, banded, state, (r0, r1)) = band_unit(band)?;
+    let (norm, thr) = (crate::large::norm()?, crate::large::thresholds()?);
+    let r = state.pass_c(&gpu.pipeline, &banded, &norm, &thr.0, &thr.1, r0, r1).await;
+    Ok(crate::large::result_to_flat(r))
 }

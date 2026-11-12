@@ -211,9 +211,12 @@
         const id = newId();
         let done;
         try {
-          done = plan.used === 'gpu' ? await this.generateGpu(plan, requestText, id, since) : await this.generateCpu(plan, requestText, id, since);
+          if (plan.large) done = await this.generateLarge(plan, requestText, id, since);
+          else done = plan.used === 'gpu' ? await this.generateGpu(plan, requestText, id, since) : await this.generateCpu(plan, requestText, id, since);
         } catch (err) {
           await this.pool.all('band_close').catch(() => {});
+          await this.pool.all('large_close').catch(() => {});
+          await this.pool.all('large_gpu_close').catch(() => {});
           return failure(500, err.message || String(err));
         }
         return jsonResponse(200, this.keep(id, done));
@@ -317,6 +320,113 @@
       const highShare = concat(Float32Array, parts.map((p) => p.high_share));
       lap('assemble');
       return { coverage, kind, highShare, phases };
+    }
+
+    // The server's banded engine (rust/cloud-map-generator-wasm/src/large.rs): 8192 wide, or CPU + GPU at any width. Every
+    // unit (a CPU worker, the GPU worker) takes the next band of a pass when it is free, as the server's scheduler does with
+    // its threads; between the passes every worker gets the moments, then the thresholds, of all bands; the finished bands
+    // go north to south to the last worker, which writes the files and the answer.
+    async generateLarge(plan, request, id, since) {
+      const pool = this.pool;
+      const caps = this.capsText;
+      const bands = plan.bands;
+      const useGpu = plan.used === 'gpu' || plan.used === 'hybrid';
+      if (useGpu && !this.caps.gpu) throw new Error('The GPU is not available in this page.');
+      const gpuWorker = useGpu ? this.finalizer : -1;
+      const sink = this.finalizer;
+      const units = [];
+      if (plan.used !== 'gpu') for (let i = 0; i < pool.size; i++) if (i !== gpuWorker) units.push({ worker: i, gpu: false });
+      if (useGpu) units.push({ worker: gpuWorker, gpu: true });
+      const open = [...new Set([...units.map((u) => u.worker), sink])];
+      await Promise.all(open.map((i) => pool.call(i, 'large_open', { request, caps, band_rows: plan.band_rows })));
+      if (useGpu) await pool.call(gpuWorker, 'large_gpu_open');
+      const t0 = since();
+
+      const rowsOf = (b) => Math.min(plan.width / 2, (b + 1) * plan.band_rows) - b * plan.band_rows;
+      const work = new Map(units.map((u) => [u, { rows: 0, seconds: 0 }]));
+      // One pass: each unit pulls the next band until none is left; `onBand` takes each result as it comes.
+      const pass = async (op, onBand) => {
+        let next = 0;
+        await Promise.all(
+          units.map(async (u) => {
+            for (let b = next++; b < bands; b = next++) {
+              const start = performance.now();
+              const out = await pool.call(u.worker, u.gpu ? `large_gpu_${op}` : `large_${op}`, { band: b });
+              const w = work.get(u);
+              w.seconds += (performance.now() - start) / 1000;
+              w.rows += rowsOf(b);
+              await onBand(b, out);
+            }
+          })
+        );
+      };
+
+      const moments = new Array(bands);
+      await pass('pass_a', (b, m) => { moments[b] = m; });
+      const flat = concat(Float64Array, moments);
+      await Promise.all(open.map((i) => pool.call(i, 'large_set_moments', { flat })));
+
+      const parts = new Array(bands);
+      await pass('pass_b', (b, p) => { parts[b] = p; });
+      let lo = Infinity;
+      let hi = -Infinity;
+      const thr = [];
+      const sens = [];
+      for (const p of parts) {
+        const n = p[2];
+        const ns = p[3];
+        if (Number.isFinite(p[0])) lo = Math.min(lo, p[0]);
+        if (Number.isFinite(p[1])) hi = Math.max(hi, p[1]);
+        thr.push(p.subarray(4, 4 + n));
+        sens.push(p.subarray(4 + n, 4 + n + ns));
+      }
+      const thrRaw = concat(Float64Array, thr);
+      const sensitivity = concat(Float64Array, sens);
+      await Promise.all(open.map((i) => pool.call(i, 'large_set_thresholds', { thr_raw: thrRaw, sensitivity })));
+
+      // Pass C: the bands reach the sink in order, whatever order they are made in.
+      await pool.call(sink, 'large_sink_begin');
+      const ready = new Map();
+      let toSink = 0;
+      let chain = Promise.resolve();
+      await pass('pass_c', (b, data) => {
+        ready.set(b, data);
+        while (ready.has(toSink)) {
+          const band = toSink++;
+          const rows = ready.get(band);
+          ready.delete(band);
+          chain = chain.then(() => pool.call(sink, 'large_sink_band', { band, data: rows }, [rows.buffer]));
+        }
+      });
+      await chain;
+      const engineSeconds = since() - t0;
+
+      // What each kind of device did: its share of the rows of the three passes, and how long it worked.
+      const total = [...work.values()].reduce((n, w) => n + w.rows, 0) || 1;
+      const devices = [];
+      for (const kind of ['gpu', 'cpu']) {
+        const mine = units.filter((u) => u.gpu === (kind === 'gpu')).map((u) => work.get(u));
+        if (!mine.length) continue;
+        devices.push({
+          kind,
+          name: kind === 'gpu' ? (this.caps.gpu && this.caps.gpu.name) || null : null,
+          seconds: Math.max(...mine.map((w) => w.seconds)),
+          share: mine.reduce((n, w) => n + w.rows, 0) / total
+        });
+      }
+      const done = await pool.call(sink, 'large_finish', {
+        id,
+        used: plan.used,
+        devices: JSON.stringify(devices),
+        note: plan.note,
+        anomaly_min: Number.isFinite(lo) ? lo : NaN,
+        anomaly_max: Number.isFinite(hi) ? hi : NaN,
+        engine_seconds: engineSeconds,
+        elapsed_before: since()
+      });
+      await Promise.all(open.filter((i) => i !== sink).map((i) => pool.call(i, 'large_close')));
+      if (useGpu) await pool.call(gpuWorker, 'large_gpu_close');
+      return done;
     }
 
     async generateGpu(plan, request, id, since) {

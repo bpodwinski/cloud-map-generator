@@ -242,6 +242,9 @@ pub trait Engine: Send + Sync {
 /// bit-identical for any thread count.
 pub struct CpuEngine {
     pub name: Option<String>,
+    /// The CPU units that work at once when they are not this process's thread pool: the Web Workers of the browser's
+    /// engine, each one WebAssembly thread. `None`: the pool's threads.
+    pub workers: Option<usize>,
 }
 
 impl Engine for CpuEngine {
@@ -262,7 +265,7 @@ impl Engine for CpuEngine {
     }
 
     fn threads(&self) -> usize {
-        cloud_map_generator_core::par::threads()
+        self.workers.unwrap_or_else(cloud_map_generator_core::par::threads)
     }
 }
 
@@ -324,7 +327,7 @@ impl Runtime {
     /// A runtime that has only the CPU (tests, a build without the `gpu` feature, `--mock`-free embedders), with `reason` as the
     /// explanation the GPU modes give.
     pub fn cpu_only(reason: &str) -> Runtime {
-        Runtime { cpu: CpuEngine { name: cpu_name() }, threads: cpu_threads(), gpu: GpuState::Absent { reason: reason.to_string() } }
+        Runtime { cpu: CpuEngine { name: cpu_name(), workers: None }, threads: cpu_threads(), gpu: GpuState::Absent { reason: reason.to_string() } }
     }
 
     /// The CPU, and the GPU if this build has the feature and the machine an adapter (a probe of about a second:
@@ -332,7 +335,7 @@ impl Runtime {
     pub fn probe() -> Runtime {
         #[cfg(feature = "gpu")]
         {
-            Runtime { cpu: CpuEngine { name: cpu_name() }, threads: cpu_threads(), gpu: crate::gpu_probe::probe() }
+            Runtime { cpu: CpuEngine { name: cpu_name(), workers: None }, threads: cpu_threads(), gpu: crate::gpu_probe::probe() }
         }
         #[cfg(not(feature = "gpu"))]
         {
@@ -609,7 +612,7 @@ mod tests {
     fn a_gpu_that_is_found_but_not_wired_gives_the_slots_reason_for_both_modes() {
         let info = GpuInfo { name: "Test GPU".into(), backend: "Vulkan".into(), float64: false, df64: Some("fma+barrier".into()) };
         let r = Runtime {
-            cpu: CpuEngine { name: None },
+            cpu: CpuEngine { name: None, workers: None },
             threads: 4,
             gpu: GpuState::Found { info, engine: Err("The GPU pipeline is not wired into this build yet".to_string()) },
         };
@@ -686,7 +689,7 @@ mod tests {
     #[test]
     fn auto_goes_to_the_gpu_from_its_crossover_width_and_explains_the_cpu_below_it() {
         let info = GpuInfo { name: "G".into(), backend: "Vulkan".into(), float64: false, df64: None };
-        let r = Runtime { cpu: CpuEngine { name: None }, threads: 2, gpu: GpuState::Found { info, engine: Ok(Arc::new(Fake)) } };
+        let r = Runtime { cpu: CpuEngine { name: None, workers: None }, threads: 2, gpu: GpuState::Found { info, engine: Ok(Arc::new(Fake)) } };
         assert!(r.modes()[2].available && r.modes()[2].detail.as_deref() == Some("G"));
         for width in [1024, 4096] {
             let (used, note) = r.resolve(ComputeMode::Auto, width);

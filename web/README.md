@@ -57,11 +57,19 @@ page (ui/static/app.js, unchanged)
 * **Same maps, within tolerance.** CPU and GPU maps of one request, decoded from the 8-bit PNGs in Chromium: coverage differs by
   1.0 / 2.1 (mean absolute, out of 255) at 512 / 1024, almost all of it the GPU's own sub-texel grain (the `compute.note` says
   so); type and high-share maps by 0.01. The metrics rows agree to the third decimal.
-* **Compute modes.** `auto`, `cpu`, `gpu` selectable; `hybrid` is listed and unavailable ("Hybrid CPU + GPU scheduling is not
-  built yet", as in the native engine). `auto` takes the GPU when there is one (see the table), else the CPU, and never fails
+* **Compute modes.** `auto`, `cpu`, `gpu` and `hybrid` (CPU + GPU, offered with a GPU and two workers or more). `auto` takes the GPU when there is one (see the table), else the CPU, and never fails
   for lack of a device. Without WebGPU the GPU rows carry the reason ("This browser does not expose WebGPU ...").
 * **Files.** The two PNG sets, the 16-bit master, the R8 and the sidecar are made in the browser and kept (the last 8 results)
   as blobs; `Download` hands out `blob:` links with the same names as the server's.
+
+* **The banded engine of the server** (`rust/cloud-map-generator-wasm/src/large.rs`): for 8192 wide, and for `hybrid` at any
+  width, the page runs what `cloud-map-generator serve` runs there, `cloud_map_generator_core::banded` with the counter-based
+  noise. Each band of each pass goes to whichever unit is free, a CPU worker or the GPU worker (the native GPU band worker);
+  between the passes every worker gets the moments, then the thresholds, of all bands; the finished bands stream, north to
+  south, into the 16-bit master, the R8 and the 2048-wide slices on the last worker, which ends with the server's own
+  `finish_parts`. Same refusals as the server: `match_earth` on a banded map, GPU bands at 512.
+* **Same maps as the server.** For the same request the browser's banded maps and the server's have the same metrics (mean
+  cloud fraction 0.365548 at 8192 on cpu, gpu and hybrid, 0.365556 at 1024 hybrid, in both).
 
 ## Measured (headed Chromium 157, Windows 11, 16-thread desktop CPU = 15 workers, RTX 5080; 2026-11-12)
 
@@ -77,6 +85,9 @@ shows ("in N s": the engine, the encodings, the metrics against Earth); `engine`
 
 The page is interactive about 3 s after load (workers started, the module compiled once and shared, the GPU probe of 2 s).
 
+8192 x 4096 on the banded engine (headless Chrome, same machine, one run): 33.9 s on the CPU (31 bands), 13.0 s on the GPU
+(8 bands), 22.5 s on CPU + GPU (32 bands, the GPU did 56 % of the rows). Files: a 63 MB master, a 25 MB R8.
+
 One worker for comparison (all rows in one band, engine only): 5.5 s at 512, 6.8 s at 1024, 12.1 s at 2048; the pool takes 0.8,
 1.4 and 1.5 s. The rest of a request, 1.3 s at 512 up to 3 s at 4096, is the encodings and the metrics (FFTs of gnomonic patches)
 on one worker, the same in both modes; it is what the GPU cannot shorten. A synthetic surface (`surface: synthetic`, at most
@@ -84,12 +95,15 @@ on one worker, the same in both modes; it is what the GPU cannot shorten. A synt
 
 ## What does not work, or not yet
 
-* `hybrid` (the scheduler that shares bands between the GPU and the workers) is not built.
 * The metrics and the encodings run on one worker after the maps: they are now most of a request. Splitting them is the
   next win (the gnomonic patches of `metrics::measure` are independent).
 * `surface: synthetic` is not banded (the surface terms couple the whole map twice more): one worker.
 * Chromium only was driven. Safari and Firefox were not tried (`navigator.gpu` in workers is the thing to look at). Without
   WebGPU in workers the page runs the CPU path and says why.
 * The page loads daisyUI and Tailwind from a CDN, as the local page does (vendoring them is the one change needed for a page
-  with no third-party request). The module and the scripts are not cache-busted by hash: Pages caches them for ten minutes.
-* 8192 and wider need the streamed design of `docs/large-maps.html` (output to a file); the page offers 512 to 4096.
+  with no third-party request). The engine's files carry a build stamp (`?v=`), so a release never mixes with a cached one.
+* 16384 and 32768 are offered but were not run in the browser: their files are kept in memory (at 32768 the master is about
+  1 GB and the R8 512 MiB), which a tab may not have; the local server streams them to disk. Their estimates are the 8192
+  time scaled by the texels, not measured.
+* On CPU + GPU the CPU workers are slower than the GPU per band, so at 8192 hybrid is slower than the GPU alone (as natively
+  when the GPU is fast): `auto` picks the GPU.

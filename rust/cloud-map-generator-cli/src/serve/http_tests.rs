@@ -314,12 +314,12 @@ impl Engine for Double {
             "refuse" => Err(EngineError::Refused("this map does not fit the device".to_string())),
             "fail" => Err(EngineError::Failed("the kernel failed".to_string())),
             "gpu_only" => {
-                let mut g = CpuEngine { name: None }.generate(req, progress)?;
+                let mut g = CpuEngine { name: None, workers: None }.generate(req, progress)?;
                 g.compute = ComputeUse { used: Used::Gpu, devices: vec![DeviceUse { kind: DeviceKind::Gpu, name: Some("Test GPU".to_string()), seconds: 0.25, share: 1.0 }], note: Some("a band was retried".to_string()) };
                 Ok(g)
             }
             _ => {
-                let mut g = CpuEngine { name: None }.generate(req, progress)?;
+                let mut g = CpuEngine { name: None, workers: None }.generate(req, progress)?;
                 g.compute = ComputeUse {
                     used: Used::Gpu,
                     devices: vec![
@@ -340,7 +340,7 @@ impl Engine for Double {
 
 fn state_with_double(mode: &'static str) -> AppState {
     let info = GpuInfo { name: "Test GPU".into(), backend: "Vulkan".into(), float64: false, df64: Some("fma+barrier".into()) };
-    let runtime = Runtime { cpu: CpuEngine { name: Some("Test CPU".into()) }, threads: 4, gpu: GpuState::Found { info, engine: Ok(Arc::new(Double { mode })) } };
+    let runtime = Runtime { cpu: CpuEngine { name: Some("Test CPU".into()), workers: None }, threads: 4, gpu: GpuState::Found { info, engine: Ok(Arc::new(Double { mode })) } };
     state_with(runtime, &[64, 128], DEFAULT_KEEP, None)
 }
 

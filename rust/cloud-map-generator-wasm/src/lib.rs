@@ -14,6 +14,7 @@ pub mod band;
 pub mod finalize;
 #[cfg(target_arch = "wasm32")]
 pub mod gpu;
+pub mod large;
 pub mod request;
 
 use band::{Band, Setup, FIELDS};
@@ -31,14 +32,22 @@ use std::rc::Rc;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 
-/// The map widths the page offers: the largest the in-browser engine takes (4096 x 2048 floats are 32 MiB a field).
-pub const WIDTHS: [usize; 4] = [512, 1024, 2048, 4096];
+/// The map widths the page offers, as the local server: up to 4096 the one-piece engine or the bands of [`band`]; from
+/// 8192 the banded engine of the server ([`large`]). The files of a banded map are kept in memory: at 32768 x 16384 the
+/// R8 is 512 MiB before compression and the 16-bit master about 1 GB, which a tab may not have (the run then fails with
+/// the browser's out-of-memory error; the local server streams them to disk).
+pub const WIDTHS: [usize; 7] = [512, 1024, 2048, 4096, 8192, 16384, 32768];
 
 /// Seconds a whole generation takes on the CPU engine of the page (the workers' bands, then the encodings and the metrics
 /// against Earth on one worker), per width: what the page shows as "about N s on an idle machine". MEASURED in headed Chromium
 /// 157 on Windows 11, a 16-thread desktop CPU (15 workers) and an RTX 5080, 2026-11-12, `compute: cpu`, Earth, seed 42, the best
 /// of three runs after the page had settled (`web/README.md` has the whole table). A visitor's machine is slower or faster.
-const CPU_ESTIMATE_SECONDS: [(usize, f64); 4] = [(512, 2.0), (1024, 2.5), (2048, 3.0), (4096, 6.1)];
+/// 8192: the banded engine on the same machine, headless Chrome, 2026-11-12, `compute: cpu` (15 workers), one run: 33.9 s
+/// (`gpu` 13.0 s, `hybrid` 22.5 s).
+/// 16384 and 32768: NOT measured, the 8192 time scaled by the texels (x4, x16).
+const CPU_ESTIMATE_SECONDS: [(usize, f64); 7] =
+    [(512, 2.0), (1024, 2.5), (2048, 3.0), (4096, 6.1), (8192, CPU_ESTIMATE_8192), (16384, 4.0 * CPU_ESTIMATE_8192), (32768, 16.0 * CPU_ESTIMATE_8192)];
+const CPU_ESTIMATE_8192: f64 = 34.0;
 
 /// Where `auto` starts to prefer the GPU, texels wide. MEASURED on the same machine and runs as the table above: the GPU's
 /// engine time (plans, kernels, readbacks; 0.13 / 0.34 / 0.30 / 0.47 s at 512 / 1024 / 2048 / 4096) beats the workers' (0.65 / 0.82 /
@@ -89,11 +98,20 @@ fn runtime(caps: &Caps) -> Runtime {
         },
         None => GpuState::Absent { reason: caps.gpu_reason.clone() },
     };
-    Runtime { cpu: CpuEngine { name: None }, threads: caps.threads, gpu }
+    Runtime { cpu: CpuEngine { name: None, workers: Some(caps.workers) }, threads: caps.threads, gpu }
 }
 
-/// `compute` of `GET /api/defaults`, for this browser: the four modes (hybrid is listed and unavailable: the scheduler that
-/// shares bands between the GPU and the workers is not built), `engine: "wasm"`, and the devices.
+/// Why `hybrid` is unavailable in a page with a single Web Worker (the service says "a single thread"; here the unit is
+/// the worker). With a GPU and two workers or more, the page shares the bands between them ([`large`]).
+const BROWSER_HYBRID_REASON: &str = "This browser gives the page a single Web Worker, so there is nothing to share with the GPU.";
+
+/// The service's refusal of `hybrid`, in the browser's words (the capabilities and the 400 of a request say the same).
+fn browser_reason(reason: &str) -> String {
+    reason.replace(cloud_map_generator_service::engine::HYBRID_ONE_THREAD_REASON, BROWSER_HYBRID_REASON)
+}
+
+/// `compute` of `GET /api/defaults`, for this browser: the four modes (CPU + GPU when there is a GPU and more than one
+/// worker), `engine: "wasm"`, and the devices.
 fn capabilities_json(rt: &Runtime, caps: &Caps) -> J {
     let workers = caps.workers;
     let modes = rt
@@ -102,13 +120,15 @@ fn capabilities_json(rt: &Runtime, caps: &Caps) -> J {
         .map(|m: ModeInfo| {
             let detail = match m.mode {
                 ComputeMode::Cpu => Some(format!("{workers} {}", if workers == 1 { "worker" } else { "workers" })),
+                // The GPU is driven from one of the workers; the others take bands.
+                ComputeMode::Hybrid if m.available => Some(format!("GPU + {} {}", workers - 1, if workers == 2 { "worker" } else { "workers" })),
                 _ => m.detail.clone(),
             };
             J::obj([
                 ("key", J::s(m.mode.key())),
                 ("label", J::s(m.mode.label())),
                 ("available", J::Bool(m.available)),
-                ("reason", opt_str(m.reason.as_deref())),
+                ("reason", opt_str(m.reason.as_deref().map(browser_reason).as_deref())),
                 ("description", J::s(m.mode.description())),
                 ("detail", opt_str(detail.as_deref())),
             ])
@@ -202,8 +222,12 @@ pub fn derive(request_json: &str) -> Result<String, String> {
 pub(crate) fn parse(request_json: &str, caps: &Caps) -> Result<GenRequest, ApiError> {
     let v: Value = serde_json::from_str(request_json).map_err(|e| bad(format!("invalid JSON: {e}")))?;
     let rt = runtime(caps);
-    let req = parse_generate(&v, &WIDTHS, &rt)?;
+    let req = parse_generate(&v, &WIDTHS, &rt).map_err(|e| ApiError { message: browser_reason(&e.message), ..e })?;
     check_generatable(&req.body, req.options.experiment).map_err(bad)?;
+    // What the server's banded engine refuses (`large::check_large`): the match to Earth needs the whole image.
+    if large::is_large(req.width, req.compute) && req.options.match_earth {
+        return Err(bad("match_earth needs the whole image in memory: it is not offered for banded maps (a width of 8192, or CPU + GPU); use a width of 4096 or less with CPU or GPU"));
+    }
     Ok(req)
 }
 
@@ -215,8 +239,21 @@ pub fn plan(request_json: &str, caps_json: &str) -> Result<String, String> {
     let req = parse(request_json, &caps).map_err(|e| e.message)?;
     let rt = runtime(&caps);
     let (used, note) = rt.resolve(req.compute, req.width);
-    // The surface terms are not banded: one worker makes a synthetic world.
+    // The surface terms are not banded by the page's own bands: one worker makes a synthetic world.
     let banded = req.options.surface != cloud_map_generator_service::engine::SurfaceChoice::Synthetic;
+    // The server's banded engine: 8192 wide, or CPU + GPU at any width (as `cloud-map-generator serve`).
+    let large = large::is_large(req.width, req.compute);
+    // As the server's GPU band worker refuses (`GpuBandState::new`), before any work: a 400, not a failure midway.
+    let params = finalize::params_of(&req.options);
+    if large && used != Used::Cpu && !params.isotropic && params.structure_width.min(req.width) == req.width {
+        return Err(format!("a {}-px map is as narrow as the back-trace grid: the GPU bands need a wider one", req.width));
+    }
+    let units = match used {
+        Used::Cpu => caps.workers,
+        Used::Gpu => 1,
+        Used::Hybrid => caps.workers,
+    };
+    let band_rows = large::band_rows_for(req.width, used, units);
     Ok(cloud_map_generator_service::json::compact(&J::obj([
         ("width", J::Int(req.width as i64)),
         ("seed", J::Int(req.seed as i64)),
@@ -224,6 +261,9 @@ pub fn plan(request_json: &str, caps_json: &str) -> Result<String, String> {
         ("used", J::s(used.key())),
         ("note", opt_str(note.as_deref())),
         ("banded", J::Bool(banded)),
+        ("large", J::Bool(large)),
+        ("band_rows", J::Int(band_rows as i64)),
+        ("bands", J::Int(large::band_count(req.width, band_rows) as i64)),
     ])))
 }
 
@@ -360,8 +400,10 @@ impl Finished {
         self.inner.files[i].1.to_string()
     }
 
-    pub fn file_bytes(&self, i: usize) -> Vec<u8> {
-        self.inner.files[i].2.clone()
+    /// The bytes of file `i`, handed over (a second call gets nothing): a banded map's files are hundreds of MB, never
+    /// held twice.
+    pub fn file_bytes(&mut self, i: usize) -> Vec<u8> {
+        std::mem::take(&mut self.inner.files[i].2)
     }
 }
 
@@ -440,4 +482,141 @@ pub fn run_whole(request_json: &str, caps_json: &str, id: &str, note: Option<Str
     };
     let inner = finish(Run { req: &req, id, compute, engine_seconds, elapsed_before: elapsed_before + engine_seconds }, output)?;
     Ok(Finished { inner })
+}
+
+// ---------------------------------------------------------------------------------------------------------
+// The banded engine of the server, over the page's workers (see [`large`])
+
+/// Opens the banded run of a request in this worker, cut in bands of `band_rows` rows (the `band_rows` of `plan`).
+#[wasm_bindgen]
+pub fn large_open(request_json: &str, caps_json: &str, band_rows: usize) -> Result<(), String> {
+    let caps = parse_caps(caps_json)?;
+    let req = parse(request_json, &caps).map_err(|e| e.message)?;
+    large::open(req, band_rows)
+}
+
+#[wasm_bindgen]
+pub fn large_close() {
+    large::close();
+}
+
+/// Rows `[r0, r1)` of band `band` of the open run.
+#[wasm_bindgen]
+pub fn large_band_range(band: usize) -> Result<Vec<u32>, String> {
+    let b = large::banded()?;
+    let (r0, r1) = large::check_band(&b, band)?;
+    Ok(vec![r0 as u32, r1 as u32])
+}
+
+/// Pass A of a band on this worker's CPU: its moments, flat.
+#[wasm_bindgen]
+pub fn large_pass_a(band: usize) -> Result<Vec<f64>, String> {
+    large::cpu_pass_a(band)
+}
+
+/// Barrier 1: the moments of every band, flat and in band order.
+#[wasm_bindgen]
+pub fn large_set_moments(flat: &[f64]) -> Result<(), String> {
+    large::set_moments(flat)
+}
+
+/// Pass B of a band on this worker's CPU: `[anomaly_min, anomaly_max, rows, sensitivity rows, thr_raw..., sensitivity...]`.
+#[wasm_bindgen]
+pub fn large_pass_b(band: usize) -> Result<Vec<f64>, String> {
+    large::cpu_pass_b(band)
+}
+
+/// Barrier 2: the raw thresholds and the sensitivity of every row, north to south.
+#[wasm_bindgen]
+pub fn large_set_thresholds(thr_raw: &[f64], sensitivity: Vec<f64>) -> Result<(), String> {
+    large::set_thresholds(thr_raw, sensitivity)
+}
+
+/// Pass C of a band on this worker's CPU: the coverage rows, then the type and high-share rows when the run makes them.
+#[wasm_bindgen]
+pub fn large_pass_c(band: usize) -> Result<Vec<f32>, String> {
+    large::cpu_pass_c(band)
+}
+
+#[wasm_bindgen]
+pub fn large_sink_begin() -> Result<(), String> {
+    large::sink_begin()
+}
+
+/// A finished band, in band order (the page orders them).
+#[wasm_bindgen]
+pub fn large_sink_band(band: usize, data: &[f32]) -> Result<(), String> {
+    large::sink_band(band, data)
+}
+
+/// The end of the run on the sink worker: the files and the answer. `devices_json` as for [`finalize_maps`];
+/// `anomaly_min` / `anomaly_max` the range of the surface anomaly over the bands of pass B (NaN without a surface).
+#[wasm_bindgen]
+#[allow(clippy::too_many_arguments)]
+pub fn large_finish(
+    id: &str,
+    used: &str,
+    devices_json: &str,
+    note: Option<String>,
+    anomaly_min: f32,
+    anomaly_max: f32,
+    engine_seconds: f64,
+    elapsed_before: f64,
+) -> Result<Finished, String> {
+    let compute = ComputeUse { used: used_from(used)?, devices: devices_from(devices_json)?, note };
+    let anomaly = (anomaly_min.is_finite() && anomaly_max.is_finite()).then_some([anomaly_min, anomaly_max]);
+    let inner = large::finish(id, compute, anomaly, engine_seconds, elapsed_before)?;
+    Ok(Finished { inner })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const WITH_GPU: &str = r#"{"threads": 16, "workers": 15, "gpu": {"name": "NVIDIA Blackwell", "backend": "WebGPU", "df64": "fma"}}"#;
+
+    const ONE_WORKER: &str = r#"{"threads": 2, "workers": 1, "gpu": {"name": "NVIDIA Blackwell", "backend": "WebGPU", "df64": "fma"}}"#;
+    const HYBRID: &str = r#"{"body": {"rotation_period_days": 0.99727, "radius_km": 6371, "gravity_mps2": 9.81, "scale_height_km": 8}, "seed": 1, "width": 1024, "options": {"compute": "hybrid"}}"#;
+
+    fn mode(caps: &str, key: &str) -> Value {
+        let d: Value = serde_json::from_str(&defaults(caps).unwrap()).unwrap();
+        d["compute"]["modes"].as_array().unwrap().iter().find(|m| m["key"] == key).unwrap().clone()
+    }
+
+    #[test]
+    fn hybrid_is_offered_with_a_gpu_and_workers_and_runs_on_the_banded_engine() {
+        let hybrid = mode(WITH_GPU, "hybrid");
+        assert_eq!((hybrid["available"].clone(), hybrid["detail"].clone()), (Value::Bool(true), Value::from("GPU + 14 workers")));
+        let p: Value = serde_json::from_str(&plan(HYBRID, WITH_GPU).unwrap()).unwrap();
+        assert_eq!((p["used"].clone(), p["large"].clone()), (Value::from("hybrid"), Value::Bool(true)));
+        assert!(p["bands"].as_i64().unwrap() >= 15, "{p}");
+        // 8192 is offered, on the banded engine, and the match to Earth is refused there as on the server.
+        let big = HYBRID.replace("\"width\": 1024", "\"width\": 8192").replace("\"hybrid\"", "\"cpu\"");
+        let p: Value = serde_json::from_str(&plan(&big, WITH_GPU).unwrap()).unwrap();
+        assert_eq!((p["large"].clone(), p["used"].clone()), (Value::Bool(true), Value::from("cpu")));
+        let matched = big.replace("\"compute\": \"cpu\"", "\"compute\": \"cpu\", \"match_earth\": true");
+        assert!(plan(&matched, WITH_GPU).unwrap_err().contains("match_earth"));
+        // At 512 the GPU bands are refused before any work, with the server's message.
+        let narrow = HYBRID.replace("\"width\": 1024", "\"width\": 512");
+        assert!(plan(&narrow, WITH_GPU).unwrap_err().contains("as narrow as the back-trace grid"));
+        // 16384 and 32768 are offered, on the banded engine, as by the server.
+        let d: Value = serde_json::from_str(&defaults(WITH_GPU).unwrap()).unwrap();
+        assert_eq!(d["widths"], serde_json::json!([512, 1024, 2048, 4096, 8192, 16384, 32768]));
+        let huge = big.replace("\"width\": 8192", "\"width\": 32768");
+        let p: Value = serde_json::from_str(&plan(&huge, WITH_GPU).unwrap()).unwrap();
+        assert_eq!(p["large"], true);
+        assert_eq!(p["band_rows"].as_i64().unwrap() % 16, 0, "a multiple of 32768 / 2048 for the slices");
+        let small = HYBRID.replace("\"hybrid\"", "\"cpu\"");
+        let p: Value = serde_json::from_str(&plan(&small, WITH_GPU).unwrap()).unwrap();
+        assert_eq!(p["large"], false);
+    }
+
+    #[test]
+    fn hybrid_with_a_single_worker_is_refused_with_the_browsers_reason() {
+        let hybrid = mode(ONE_WORKER, "hybrid");
+        assert_eq!(hybrid["available"], false);
+        assert_eq!(hybrid["reason"], BROWSER_HYBRID_REASON);
+        let err = plan(HYBRID, ONE_WORKER).unwrap_err();
+        assert!(err.contains(BROWSER_HYBRID_REASON) && !err.contains("single thread"), "{err}");
+    }
 }

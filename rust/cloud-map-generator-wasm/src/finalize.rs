@@ -132,7 +132,7 @@ pub fn output_from_maps(req: &GenRequest, coverage: Vec<f32>, kind: Vec<f32>, hi
 }
 
 /// The `meta` block of the answer.
-fn meta_json(m: &GenMeta) -> J {
+pub(crate) fn meta_json(m: &GenMeta) -> J {
     J::obj([
         ("hadley_edge_deg", J::Float(m.hadley_edge_deg)),
         ("fine_octaves", J::Int(m.fine_octaves as i64)),
