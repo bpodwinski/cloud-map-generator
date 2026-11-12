@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.9.0...v0.10.0) (2026-11-12)
+
+
+### Features
+
+* add refine option to cloud map generator ([35cb009](https://github.com/bpodwinski/cloud-map-generator/commit/35cb0095298c567362a915ef2eb81557887d0600))
+
 ## [0.9.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.8.0...v0.9.0) (2026-11-12)
 
 
