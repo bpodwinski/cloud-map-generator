@@ -56,14 +56,14 @@ function buildWasm() {
   rmSync(pkg, { recursive: true, force: true });
   mkdirSync(pkg, { recursive: true });
   run('wasm-bindgen', ['--target', 'web', '--no-typescript', '--out-dir', pkg, '--out-name', 'cloud_map_generator_wasm', wasm]);
-  const bg = join(pkg, 'cloudgen_wasm_bg.wasm');
+  const bg = join(pkg, 'cloud_map_generator_wasm_bg.wasm');
   try {
     run('wasm-opt', ['-O3', '--enable-bulk-memory', '--enable-nontrapping-float-to-int', '--enable-sign-ext', '--enable-mutable-globals', '-o', bg, bg]);
     console.log('wasm-opt: applied');
   } catch {
     console.log('wasm-opt: not available, the module is shipped as the linker made it');
   }
-  console.log(`wasm: web/pkg/cloudgen_wasm_bg.wasm, ${(statSync(bg).size / 1e6).toFixed(2)} MB`);
+  console.log(`wasm: web/pkg/cloud_map_generator_wasm_bg.wasm, ${(statSync(bg).size / 1e6).toFixed(2)} MB`);
 }
 
 if (!existsSync(web)) mkdirSync(web, { recursive: true });

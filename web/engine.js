@@ -112,7 +112,7 @@
       const threads = Math.max(1, navigator.hardwareConcurrency || 4);
       // The page's own thread keeps the interface alive: one hardware thread less for the workers (at least one).
       const size = Math.max(1, Math.min(threads - 1, MAX_WORKERS));
-      const wasmUrl = new URL('pkg/cloudgen_wasm_bg.wasm', BASE);
+      const wasmUrl = new URL('pkg/cloud_map_generator_wasm_bg.wasm', BASE);
       let module;
       try {
         module = await WebAssembly.compileStreaming(realFetch(wasmUrl));
