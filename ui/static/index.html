@@ -254,7 +254,10 @@
         <!-- The whole column wide; on a window too short for that (10rem: header, tabs, readout and paddings), as wide as keeps the map in view. -->
         <div id="stage" class="relative hidden w-full aspect-[2/1] overflow-hidden rounded-box border border-base-300 bg-base-200 lg:mx-auto lg:w-[min(100%,calc((100dvh-10rem)*2))]">
           <img id="mapImg" alt="Map" class="absolute inset-0 size-full object-contain" draggable="false" />
-          <canvas id="globe" class="absolute inset-0 hidden size-full cursor-grab touch-none" tabindex="0" role="img" aria-label="Globe view. Drag or use the arrow keys to rotate, double click to reset."></canvas>
+          <canvas id="globe" class="peer absolute inset-0 hidden size-full cursor-grab touch-none" tabindex="0" role="img" aria-label="Globe view. Drag or use the arrow keys to rotate, double click to reset."></canvas>
+          <!-- The lit globe (WebGPU), drawn over the 2D canvas, which stays underneath for the pointer and the keys and
+               is the fallback without WebGPU. Shown with it (peer), and only once the GPU is ready. -->
+          <canvas id="globeGpu" class="pointer-events-none invisible absolute inset-0 size-full peer-[.hidden]:hidden" aria-hidden="true"></canvas>
           <div id="loadingBox" class="absolute inset-0 hidden">
             <div class="skeleton size-full rounded-none"></div>
             <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center" aria-hidden="true">

@@ -57,13 +57,60 @@ function buildWasm() {
   mkdirSync(pkg, { recursive: true });
   run('wasm-bindgen', ['--target', 'web', '--no-typescript', '--out-dir', pkg, '--out-name', 'cloud_map_generator_wasm', wasm]);
   const bg = join(pkg, 'cloud_map_generator_wasm_bg.wasm');
+  checkExternrefTable(bg, 'wasm-bindgen');
+  // The features rustc enables by default for wasm32-unknown-unknown: wasm-opt must keep them all, reference types
+  // above all (wasm-bindgen's externref table). An old wasm-opt (binaryen 108, Ubuntu's) left the module's exported
+  // externref table pointing at the function table, and the page failed with "Table.grow(): failed to grow table".
+  const features = ['--enable-bulk-memory', '--enable-nontrapping-float-to-int', '--enable-sign-ext', '--enable-mutable-globals', '--enable-reference-types', '--enable-multivalue'];
+  let optimized = false;
   try {
-    run('wasm-opt', ['-O3', '--enable-bulk-memory', '--enable-nontrapping-float-to-int', '--enable-sign-ext', '--enable-mutable-globals', '-o', bg, bg]);
-    console.log('wasm-opt: applied');
+    run('wasm-opt', ['-O3', ...features, '-o', bg, bg]);
+    optimized = true;
   } catch {
     console.log('wasm-opt: not available, the module is shipped as the linker made it');
   }
+  if (optimized) {
+    checkExternrefTable(bg, 'wasm-opt');
+    console.log('wasm-opt: applied');
+  }
   console.log(`wasm: web/pkg/cloud_map_generator_wasm_bg.wasm, ${(statSync(bg).size / 1e6).toFixed(2)} MB`);
+}
+
+// The table the glue grows at start (`__wbindgen_externrefs`) must be an externref table with room to grow: read the
+// module's table and export sections, so a broken optimizer fails the build instead of the page.
+function checkExternrefTable(file, step) {
+  const b = readFileSync(file);
+  let p = 8;
+  const leb = () => { let r = 0; let s = 0; let x; do { x = b[p++]; r += (x & 0x7f) * 2 ** s; s += 7; } while (x & 0x80); return r; };
+  const name = () => { const n = leb(); const s = b.subarray(p, p + n).toString(); p += n; return s; };
+  const limits = () => { const flags = b[p++]; const min = leb(); return { min, max: flags & 1 ? leb() : null }; };
+  const tables = [];
+  let exported = null;
+  while (p < b.length) {
+    const id = b[p++];
+    const end = leb() + p;
+    if (id === 2) { // imports: imported tables come first in the index space
+      for (let i = leb(); i > 0; i--) {
+        name(); name();
+        const kind = b[p++];
+        if (kind === 0) leb();
+        else if (kind === 1) { const type = b[p++]; tables.push({ type, ...limits() }); }
+        else if (kind === 2) limits();
+        else if (kind === 3) p += 2;
+        else if (kind === 4) { p++; leb(); }
+      }
+    } else if (id === 4) {
+      for (let i = leb(); i > 0; i--) { const type = b[p++]; tables.push({ type, ...limits() }); }
+    } else if (id === 7) {
+      for (let i = leb(); i > 0; i--) { const n = name(); const kind = b[p++]; const index = leb(); if (kind === 1 && n === '__wbindgen_externrefs') exported = index; }
+    }
+    p = end;
+  }
+  if (exported === null) return; // a module with no externref table: nothing to check
+  const t = tables[exported];
+  if (!t || t.type !== 0x6f || (t.max !== null && t.max - t.min < 4)) {
+    throw new Error(`${step} left __wbindgen_externrefs on table ${exported} (${t ? `type 0x${t.type.toString(16)}, ${t.min}..${t.max ?? 'no max'}` : 'missing'}): the engine would fail to start. Use a recent binaryen (the Pages workflow pins its release), or remove wasm-opt from the PATH.`);
+  }
 }
 
 if (!existsSync(web)) mkdirSync(web, { recursive: true });

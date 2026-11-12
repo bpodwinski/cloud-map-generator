@@ -73,7 +73,7 @@ const els = {
   cyclonesDesc: $('#st-cyclones-desc'), texel: $('#st-texel'), texelDesc: $('#st-texel-desc'), warnings: $('#warnings'),
   tabs: $('#tabs'), downloadBox: $('#download'), downloadButton: $('#downloadButton'), downloadMenu: $('#downloadMenu'),
   panel: $('#panel'), empty: $('#empty'), emptyTitle: $('#emptyTitle'), emptyText: $('#emptyText'), emptyAction: $('#emptyAction'),
-  stage: $('#stage'), mapImg: $('#mapImg'), globe: $('#globe'), loadingBox: $('#loadingBox'),
+  stage: $('#stage'), mapImg: $('#mapImg'), globe: $('#globe'), globeGpu: $('#globeGpu'), loadingBox: $('#loadingBox'),
   loadingText: $('#loadingText'), loadingHint: $('#loadingHint'),
   readoutRow: $('#readoutRow'), readout: $('#readout'), caption: $('#caption'),
   details: $('#details'), metricsSub: $('#metricsSub'), metricsNote: $('#metricsNote'), metricsNoteText: $('#metricsNoteText'),
@@ -853,6 +853,20 @@ function drawGlobe(quality) {
   const p = state.product;
   const canvas = els.globe;
   if (!p || !p.pixels || state.view !== 'globe') return;
+  if (gpuGlobe.device && p.w <= gpuGlobe.maxSize) {
+    const g = globeGeometry(canvas, 1);
+    if (g.rect.width < 2) return;
+    // The 2D canvas stays underneath, empty, for the pointer and the keys.
+    if (!gpuGlobe.cleared) {
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      gpuGlobe.cleared = true;
+    }
+    drawGlobeGpu(p, g);
+    return;
+  }
+  // Without WebGPU (or for a map wider than its largest texture): the CPU projection below.
+  els.globeGpu.classList.add('invisible');
+  gpuGlobe.cleared = false;
   const g = globeGeometry(canvas, quality);
   if (g.rect.width < 2) return;
   if (canvas.width !== g.W || canvas.height !== g.H) {
@@ -968,6 +982,181 @@ function drawGlobe(quality) {
     }
   }
   ctx.putImageData(globeImage, 0, 0);
+}
+
+// ---------------------------------------------------------------------------
+// Globe on the GPU: raw WebGPU, one full-screen triangle, the sphere in the fragment shader
+// ---------------------------------------------------------------------------
+// Same orthographic view, radius and sampling as drawGlobe (so the pointer readout and the drag stay exact), plus
+// light: a fixed sun up and to the left, a soft terminator, a dim night side, haze at the limb and a thin halo.
+
+const GLOBE_WGSL = /* wgsl */ `
+struct U {
+  size: vec2f,    // canvas, device pixels
+  tex: vec2f,     // map, texels
+  ground: vec3f,  // 0..1
+  R: f32,         // sphere radius, device pixels
+  lon0: f32,
+  lat0: f32,
+  mode: f32,      // 0 coverage, 1 type, 2 high-cloud share, 3 wind
+  pad: f32,
+};
+@group(0) @binding(0) var<uniform> u: U;
+@group(0) @binding(1) var img: texture_2d<f32>;
+
+const PI = 3.14159265;
+const SKY = vec3f(0.55, 0.72, 1.0);
+
+@vertex fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
+  let p = vec2f(f32((i << 1u) & 2u), f32(i & 2u));
+  return vec4f(p * 2.0 - 1.0, 0.0, 1.0);
+}
+
+fn at(x: i32, y: i32) -> vec4f { return textureLoad(img, vec2i(x, y), 0) * 255.0; }
+
+@fragment fn fs(@builtin(position) pos: vec4f) -> @location(0) vec4f {
+  let sun = normalize(vec3f(-0.42, 0.38, 0.82));
+  let c = u.size * 0.5;
+  let n2 = vec2f(pos.x - c.x, c.y - pos.y) / u.R;
+  let r = length(n2);
+  let atmo = mix(u.ground, SKY, 0.55);
+  let t = clamp((r - 1.0) / 0.05, 0.0, 1.0);
+  let side = 0.15 + 0.85 * smoothstep(-0.4, 0.6, dot(n2 / max(r, 1e-4), sun.xy));
+  let haloA = (1.0 - t) * (1.0 - t) * 0.55 * side;
+  let cover = clamp((1.0 - r) * u.R + 0.5, 0.0, 1.0);
+  if (cover <= 0.0) { return vec4f(atmo * haloA, haloA); }
+
+  // The point of the sphere under this pixel, then its texel (bilinear by hand: wrap in x, clamp in y).
+  let nz = sqrt(max(0.0, 1.0 - dot(n2, n2)));
+  let sinL = sin(u.lat0);
+  let cosL = cos(u.lat0);
+  let lat = asin(clamp(nz * sinL + n2.y * cosL, -1.0, 1.0));
+  let lon = u.lon0 + atan2(n2.x, nz * cosL - n2.y * sinL);
+  var uu = lon / (2.0 * PI) + 0.5;
+  uu = uu - floor(uu);
+  let vv = 0.5 - lat / PI;
+  let w = i32(u.tex.x);
+  let h = i32(u.tex.y);
+  let fx = uu * u.tex.x - 0.5;
+  let fy = vv * u.tex.y - 0.5;
+  let ix = i32(floor(fx));
+  let iy = i32(floor(fy));
+  let tx = fx - floor(fx);
+  let ty = fy - floor(fy);
+  let xa = select(ix, w - 1, ix < 0);
+  let xb = select(xa + 1, 0, xa + 1 >= w);
+  let ya = clamp(iy, 0, h - 1);
+  let yb = clamp(iy + 1, 0, h - 1);
+  let s00 = at(xa, ya);
+  let s10 = at(xb, ya);
+  let s01 = at(xa, yb);
+  let s11 = at(xb, yb);
+  let w00 = (1.0 - tx) * (1.0 - ty);
+  let w10 = tx * (1.0 - ty);
+  let w01 = (1.0 - tx) * ty;
+  let w11 = tx * ty;
+
+  var col: vec3f;
+  let mode = i32(u.mode);
+  if (mode == 2) {
+    // High-cloud share: 255 means "none", so weight only the texels that carry a value.
+    var sum = 0.0;
+    var acc = 0.0;
+    if (s00.r < 254.5) { sum += w00; acc += w00 * s00.r; }
+    if (s10.r < 254.5) { sum += w10; acc += w10 * s10.r; }
+    if (s01.r < 254.5) { sum += w01; acc += w01 * s01.r; }
+    if (s11.r < 254.5) { sum += w11; acc += w11 * s11.r; }
+    col = select(vec3f(acc / max(sum, 1e-6) / 255.0), u.ground, sum < 1e-6);
+  } else if (mode == 3) {
+    let e = (s00.r * w00 + s10.r * w10 + s01.r * w01 + s11.r * w11 - 128.0) * 0.5;
+    let n = (s00.g * w00 + s10.g * w10 + s01.g * w01 + s11.g * w11 - 128.0) * 0.5;
+    col = mix(u.ground, vec3f(1.0), min(1.0, length(vec2f(e, n)) / 35.0));
+  } else {
+    let g = (s00.r * w00 + s10.r * w10 + s01.r * w01 + s11.r * w11) / 255.0;
+    col = select(mix(u.ground, vec3f(1.0), g), vec3f(g), mode == 1);
+  }
+
+  let day = smoothstep(-0.15, 0.45, dot(vec3f(n2, nz), sun));
+  col = col * mix(0.22, 1.0, day);
+  col = mix(col, atmo * (0.25 + 0.75 * day), pow(1.0 - nz, 3.0) * 0.6);
+  // Premultiplied: the sphere over its own halo at the antialiased edge.
+  return vec4f(col * cover + atmo * haloA * (1.0 - cover), cover + haloA * (1.0 - cover));
+}
+`;
+
+const gpuGlobe = { device: null, ctx: null, pipeline: null, ubo: null, tex: null, texFor: null, bind: null, maxSize: 0, cleared: false };
+
+// Quietly absent without WebGPU (or on any error): the 2D projection stays.
+async function initGpuGlobe() {
+  try {
+    if (!navigator.gpu) return;
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) return;
+    const device = await adapter.requestDevice();
+    const ctx = els.globeGpu.getContext('webgpu');
+    if (!ctx) return;
+    const format = navigator.gpu.getPreferredCanvasFormat();
+    ctx.configure({ device, format, alphaMode: 'premultiplied' });
+    device.pushErrorScope('validation');
+    const module = device.createShaderModule({ code: GLOBE_WGSL });
+    const pipeline = device.createRenderPipeline({
+      layout: 'auto',
+      vertex: { module, entryPoint: 'vs' },
+      fragment: { module, entryPoint: 'fs', targets: [{ format }] },
+      primitive: { topology: 'triangle-list' },
+    });
+    const ubo = device.createBuffer({ size: 48, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+    const error = await device.popErrorScope();
+    if (error) {
+      console.warn('WebGPU globe disabled:', error.message);
+      device.destroy();
+      return;
+    }
+    Object.assign(gpuGlobe, { device, ctx, pipeline, ubo, maxSize: device.limits.maxTextureDimension2D });
+    device.lost.then(() => {
+      Object.assign(gpuGlobe, { device: null, tex: null, texFor: null, bind: null });
+      drawGlobe(1);
+    });
+    drawGlobe(1);
+  } catch (err) {
+    console.warn('WebGPU globe disabled:', err);
+  }
+}
+
+function drawGlobeGpu(p, g) {
+  const G = gpuGlobe;
+  const canvas = els.globeGpu;
+  if (canvas.width !== g.W || canvas.height !== g.H) {
+    canvas.width = g.W;
+    canvas.height = g.H;
+  }
+  // The texture follows the product on show: uploaded once per product, not per frame.
+  if (G.texFor !== p) {
+    if (G.tex) G.tex.destroy();
+    G.tex = G.device.createTexture({ size: [p.w, p.h], format: 'rgba8unorm', usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST });
+    G.device.queue.writeTexture({ texture: G.tex }, p.pixels, { bytesPerRow: p.w * 4 }, [p.w, p.h]);
+    G.bind = G.device.createBindGroup({
+      layout: G.pipeline.getBindGroupLayout(0),
+      entries: [{ binding: 0, resource: { buffer: G.ubo } }, { binding: 1, resource: G.tex.createView() }],
+    });
+    G.texFor = p;
+  }
+  const kind = p.kind;
+  const mode = kind === 'coverage' ? 0 : kind === 'type' ? 1 : kind === 'high_share' ? 2 : 3;
+  const [gr, gg, gb] = globeGround();
+  G.device.queue.writeBuffer(G.ubo, 0, new Float32Array([
+    g.W, g.H, p.w, p.h, gr / 255, gg / 255, gb / 255, g.R, state.globe.lon * DEG, state.globe.lat * DEG, mode, 0,
+  ]));
+  const encoder = G.device.createCommandEncoder();
+  const pass = encoder.beginRenderPass({
+    colorAttachments: [{ view: G.ctx.getCurrentTexture().createView(), loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 0] }],
+  });
+  pass.setPipeline(G.pipeline);
+  pass.setBindGroup(0, G.bind);
+  pass.draw(3);
+  pass.end();
+  G.device.queue.submit([encoder.finish()]);
+  canvas.classList.remove('invisible');
 }
 
 let globeRaf = 0;
@@ -1644,6 +1833,7 @@ async function init() {
 
   renderTabs();
   renderViewButtons();
+  initGpuGlobe(); // in the background: the globe is lit once it is ready, drawn in 2D until then
   await start();
 }
 

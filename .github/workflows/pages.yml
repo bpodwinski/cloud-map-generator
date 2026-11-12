@@ -51,8 +51,19 @@ jobs:
           tool: wasm-bindgen@${{ steps.bindgen.outputs.version }}
 
       # Optional: wasm-opt shrinks and speeds up the module; the build script uses it when it is on the PATH.
+      # A pinned binaryen release, not Ubuntu's package: its binaryen 108 broke wasm-bindgen's externref table
+      # ("Table.grow(): failed to grow table" in the browser). The build script checks the table after wasm-opt.
       - name: Install binaryen (wasm-opt)
-        run: sudo apt-get update && sudo apt-get install -y binaryen
+        env:
+          BINARYEN: version_133
+        run: |
+          url="https://github.com/WebAssembly/binaryen/releases/download/$BINARYEN/binaryen-$BINARYEN-x86_64-linux.tar.gz"
+          curl -sSfL -o /tmp/binaryen.tar.gz "$url"
+          curl -sSfL -o /tmp/binaryen.tar.gz.sha256 "$url.sha256"
+          echo "$(cut -d' ' -f1 /tmp/binaryen.tar.gz.sha256)  /tmp/binaryen.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/binaryen.tar.gz -C /tmp
+          echo "/tmp/binaryen-$BINARYEN/bin" >> "$GITHUB_PATH"
+          "/tmp/binaryen-$BINARYEN/bin/wasm-opt" --version
 
       # The gate of the in-browser CPU engine: a map cut in bands equals the one-piece engine to float rounding.
       - name: Test the banded CPU engine
