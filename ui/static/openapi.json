@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Cloud Map Generator API",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "summary": "Global cloud-coverage maps for any planet, generated from its physics.",
     "description": "The JSON API of `cloud-map-generator serve` (the local server, on 127.0.0.1) and of the static site, where the same routes are answered in the browser by the WebAssembly engine (`web/engine.js`): same JSON, same status codes, same messages.\n\n- One generation runs at a time: a second `POST /api/generate` while one runs is a `429`.\n- The last 8 results stay in memory and are served under `/api/result/{id}/{name}` until a newer one pushes them out (then `404`).\n- The local server answers on `127.0.0.1` and `localhost` only, sends no CORS header, and refuses a foreign `Host` or `Origin` (`403`). A request without `Origin` (curl, a script) passes. Bodies are limited to 64 KiB.\n- Errors are always `{\"error\": \"<message>\"}`; a `400` names the field.\n\nThe prose reference is `ui/README.md`; the compute modes are specified in `docs/compute-modes.html`.",
     "license": {
