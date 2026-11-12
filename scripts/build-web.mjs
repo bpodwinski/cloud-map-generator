@@ -30,9 +30,9 @@ function buildPage() {
   if (!html.includes(module)) throw new Error('ui/static/index.html no longer loads /static/app.js: update scripts/build-web.mjs');
   html = html.replace(module, '<script type="module" src="./app.js"></script>');
   // The engine adapter must be in place before the page's first call to /api/defaults.
-  const head = '<link rel="icon" href="data:," />';
-  if (!html.includes(head)) throw new Error('ui/static/index.html changed its <head>: update scripts/build-web.mjs');
-  html = html.replace(head, `${head}\n  <script src="./engine.js"></script>`);
+  const head = '</head>';
+  if (!html.includes(head)) throw new Error('ui/static/index.html has no </head>: update scripts/build-web.mjs');
+  html = html.replace(head, `  <script src="./engine.js"></script>\n${head}`);
   writeFileSync(join(web, 'index.html'), html);
   console.log('page: web/index.html, web/app.js');
 }

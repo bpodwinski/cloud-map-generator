@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cloud Map Generator</title>
-  <link rel="icon" href="data:," />
+  <!-- Inline, so the page that `serve` embeds and the static site need no icon file: a white cloud (Lucide) on the primary colour. -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23605dff'/%3E%3Cpath transform='translate(4 4)' fill='%23fff' d='M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'/%3E%3C/svg%3E" />
   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
@@ -15,7 +16,7 @@
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
-<body class="min-h-screen overflow-x-clip">
+<body class="min-h-screen overflow-x-clip lg:flex lg:h-dvh lg:min-h-0 lg:flex-col lg:overflow-hidden">
 
   <!-- Lucide icons (ISC licence), 24x24, drawn as strokes. Used through <use href="#i-name">. -->
   <svg class="absolute size-0" aria-hidden="true" focusable="false">
@@ -37,7 +38,7 @@
     <symbol fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   </svg>
 
-  <header class="navbar sticky top-0 z-30 min-h-12 border-b border-base-300 bg-base-200 px-4">
+  <header class="navbar sticky top-0 z-30 min-h-12 shrink-0 border-b border-base-300 bg-base-200 px-4">
     <div class="navbar-start gap-2">
       <h1 class="text-base font-semibold tracking-tight">Cloud Map Generator</h1>
       <span id="version" class="text-xs text-base-content/60"></span>
@@ -62,10 +63,10 @@
     </div>
   </header>
 
-  <main class="grid w-full gap-4 p-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-6 2xl:grid-cols-[24rem_minmax(0,1fr)]">
+  <main class="grid w-full gap-4 p-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[22rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-6 2xl:grid-cols-[24rem_minmax(0,1fr)]">
 
     <!-- Controls -->
-    <form id="controls" class="flex min-w-0 flex-col gap-2.5 lg:sticky lg:top-12 lg:max-h-[calc(100dvh-4.5rem)] lg:self-start lg:overflow-y-auto" novalidate autocomplete="off">
+    <form id="controls" class="flex min-w-0 flex-col gap-2.5 lg:h-full lg:overflow-y-auto" novalidate autocomplete="off">
 
       <div role="group" aria-labelledby="g-preset" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
         <div class="flex items-center justify-between gap-2">
@@ -209,7 +210,7 @@
     </form>
 
     <!-- Main area -->
-    <section class="flex min-w-0 flex-col gap-4">
+    <section class="flex min-w-0 flex-col gap-4 lg:h-full lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
 
       <div id="warnings" class="flex flex-col gap-2 empty:hidden"></div>
 
