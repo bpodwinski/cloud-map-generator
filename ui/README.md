@@ -31,6 +31,8 @@ JSON in and out, UTF-8. Errors are always `{"error": "<message>"}`.
 | --- | --- |
 | `GET /` | `ui/static/index.html` |
 | `GET /static/<file>` | A file of `ui/static/` (no way out of that folder) |
+| `GET /openapi.json` | The OpenAPI 3.1 document of this API (`ui/static/openapi.json`) |
+| `GET /docs` | Swagger UI over that document, with "Try it out" against this server |
 | `GET /api/defaults` | Version, backend, presets, widths, limits, time estimates, compute capabilities |
 | `POST /api/derive` | The physics numbers of a body (fast, no generation) |
 | `POST /api/generate` | Generate one map, measure it, keep the files |

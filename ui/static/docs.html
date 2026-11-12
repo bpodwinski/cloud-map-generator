@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cloud Map Generator API</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23605dff'/%3E%3Cpath transform='translate(4 4)' fill='%23fff' d='M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #fff; }
+    .topbar-cmg { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: #1d232a; color: #fff; font: 600 15px/1.2 system-ui, sans-serif; }
+    .topbar-cmg a { color: #a6adbb; font-weight: 500; text-decoration: none; }
+    .topbar-cmg a:hover { color: #fff; }
+  </style>
+</head>
+<body>
+  <!-- Swagger UI over openapi.json, next to this page. On the static site the in-browser engine (engine.js, added by
+       scripts/build-web.mjs before </head>) answers "Try it out" like the local server does. -->
+  <div class="topbar-cmg"><span>Cloud Map Generator API</span><a id="appLink" href="./">Back to the generator</a><a href="openapi.json">openapi.json</a></div>
+  <div id="swagger"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+  <script>
+    // Locally this page is /docs (the generator is /) or /static/docs.html; on the static site it is docs.html.
+    if (location.pathname === '/docs' || location.pathname.startsWith('/static/')) document.getElementById('appLink').href = '/';
+    window.ui = SwaggerUIBundle({
+      url: new URL('openapi.json', location.href).href,
+      dom_id: '#swagger',
+      deepLinking: true,
+      tryItOutEnabled: true,
+      displayRequestDuration: true,
+      defaultModelsExpandDepth: 0,
+    });
+  </script>
+</body>
+</html>

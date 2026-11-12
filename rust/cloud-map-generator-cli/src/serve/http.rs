@@ -216,6 +216,9 @@ fn get(state: &AppState, path: &str) -> Result<HttpResponse, ApiError> {
             Some(bytes) => Ok(send(200, "image/x-icon", bytes, &[])),
             None => Ok(send(204, "image/x-icon", Vec::new(), &[])),
         },
+        // The API described (OpenAPI 3.1) and browsable (Swagger UI): files of ui/static/ at short paths.
+        "/openapi.json" => static_response(state, "openapi.json"),
+        "/docs" => static_response(state, "docs.html"),
         "/api/defaults" => Ok(json_response(200, &defaults_json(state))),
         "/api/reference/coverage.png" => Ok(send(200, "image/png", state.reference_png().to_vec(), &[])),
         _ => {
@@ -269,7 +272,7 @@ fn dispatch(state: &AppState, req: &HttpRequest) -> Result<HttpResponse, ApiErro
     check_origin(state, req)?;
     let method = if method == "HEAD" { "GET" } else { method.as_str() };
     let path = path_of(&req.target);
-    let known_get = matches!(path, "/" | "/favicon.ico" | "/api/defaults" | "/api/reference/coverage.png") || path.starts_with("/static/") || result_route(path).is_some();
+    let known_get = matches!(path, "/" | "/favicon.ico" | "/docs" | "/openapi.json" | "/api/defaults" | "/api/reference/coverage.png") || path.starts_with("/static/") || result_route(path).is_some();
     let known_post = matches!(path, "/api/derive" | "/api/generate");
     if method == "GET" && known_get {
         return get(state, path);

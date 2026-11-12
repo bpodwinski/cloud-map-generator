@@ -1,0 +1,1292 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cloud Map Generator API",
+    "version": "0.2.0",
+    "summary": "Global cloud-coverage maps for any planet, generated from its physics.",
+    "description": "The JSON API of `cloud-map-generator serve` (the local server, on 127.0.0.1) and of the static site, where the same routes are answered in the browser by the WebAssembly engine (`web/engine.js`): same JSON, same status codes, same messages.\n\n- One generation runs at a time: a second `POST /api/generate` while one runs is a `429`.\n- The last 8 results stay in memory and are served under `/api/result/{id}/{name}` until a newer one pushes them out (then `404`).\n- The local server answers on `127.0.0.1` and `localhost` only, sends no CORS header, and refuses a foreign `Host` or `Origin` (`403`). A request without `Origin` (curl, a script) passes. Bodies are limited to 64 KiB.\n- Errors are always `{\"error\": \"<message>\"}`; a `400` names the field.\n\nThe prose reference is `ui/README.md`; the compute modes are specified in `docs/compute-modes.html`.",
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "The server or page this document was loaded from"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Setup",
+      "description": "What this backend offers: presets, widths, limits, compute modes."
+    },
+    {
+      "name": "Physics",
+      "description": "The numbers a body implies, without generating."
+    },
+    {
+      "name": "Maps",
+      "description": "Generate a map and fetch its files."
+    }
+  ],
+  "paths": {
+    "/api/defaults": {
+      "get": {
+        "tags": [
+          "Setup"
+        ],
+        "operationId": "getDefaults",
+        "summary": "Presets, widths, limits, time estimates and compute capabilities",
+        "description": "Everything a client needs to build a valid request: the bodies it can start from, the map widths this backend accepts, the limits of each field and the compute modes it offers.",
+        "responses": {
+          "200": {
+            "description": "The defaults.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Defaults"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          }
+        }
+      }
+    },
+    "/api/derive": {
+      "post": {
+        "tags": [
+          "Physics"
+        ],
+        "operationId": "derive",
+        "summary": "The physics numbers of a body (fast, no generation)",
+        "description": "Hadley edge, storm track, deformation radius, cyclones per hemisphere and texel size at each width. A body that `POST /api/generate` would refuse (a non-water regime, too many cyclones) still gets an answer here, with a warning.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeriveRequest"
+              },
+              "examples": {
+                "earth": {
+                  "summary": "Earth",
+                  "value": {
+                    "body": {
+                      "rotation_period_days": 0.99727,
+                      "radius_km": 6371,
+                      "gravity_mps2": 9.81,
+                      "scale_height_km": 8,
+                      "cloud_regime": "water"
+                    }
+                  }
+                },
+                "fast": {
+                  "summary": "A fast rotator (9.6 h day)",
+                  "value": {
+                    "body": {
+                      "rotation_period_days": 0.4,
+                      "radius_km": 6371,
+                      "gravity_mps2": 9.81,
+                      "scale_height_km": 8
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The derived numbers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Derived"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          }
+        }
+      }
+    },
+    "/api/generate": {
+      "post": {
+        "tags": [
+          "Maps"
+        ],
+        "operationId": "generate",
+        "summary": "Generate one map, measure it against Earth, keep its files",
+        "description": "Takes seconds to minutes: see `estimate_seconds` in `GET /api/defaults`. The request is checked completely before anything runs, so a refused request costs nothing and keeps no result. The images and downloads of the answer are links to `GET /api/result/{id}/{name}`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              },
+              "examples": {
+                "earth": {
+                  "summary": "Earth, 1024 px",
+                  "value": {
+                    "body": {
+                      "rotation_period_days": 0.99727,
+                      "radius_km": 6371,
+                      "gravity_mps2": 9.81,
+                      "scale_height_km": 8,
+                      "cloud_regime": "water"
+                    },
+                    "seed": 42,
+                    "width": 1024,
+                    "options": {
+                      "compute": "auto"
+                    }
+                  }
+                },
+                "land": {
+                  "summary": "Earth over a synthetic world, 512 px",
+                  "value": {
+                    "body": {
+                      "rotation_period_days": 0.99727,
+                      "radius_km": 6371,
+                      "gravity_mps2": 9.81,
+                      "scale_height_km": 8
+                    },
+                    "seed": 7,
+                    "width": 512,
+                    "options": {
+                      "surface": "synthetic",
+                      "match_earth": true
+                    }
+                  }
+                },
+                "mars": {
+                  "summary": "Mars (non-water: needs experiment)",
+                  "value": {
+                    "body": {
+                      "rotation_period_days": 1.02596,
+                      "radius_km": 3389.5,
+                      "gravity_mps2": 3.721,
+                      "scale_height_km": 11.1,
+                      "cloud_regime": "thin water ice"
+                    },
+                    "seed": 42,
+                    "width": 512,
+                    "options": {
+                      "experiment": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The map, its measures and the links to its files.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "description": "A generation is already running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "a generation is already running"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/api/result/{id}/{name}": {
+      "get": {
+        "tags": [
+          "Maps"
+        ],
+        "operationId": "getResultFile",
+        "summary": "A file of a kept result",
+        "description": "Images are 8-bit PNGs, north-up: `coverage` gray (0..255 = fraction 0..1); `type` gray (0 stratiform .. 255 convective); `high_share` gray (0..254 = 0..1, 255 = none); `wind` RGB (R east, G north, m/s = (byte - 128) x 0.5) at `min(1024, width)` wide. Downloads (`master16.png`, a 16-bit gray PNG; `coverage.r8.gz`, gzip of `width` x `height` bytes with rows **south-up**; `meta.json`, the sidecar) are sent with `Content-Disposition: attachment`. A map of 8192 px or more keeps only its images and sidecar here: its large files are on disk (`files` of the answer).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The `id` of a `POST /api/generate` answer.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{12}$"
+            },
+            "example": "9f2c41aa07be"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "coverage.png",
+                "type.png",
+                "high_share.png",
+                "wind.png",
+                "master16.png",
+                "coverage.r8.gz",
+                "meta.json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The file.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "image/png"
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "application/gzip"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "description": "No such result (pushed out by newer ones, or the server restarted), or no such file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reference/coverage.png": {
+      "get": {
+        "tags": [
+          "Maps"
+        ],
+        "operationId": "getReference",
+        "summary": "Earth's reference map",
+        "description": "2048 x 1024, 8-bit gray, north-up: the Blue Marble cloud fraction the metrics compare against.",
+        "responses": {
+          "200": {
+            "description": "The PNG.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "contentMediaType": "image/png"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "BadRequest": {
+        "description": "Bad input: the message names the field, or the reason of a refusal (non-water regime without `experiment`, too many cyclones, a compute mode this backend does not offer).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "body.radius_km: 1 is outside [500, 30000]"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "A foreign `Host` (DNS rebinding) or `Origin` (a page of another site) on the local server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "MethodNotAllowed": {
+        "description": "Wrong method for this path.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Anything else; the message is the cause.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Body": {
+        "type": "object",
+        "description": "A planet. The four numbers are required and must lie inside `limits` of `GET /api/defaults`.",
+        "required": [
+          "rotation_period_days",
+          "radius_km",
+          "gravity_mps2",
+          "scale_height_km"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "rotation_period_days": {
+            "type": "number",
+            "description": "Sidereal day. Negative: retrograde spin. Zero: no spin, one global Hadley cell.",
+            "examples": [
+              0.99727
+            ]
+          },
+          "radius_km": {
+            "type": "number",
+            "examples": [
+              6371
+            ]
+          },
+          "gravity_mps2": {
+            "type": "number",
+            "examples": [
+              9.81
+            ]
+          },
+          "scale_height_km": {
+            "type": "number",
+            "examples": [
+              8
+            ]
+          },
+          "cloud_regime": {
+            "type": "string",
+            "default": "water",
+            "description": "Anything but `water` needs `options.experiment` to generate: the amount of cloud stays Earth's.",
+            "examples": [
+              "water",
+              "methane"
+            ]
+          }
+        }
+      },
+      "Options": {
+        "type": "object",
+        "description": "Every key is optional and off by default; unknown keys are refused.",
+        "additionalProperties": false,
+        "properties": {
+          "match_earth": {
+            "type": "boolean",
+            "default": false,
+            "description": "Match Earth's per-scale, per-zone statistics."
+          },
+          "isotropic": {
+            "type": "boolean",
+            "default": false,
+            "description": "Baseline with no flow: no stirring, no vortices, the surface ignored."
+          },
+          "experiment": {
+            "type": "boolean",
+            "default": false,
+            "description": "Allow a cloud regime that is not water."
+          },
+          "surface": {
+            "type": "string",
+            "enum": [
+              "none",
+              "synthetic"
+            ],
+            "default": "none",
+            "description": "`synthetic`: a made-up five-continent world (land and relief), at most 1024 wide."
+          },
+          "compute": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cpu",
+              "gpu",
+              "hybrid"
+            ],
+            "default": "auto",
+            "description": "Where the work runs, not what map it makes. An explicit mode the backend does not offer is a `400` that gives the reason; `auto` never fails for lack of a device."
+          }
+        }
+      },
+      "DeriveRequest": {
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/Body"
+          }
+        }
+      },
+      "GenerateRequest": {
+        "type": "object",
+        "required": [
+          "body",
+          "seed",
+          "width"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/Body"
+          },
+          "seed": {
+            "type": "integer",
+            "description": "Inside `limits.seed`.",
+            "examples": [
+              42
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "description": "One of `widths` of `GET /api/defaults`; the height is half.",
+            "examples": [
+              1024
+            ]
+          },
+          "options": {
+            "$ref": "#/components/schemas/Options"
+          }
+        }
+      },
+      "Range": {
+        "type": "array",
+        "description": "`[min, max]`, both included.",
+        "prefixItems": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "Preset": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "rotation_period_days",
+          "radius_km",
+          "gravity_mps2",
+          "scale_height_km",
+          "cloud_regime",
+          "experiment_required",
+          "note"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "examples": [
+              "earth"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "examples": [
+              "Earth"
+            ]
+          },
+          "rotation_period_days": {
+            "type": "number"
+          },
+          "radius_km": {
+            "type": "number"
+          },
+          "gravity_mps2": {
+            "type": "number"
+          },
+          "scale_height_km": {
+            "type": "number"
+          },
+          "cloud_regime": {
+            "type": "string"
+          },
+          "experiment_required": {
+            "type": "boolean",
+            "description": "True when the regime is not water: generating needs `options.experiment`."
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      },
+      "ComputeMode": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "available",
+          "reason",
+          "description",
+          "detail"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cpu",
+              "gpu",
+              "hybrid"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why the mode is not available; null when it is."
+          },
+          "description": {
+            "type": "string"
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "examples": [
+              "16 threads"
+            ]
+          },
+          "max_width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "The widest map this mode makes on this machine; null when not available."
+          },
+          "estimate_seconds": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Seconds by width, on a quiet machine."
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "description": "The compute modes this backend offers (`docs/compute-modes.html`). `modes` always holds the four keys, in this order.",
+        "required": [
+          "default",
+          "engine",
+          "modes",
+          "devices"
+        ],
+        "properties": {
+          "default": {
+            "type": "string",
+            "enum": [
+              "auto"
+            ]
+          },
+          "engine": {
+            "type": "string",
+            "description": "`rust` for the local server, `wasm` for the in-browser engine.",
+            "examples": [
+              "rust",
+              "wasm"
+            ]
+          },
+          "machine": {
+            "type": "object",
+            "description": "Free memory and disk, and the large widths they allow (local server)."
+          },
+          "modes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComputeMode"
+            },
+            "minItems": 4,
+            "maxItems": 4
+          },
+          "devices": {
+            "type": "object",
+            "required": [
+              "cpu",
+              "gpu"
+            ],
+            "properties": {
+              "cpu": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "threads": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "gpu": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "backend"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "backend": {
+                        "type": "string"
+                      },
+                      "float64": {
+                        "type": "boolean"
+                      },
+                      "df64": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "Defaults": {
+        "type": "object",
+        "required": [
+          "version",
+          "backend",
+          "presets",
+          "widths",
+          "limits",
+          "max_cyclones_per_hemisphere",
+          "estimate_seconds",
+          "compute"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "examples": [
+              "0.1.0"
+            ]
+          },
+          "backend": {
+            "type": "string",
+            "examples": [
+              "rust"
+            ]
+          },
+          "presets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Preset"
+            }
+          },
+          "widths": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "examples": [
+              [
+                512,
+                1024,
+                2048,
+                4096
+              ]
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "required": [
+              "seed",
+              "rotation_period_days",
+              "radius_km",
+              "gravity_mps2",
+              "scale_height_km"
+            ],
+            "properties": {
+              "seed": {
+                "$ref": "#/components/schemas/Range"
+              },
+              "rotation_period_days": {
+                "$ref": "#/components/schemas/Range"
+              },
+              "radius_km": {
+                "$ref": "#/components/schemas/Range"
+              },
+              "gravity_mps2": {
+                "$ref": "#/components/schemas/Range"
+              },
+              "scale_height_km": {
+                "$ref": "#/components/schemas/Range"
+              }
+            }
+          },
+          "max_cyclones_per_hemisphere": {
+            "type": "integer",
+            "examples": [
+              32
+            ]
+          },
+          "estimate_seconds": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Seconds by width (quiet CPU)."
+          },
+          "compute": {
+            "$ref": "#/components/schemas/Capabilities"
+          }
+        }
+      },
+      "Derived": {
+        "type": "object",
+        "required": [
+          "hadley_edge_deg",
+          "storm_track_deg",
+          "has_eddies",
+          "deformation_radius_km",
+          "cyclones_per_hemisphere",
+          "texel_km",
+          "bakeable",
+          "warnings"
+        ],
+        "properties": {
+          "hadley_edge_deg": {
+            "type": "number",
+            "examples": [
+              30
+            ]
+          },
+          "storm_track_deg": {
+            "type": "number",
+            "examples": [
+              51
+            ]
+          },
+          "has_eddies": {
+            "type": "boolean",
+            "description": "False without a storm track (the Hadley cell reaches the pole)."
+          },
+          "deformation_radius_km": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Null for a body with no spin."
+          },
+          "cyclones_per_hemisphere": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Null without a storm track."
+          },
+          "texel_km": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Texel size at the equator, by width."
+          },
+          "bakeable": {
+            "type": "boolean",
+            "description": "True when `POST /api/generate` takes this body without `experiment`."
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Vortex": {
+        "type": "object",
+        "required": [
+          "kind",
+          "lon_deg",
+          "lat_deg",
+          "radius",
+          "omega",
+          "ascent",
+          "age"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "examples": [
+              "cyclone"
+            ]
+          },
+          "lon_deg": {
+            "type": "number",
+            "description": "Wrapped to [-180, 180)."
+          },
+          "lat_deg": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "omega": {
+            "type": "number"
+          },
+          "ascent": {
+            "type": "number"
+          },
+          "age": {
+            "type": "number"
+          }
+        }
+      },
+      "Link": {
+        "type": "object",
+        "required": [
+          "label",
+          "href"
+        ],
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string",
+            "description": "`/api/result/{id}/{name}` (a `blob:` URL on the in-browser engine)."
+          }
+        }
+      },
+      "ComputeUsed": {
+        "type": "object",
+        "required": [
+          "requested",
+          "used",
+          "devices",
+          "note"
+        ],
+        "properties": {
+          "requested": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "cpu",
+              "gpu",
+              "hybrid"
+            ]
+          },
+          "used": {
+            "type": "string",
+            "enum": [
+              "cpu",
+              "gpu",
+              "hybrid"
+            ]
+          },
+          "devices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "share"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "cpu",
+                    "gpu"
+                  ]
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "seconds": {
+                  "type": "number"
+                },
+                "share": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            }
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why an automatic choice went the way it did."
+          }
+        }
+      },
+      "MetricRow": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "generated",
+          "earth",
+          "format",
+          "hint"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "generated": {
+            "type": "number"
+          },
+          "earth": {
+            "type": "number"
+          },
+          "format": {
+            "type": "string",
+            "description": "Number pattern: the zeros after the dot are the decimals.",
+            "examples": [
+              "0.000"
+            ]
+          },
+          "hint": {
+            "type": "string"
+          }
+        }
+      },
+      "GenerateResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "seconds",
+          "width",
+          "height",
+          "compute",
+          "meta",
+          "images",
+          "downloads",
+          "metrics",
+          "zonal",
+          "warnings"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{12}$"
+          },
+          "seconds": {
+            "type": "number"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          },
+          "compute": {
+            "$ref": "#/components/schemas/ComputeUsed"
+          },
+          "meta": {
+            "type": "object",
+            "required": [
+              "hadley_edge_deg",
+              "fine_octaves",
+              "flow",
+              "surface"
+            ],
+            "properties": {
+              "hadley_edge_deg": {
+                "type": "number"
+              },
+              "fine_octaves": {
+                "type": "integer"
+              },
+              "flow": {
+                "type": "object",
+                "required": [
+                  "jet",
+                  "trades",
+                  "polar_easterlies",
+                  "vortices"
+                ],
+                "properties": {
+                  "jet": {
+                    "type": "number"
+                  },
+                  "trades": {
+                    "type": "number"
+                  },
+                  "polar_easterlies": {
+                    "type": "number"
+                  },
+                  "vortices": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Vortex"
+                    }
+                  }
+                }
+              },
+              "surface": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "land_fraction",
+                      "itcz_shift_deg"
+                    ],
+                    "properties": {
+                      "land_fraction": {
+                        "type": "number"
+                      },
+                      "itcz_shift_deg": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "images": {
+            "type": "object",
+            "required": [
+              "coverage",
+              "type",
+              "high_share",
+              "wind"
+            ],
+            "properties": {
+              "coverage": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "high_share": {
+                "type": "string"
+              },
+              "wind": {
+                "type": "string"
+              }
+            }
+          },
+          "image_note": {
+            "type": "string",
+            "description": "Large maps only: the images are a downsample."
+          },
+          "downloads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Link"
+            }
+          },
+          "files": {
+            "type": "array",
+            "description": "Large maps only (local server): the big files, on disk.",
+            "items": {
+              "type": "object",
+              "required": [
+                "label",
+                "key",
+                "path",
+                "bytes"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "bytes": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "banded": {
+            "type": "object",
+            "description": "Large maps only: how the map was cut in bands of rows."
+          },
+          "metrics": {
+            "type": "object",
+            "required": [
+              "table",
+              "earth_label",
+              "note"
+            ],
+            "properties": {
+              "table": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MetricRow"
+                }
+              },
+              "earth_label": {
+                "type": "string"
+              },
+              "note": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Set below 2048 px, where the finest scales are interpolated."
+              }
+            }
+          },
+          "zonal": {
+            "type": "object",
+            "description": "5-degree band means (36 bands) of the generated map, of Earth and of the target profile.",
+            "required": [
+              "lat_deg",
+              "generated",
+              "earth",
+              "target"
+            ],
+            "properties": {
+              "lat_deg": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "generated": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "earth": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "target": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

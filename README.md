@@ -1,5 +1,13 @@
 ﻿# Cloud Map Generator
 
+[![CI](https://github.com/bpodwinski/cloud-map-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/bpodwinski/cloud-map-generator/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/bpodwinski/cloud-map-generator?sort=semver)](https://github.com/bpodwinski/cloud-map-generator/releases/latest)
+[![Live demo](https://img.shields.io/badge/demo-GitHub%20Pages-605dff)](https://bpodwinski.github.io/cloud-map-generator/)
+[![API docs](https://img.shields.io/badge/API-OpenAPI%203.1-6ba539?logo=swagger&logoColor=white)](https://bpodwinski.github.io/cloud-map-generator/docs.html)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Rust](https://img.shields.io/badge/Rust-stable-dea584?logo=rust&logoColor=white)
+![WebAssembly](https://img.shields.io/badge/WebAssembly-WebGPU-654ff0?logo=webassembly&logoColor=white)
+
 Global cloud-coverage maps for any planet, generated offline from its physics. You give a body its
 rotation, radius, gravity and air, and optionally its land and relief. You get an equirectangular
 cloud-fraction map with weather in it: an equatorial convergence band, clear subtropics, storm tracks
@@ -76,6 +84,17 @@ GOLDEN_ROOT=../golden/data/v1 cargo test --workspace
 
 The first Python version of the generator (the oracle the golden cases were frozen from) is kept in the git
 tag `python-reference`.
+
+## API
+
+`cloud-map-generator serve` is driven by a JSON API, described by an OpenAPI 3.1 document
+([ui/static/openapi.json](ui/static/openapi.json)) and browsable with Swagger UI:
+
+- locally: `http://127.0.0.1:8765/docs` (the document at `/openapi.json`);
+- online: [the API page of the demo](https://bpodwinski.github.io/cloud-map-generator/docs.html), where "Try it out" is answered in the browser by the
+  WebAssembly engine, with the same JSON as the local server.
+
+The prose reference is [ui/README.md](ui/README.md).
 
 ## Bodies file
 

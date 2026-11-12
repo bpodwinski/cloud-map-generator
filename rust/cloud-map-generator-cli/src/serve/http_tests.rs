@@ -456,6 +456,51 @@ fn the_embedded_page_is_served_as_the_index_and_under_static() {
     assert_eq!((fav.status, fav.body.len()), (204, 0));
 }
 
+#[test]
+fn the_openapi_document_and_its_swagger_page_are_served_and_match_the_routes() {
+    let s = shared();
+    let spec = get(s, "/openapi.json");
+    assert_eq!((spec.status, spec.header("Content-Type")), (200, Some("application/json; charset=utf-8")));
+    assert_eq!(get(s, "/static/openapi.json").body, spec.body);
+    let docs = get(s, "/docs");
+    assert_eq!((docs.status, docs.header("Content-Type")), (200, Some("text/html; charset=utf-8")));
+    assert!(String::from_utf8_lossy(&docs.body).contains("SwaggerUIBundle"));
+    assert_eq!(route(s, &request("POST", "/docs", &[], Body::Bytes(b"{}".to_vec()))).status, 405);
+
+    let doc: Value = serde_json::from_slice(&spec.body).unwrap();
+    assert_eq!(doc["openapi"], "3.1.0");
+    // release-please bumps both (release-please-config.json): the document never describes another version.
+    assert_eq!(doc["info"]["version"], env!("CARGO_PKG_VERSION"));
+    let mut documented: Vec<(String, String)> = Vec::new();
+    for (path, item) in doc["paths"].as_object().unwrap() {
+        for method in item.as_object().unwrap().keys() {
+            documented.push((method.to_uppercase(), path.clone()));
+        }
+    }
+    documented.sort();
+    let mut expected: Vec<(String, String)> = [
+        ("GET", "/api/defaults"),
+        ("GET", "/api/reference/coverage.png"),
+        ("GET", "/api/result/{id}/{name}"),
+        ("POST", "/api/derive"),
+        ("POST", "/api/generate"),
+    ]
+    .iter()
+    .map(|(m, p)| (m.to_string(), p.to_string()))
+    .collect();
+    expected.sort();
+    assert_eq!(documented, expected, "the document lists exactly the API's routes");
+    // Each documented route answers (not a 404 of an unknown route) with the method the document gives it.
+    assert_eq!(get(s, "/api/defaults").status, 200);
+    assert_eq!(get(s, "/api/reference/coverage.png").status, 200);
+    assert_error(&get(s, "/api/result/000000000000/coverage.png"), 404, "no such result");
+    assert_eq!(post(s, "/api/derive", &json!({"body": earth()})).status, 200);
+    assert_eq!(route(s, &request("GET", "/api/generate", &[], Body::Bytes(Vec::new()))).status, 405);
+    // The result file names the document allows are the ones the server keeps.
+    let names: Vec<&str> = doc["paths"]["/api/result/{id}/{name}"]["get"]["parameters"][1]["schema"]["enum"].as_array().unwrap().iter().map(|v| v.as_str().unwrap()).collect();
+    assert_eq!(names, crate::serve::store::RESULT_FILES.iter().map(|(n, _, _)| *n).collect::<Vec<_>>());
+}
+
 fn static_dir(name: &str) -> PathBuf {
     let root = std::env::temp_dir().join(format!("cloudgen-serve-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&root);

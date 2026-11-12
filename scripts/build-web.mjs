@@ -33,8 +33,18 @@ function buildPage() {
   const head = '</head>';
   if (!html.includes(head)) throw new Error('ui/static/index.html has no </head>: update scripts/build-web.mjs');
   html = html.replace(head, `  <script src="./engine.js"></script>\n${head}`);
+  const docsLink = '<a id="apiDocs" href="docs"';
+  if (!html.includes(docsLink)) throw new Error('ui/static/index.html changed its API link: update scripts/build-web.mjs');
+  html = html.replace(docsLink, '<a id="apiDocs" href="docs.html"');
   writeFileSync(join(web, 'index.html'), html);
-  console.log('page: web/index.html, web/app.js');
+  // The API reference: the OpenAPI document as is, and its Swagger UI page with the engine, so "Try it out" is
+  // answered in the browser like the local server answers it.
+  copyFileSync(join(root, 'ui/static/openapi.json'), join(web, 'openapi.json'));
+  let docs = readFileSync(join(root, 'ui/static/docs.html'), 'utf8');
+  if (!docs.includes(head)) throw new Error('ui/static/docs.html has no </head>: update scripts/build-web.mjs');
+  docs = docs.replace(head, `  <script src="./engine.js"></script>\n${head}`);
+  writeFileSync(join(web, 'docs.html'), docs);
+  console.log('page: web/index.html, web/app.js, web/docs.html, web/openapi.json');
 }
 
 function crateVersion(name) {
