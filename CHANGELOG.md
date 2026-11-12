@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.8.0...v0.9.0) (2026-11-12)
+
+
+### Features
+
+* replace match_to_earth with refine_to_earth for improved statistical calibration ([d9e4b96](https://github.com/bpodwinski/cloud-map-generator/commit/d9e4b96ebf0e53e0d2bb657d5451fb1f7b9de37e))
+
 ## [0.8.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.7.0...v0.8.0) (2026-11-12)
 
 
