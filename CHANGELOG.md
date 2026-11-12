@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.7.0...v0.8.0) (2026-11-12)
+
+
+### Features
+
+* implement cancellation for ongoing generation with API endpoint and UI support ([ca1bc2d](https://github.com/bpodwinski/cloud-map-generator/commit/ca1bc2dbf9a80fcd3d0cb671cf3668012a3271b8))
+
 ## [0.7.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.6.0...v0.7.0) (2026-11-12)
 
 
