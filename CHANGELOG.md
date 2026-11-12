@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.3.0...v0.4.0) (2026-11-12)
+
+
+### Features
+
+* add build stamp to URLs for caching consistency in WebAssembly and worker scripts ([bbdb945](https://github.com/bpodwinski/cloud-map-generator/commit/bbdb94586d107c2bad9319ea002f1724ab557209))
+
 ## [0.3.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.2.0...v0.3.0) (2026-11-12)
 
 
