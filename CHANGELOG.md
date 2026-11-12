@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.2.0...v0.3.0) (2026-11-12)
+
+
+### Features
+
+* add OpenAPI documentation and Swagger UI for Cloud Map Generator API ([cf9b8f5](https://github.com/bpodwinski/cloud-map-generator/commit/cf9b8f53bf54ff5fa1d6b17e038b0cbec5073d48))
+
 ## [0.2.0](https://github.com/bpodwinski/cloud-map-generator/compare/v0.1.0...v0.2.0) (2026-11-12)
 
 
