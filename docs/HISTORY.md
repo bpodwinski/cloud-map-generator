@@ -228,6 +228,82 @@ alone over-steepens the spectrum), then a last per-zone histogram match, then th
 Left: cloud in big objects (88 % against 80 %), and the option stays off by default (it sets the mean to Earth's, not to the body's own target).
 It is not offered for banded maps (8192 and up, CPU + GPU): the quantile tables need the whole map.
 
+### The cloud refiner: first AI pass (2026-11-12)
+
+`options.refine` (UI: "Refine with AI (experimental)", CLI: `gen --refine`): a residual U-Net of 105 thousand weights, trained by `training/` on 125 NASA
+MODIS daily cloud-fraction maps (GIBS, public), run in plain Rust (`core/src/refiner.rs`, parity-tested against PyTorch). Whole maps only (not banded).
+On held-out real maps it brings the L1 error of degraded copies from 0.090 to 0.056. On generated maps (2048, seeds 1 to 4) it does not do what the
+statistics ask for:
+
+| map | hist L1 | coherence | slope | median km2 | pole spread N / S |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Earth | 0 | 0.487 | -2.90 | 308 | 0 / 0.029 |
+| `realistic` | 0.128 | 0.496 | -2.65 | 298 | 0.051 / 0.056 |
+| + `match_earth` (`refine_to_earth`) | 0.023 | 0.483 | -2.87 | 318 | 0.062 / 0.060 |
+| + `refine` | 0.307 | 0.540 | -3.34 | 654 | 0.130 / 0.108 |
+| + `match_earth` + `refine` | 0.306 | 0.601 | -3.63 | 544 | 0.098 / 0.088 |
+
+Read: an L1-trained network is a denoiser. It smooths the grain (the map looks calmer, with fewer speckles) and saturates the values toward 0 and 1
+(MODIS cloud fraction is nearly binary), so the histogram, the spectrum and the object sizes move away from Earth's, and combined with
+`match_earth` it leaves ringing in the clear areas. To add detail, not remove noise, the next version needs a perceptual or adversarial loss (or a
+diffusion model), a target closer to Blue Marble's graded fractions (ERA5 total cloud cover, or MODIS averaged over 5 to 10 texels), and a check
+against these metrics inside the training loop.
+
+Second try, adversarial (`training/train_gan.py`, unpaired: 129 generated maps matched to Earth against 250 real MODIS maps, a patch discriminator, low-pass
+content and identity terms, same architecture), 2048, seeds 1 to 4, with `match_earth`:
+
+| map | hist L1 | coherence | slope | median km2 |
+| --- | ---: | ---: | ---: | ---: |
+| Earth | 0 | 0.487 | -2.90 | 308 |
+| `match_earth` alone | 0.023 | 0.483 | -2.87 | 318 |
+| + L1 refiner (shipped) | 0.306 | 0.601 | -3.63 | 544 |
+| + adversarial, real maps averaged 3 x 3 | 0.146 | 0.560 | -3.65 | 327 |
+| + adversarial, real maps as they are | 0.181 | 0.421 | -2.62 | 818 |
+
+The spectrum follows the training domain (averaging the real maps steepens it, not averaging flattens it), and neither run beats `match_earth` alone on the
+histogram and the slope together. The adversarial script is kept for a later attempt. What it
+needs: a target spectrum in the loss (the radial slope over 40 to 400 km, computed on the output), and a histogram term, so the network is
+judged on what the tool measures; a box of 2 texels would sit between the two runs above.
+
+Third try, better data (`training/fetch_truecolor.py`): the MODIS cloud mask is nearly binary and the reference map is not. The reference was made by inverting a
+clouded image against the cloud-free one (`data/README.md`); GIBS has both (MODIS Terra true colour, daily, and Blue Marble Next Generation), so 443 days
+(2012 to 2024, random) were inverted with the same recipe (divisor floored at 0.4, deadband 0.03) and averaged to 2048 x 1024: 85 to 90 % of the values
+are graded, against 14 % for the mask. The L1 network of `train.py`, same architecture, 5000 steps, now trained on those maps (shipped), 2048, seeds 1 to 4:
+
+| map | hist L1 | coherence | slope | big objects % | median km2 | pole spread N / S |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Earth | 0 | 0.487 | -2.90 | 80.3 | 308 | 0 / 0.029 |
+| `realistic` | 0.128 | 0.496 | -2.65 | 83.9 | 298 | 0.051 / 0.056 |
+| + `refine` | 0.178 | 0.569 | -2.83 | 85.8 | 303 | 0.062 / 0.062 |
+| + `match_earth` | 0.023 | 0.483 | -2.87 | 88.2 | 318 | 0.062 / 0.060 |
+| + `match_earth` + `refine` | 0.071 | 0.546 | -2.87 | 89.3 | 265 | 0.060 / 0.061 |
+
+The data was the problem more than the training: the same network now lands on Earth's slope and median object size by itself (it was -3.6 and 544 km2 on the
+mask), and the maps look softer, with graded interiors instead of speckle. What is left: the coherence is above Earth's (0.55 to 0.57 against 0.487), and
+the histogram is a little further from Earth's than the generator's own; `match_earth` alone is still the best on the histogram. Next: the slope, the
+histogram and the coherence in the loss, the latitude as an input.
+
+Fourth try, what the tool measures in the loss (version 2 of the network, shipped): `training/train.py` now trains on two kinds of maps at once. On real maps
+(graded, as above) the network restores degraded crops (L1). On generated maps (476, matched to Earth or raw) the output's spectrum slope over 40 to 400 km, its
+structure coherence and its histogram are pulled to Earth's reference with differentiable proxies (measured on the reference itself: slope -2.33, coherence
+0.369 for the proxies, against -2.90 and 0.487 for `measure`, which works on gnomonic patches), the layout is held by a low-pass term, and the latitude is a second
+input channel. 6000 steps, 6 minutes. With the tool's own metrics (2048, seeds 1 to 4):
+
+| map | hist L1 | coherence | slope | big objects % | median km2 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Earth | 0 | 0.487 | -2.90 | 80.3 | 308 |
+| `realistic` | 0.128 | 0.496 | -2.65 | 83.9 | 298 |
+| + `refine` (version 1, trained on graded data) | 0.178 | 0.569 | -2.83 | 85.8 | 303 |
+| + `refine` (version 2, shipped) | 0.130 | 0.500 | -2.73 | 84.4 | 270 |
+| + `match_earth` | 0.023 | 0.483 | -2.87 | 88.2 | 318 |
+| + `match_earth` + `refine` (version 2, shipped) | 0.023 | 0.492 | -2.94 | 88.7 | 279 |
+
+`match_earth` + `refine` is the closest to Earth on the histogram, the coherence and the slope together; `refine` alone no longer degrades anything (histogram
+and coherence unchanged, slope a little closer to Earth's). What is left: the objects are a little small (279 against 308 km2) and a faint regular hatch shows in
+the clear areas at 1:1: the network met the proxies partly with fine periodic detail. A stronger supervised term (`--w-real 5`) removed some of it and
+shrank the objects to 250 km2. The next step is a real discriminator on top of the proxies, or a smoothness term on the correction. The shipped change to a
+map is small (mean absolute change 0.01): it is a statistical corrector, not yet a detail generator.
+
 ## Tuning record (sheets v1-v8, `output/cloudgen/`)
 
 | Version | Change | Result |

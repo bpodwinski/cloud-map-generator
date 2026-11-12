@@ -155,6 +155,8 @@ impl SurfaceChoice {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct MapOptions {
     pub match_earth: bool,
+    /// The cloud refiner (`cloud_map_generator_core::refiner`): a trained network adds the fine structure of real clouds. Off by default.
+    pub refine: bool,
     pub isotropic: bool,
     pub experiment: bool,
     pub surface: SurfaceChoice,
@@ -162,7 +164,7 @@ pub struct MapOptions {
 
 impl Default for MapOptions {
     fn default() -> MapOptions {
-        MapOptions { match_earth: false, isotropic: false, experiment: false, surface: SurfaceChoice::None }
+        MapOptions { match_earth: false, refine: false, isotropic: false, experiment: false, surface: SurfaceChoice::None }
     }
 }
 

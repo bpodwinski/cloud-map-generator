@@ -340,6 +340,7 @@ impl Backend for ServiceBackend {
             width,
             options: MapOptions {
                 match_earth: opt.match_earth,
+                refine: false,
                 isotropic: opt.isotropic,
                 experiment: opt.experiment,
                 surface: match opt.surface {

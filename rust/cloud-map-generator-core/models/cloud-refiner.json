@@ -1,0 +1,33 @@
+{
+  "name": "cloud-refiner",
+  "version": 2,
+  "sha256": "3337bbf7696e88795a0c299d2fcb0e7d24723128822001f9d4dd2b31fd52e46a",
+  "parameters": 106689,
+  "steps": 6000,
+  "batch": 12,
+  "inputs": "cloud fraction and sin(latitude)",
+  "data": {
+    "real": "NASA GIBS gibs_tc: MODIS Terra true colour inverted against the cloud-free Blue Marble, as the reference map was made",
+    "real_maps": 446,
+    "held_out": 44,
+    "generated_maps": 476,
+    "license": "NASA imagery is public domain (credit: NASA GSFC / EOSDIS GIBS)"
+  },
+  "loss": {
+    "slope": 4.0,
+    "coherence": 10.0,
+    "histogram": 5.0,
+    "content": 10.0,
+    "identity": 0.5
+  },
+  "metrics": {
+    "val_l1_degraded": 0.09853269110123317,
+    "val_l1_refined": 0.09675828168789545,
+    "slope_target": -2.3305506706237793,
+    "slope_generated_in": -2.167700012524923,
+    "slope_generated_out": -2.341187620162964,
+    "coherence_target": 0.36887064576148987,
+    "coherence_generated_in": 0.45228148500124615,
+    "coherence_generated_out": 0.37231542070706686
+  }
+}

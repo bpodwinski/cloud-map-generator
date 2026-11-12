@@ -225,6 +225,9 @@ pub(crate) fn parse(request_json: &str, caps: &Caps) -> Result<GenRequest, ApiEr
     let req = parse_generate(&v, &WIDTHS, &rt).map_err(|e| ApiError { message: browser_reason(&e.message), ..e })?;
     check_generatable(&req.body, req.options.experiment).map_err(bad)?;
     // What the server's banded engine refuses (`large::check_large`): the match to Earth needs the whole image.
+    if large::is_large(req.width, req.compute) && req.options.refine {
+        return Err(bad("refine needs the whole image: it is not offered for banded maps (a width of 8192, or CPU + GPU); use a width of 4096 or less with CPU or GPU"));
+    }
     if large::is_large(req.width, req.compute) && req.options.match_earth {
         return Err(bad("match_earth needs the whole image in memory: it is not offered for banded maps (a width of 8192, or CPU + GPU); use a width of 4096 or less with CPU or GPU"));
     }

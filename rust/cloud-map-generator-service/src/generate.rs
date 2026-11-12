@@ -463,6 +463,19 @@ pub fn run_generation(rt: &Runtime, reference: &Reference, job: &Job, progress: 
         }
         meta.push("matched_to", J::s(REFERENCE));
     }
+    if opt.refine {
+        run.stage(0.82, "refining the clouds")?;
+        let refiner = cloud_map_generator_core::refiner::Refiner::embedded().map_err(RunError::Failed)?;
+        cov = refiner.refine(&cov, height, width);
+        meta.push(
+            "refined_by",
+            J::obj([
+                ("model", J::s("cloud-refiner")),
+                ("version", J::Int(i64::from(cloud_map_generator_core::refiner::VERSION))),
+                ("weights", J::s(cloud_map_generator_core::refiner::weights_id())),
+            ]),
+        );
+    }
     meta.push(
         "options",
         J::obj([
@@ -470,7 +483,7 @@ pub fn run_generation(rt: &Runtime, reference: &Reference, job: &Job, progress: 
             ("isotropic", J::Bool(opt.isotropic)),
             ("experiment", J::Bool(opt.experiment)),
             ("surface", J::s(opt.surface.key())),
-        ]),
+        ].into_iter().chain(opt.refine.then(|| ("refine", J::Bool(true))))),
     );
     meta.push("compute", compute_json(job.compute.key(), &compute, None));
 

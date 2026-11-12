@@ -8,6 +8,7 @@ pub mod rng;
 pub mod sphere;
 pub mod noise;
 pub mod polar;
+pub mod refiner;
 pub mod climate;
 pub mod flow;
 pub mod surface;

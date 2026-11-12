@@ -506,6 +506,11 @@
             "default": false,
             "description": "Match Earth's per-scale, per-zone statistics."
           },
+          "refine": {
+            "type": "boolean",
+            "default": false,
+            "description": "Last pass by the cloud refiner, a small neural network trained on NASA MODIS cloud maps, which adds the fine structure of real clouds. Works on the whole map (up to 4096 px, not for banded maps). The sidecar records the model and its weights id (`refined_by`)."
+          },
           "isotropic": {
             "type": "boolean",
             "default": false,

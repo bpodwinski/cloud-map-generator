@@ -16,14 +16,14 @@ const TABS = {
 };
 
 const FIELD_KEYS = ['rotation_period_days', 'radius_km', 'gravity_mps2', 'scale_height_km'];
-const OPTION_KEYS = ['match_earth', 'isotropic', 'surface', 'experiment'];
+const OPTION_KEYS = ['match_earth', 'refine', 'isotropic', 'surface', 'experiment'];
 const DEFAULT_FORM = {
   preset: 'earth',
   cloud_regime: 'water',
   fields: { rotation_period_days: '0.99727', radius_km: '6371', gravity_mps2: '9.81', scale_height_km: '8', seed: '42' },
   width: 1024,
   compute: 'auto',
-  options: { match_earth: false, isotropic: false, surface: false, experiment: false }
+  options: { match_earth: false, refine: false, isotropic: false, surface: false, experiment: false }
 };
 // Icon of each compute mode key the contract defines. A key the page does not know gets no icon.
 const COMPUTE_ICONS = { auto: 'wand-sparkles', cpu: 'cpu', gpu: 'zap', hybrid: 'layers' };
@@ -527,7 +527,7 @@ function setRunning(running) {
 function payload() {
   const body = physicsBody();
   const o = state.form.options;
-  const options = { match_earth: o.match_earth, isotropic: o.isotropic, experiment: o.experiment, surface: o.surface ? 'synthetic' : 'none' };
+  const options = { match_earth: o.match_earth, refine: o.refine, isotropic: o.isotropic, experiment: o.experiment, surface: o.surface ? 'synthetic' : 'none' };
   // An older backend has no compute block and would not know the option: send it only when offered.
   if (computeModes().length) options.compute = state.form.compute;
   return { body, seed: Number(els.seed.value), width: state.form.width, options };

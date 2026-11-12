@@ -379,6 +379,9 @@ pub fn check_large(job: &LargeJob) -> Result<(), RunError> {
     if w > REF_W && w % REF_W != 0 {
         return Err(RunError::Refused(format!("width {w}: a map wider than {REF_W} must be a multiple of {REF_W} (its slices are box downsamples)")));
     }
+    if job.options.refine {
+        return Err(RunError::Refused("refine needs the whole image: it is not offered for banded maps (use a width of 4096 or less)".to_string()));
+    }
     if job.options.match_earth {
         return Err(RunError::Refused("match_earth needs the whole image in memory: it is not offered for banded maps (use a width of 8192 or less)".to_string()));
     }

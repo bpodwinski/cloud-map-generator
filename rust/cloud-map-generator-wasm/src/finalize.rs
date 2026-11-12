@@ -219,6 +219,18 @@ pub fn finish(run: Run<'_>, mut output: GenOutput) -> Result<Finished, String> {
         }
         meta.push("matched_to", J::s(REFERENCE));
     }
+    if options.refine {
+        let refiner = cloud_map_generator_core::refiner::Refiner::embedded().map_err(|e| e.to_string())?;
+        cov = refiner.refine(&cov, height, width);
+        meta.push(
+            "refined_by",
+            J::obj([
+                ("model", J::s("cloud-refiner")),
+                ("version", J::Int(i64::from(cloud_map_generator_core::refiner::VERSION))),
+                ("weights", J::s(cloud_map_generator_core::refiner::weights_id())),
+            ]),
+        );
+    }
     meta.push(
         "options",
         J::obj([
@@ -226,7 +238,7 @@ pub fn finish(run: Run<'_>, mut output: GenOutput) -> Result<Finished, String> {
             ("isotropic", J::Bool(options.isotropic)),
             ("experiment", J::Bool(options.experiment)),
             ("surface", J::s(options.surface.key())),
-        ]),
+        ].into_iter().chain(options.refine.then(|| ("refine", J::Bool(true))))),
     );
     meta.push("compute", compute_json(requested.key(), &run.compute, None));
 

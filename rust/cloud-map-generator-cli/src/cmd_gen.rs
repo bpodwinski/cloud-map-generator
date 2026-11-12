@@ -42,6 +42,9 @@ pub struct GenArgs {
     /// Post-process: Earth's per-scale, per-zone statistics (matching.rs).
     #[arg(long)]
     pub match_earth: bool,
+    /// Post-process: the cloud refiner, a trained network that adds the fine structure of real clouds (refiner.rs; not for banded maps).
+    #[arg(long)]
+    pub refine: bool,
     /// Generate for a non-water cloud regime anyway (never a bake).
     #[arg(long)]
     pub experiment: bool,
@@ -96,6 +99,9 @@ fn run_banded(a: &GenArgs, project: &Project, body: cloud_map_generator_core::cl
     use cloud_map_generator_service::reference::Reference;
     use std::sync::atomic::{AtomicBool, Ordering};
     let _ = project;
+    if a.refine {
+        return Err(Fail::new("--refine needs the whole image in memory: it is not offered for the banded engine (use a width of 8192 or less)"));
+    }
     if a.match_earth {
         return Err(Fail::new("--match-earth needs the whole image in memory: it is not offered for the banded engine (use a width of 8192 or less)"));
     }
@@ -104,7 +110,7 @@ fn run_banded(a: &GenArgs, project: &Project, body: cloud_map_generator_core::cl
         body,
         seed: a.seed,
         width,
-        options: MapOptions { match_earth: false, isotropic: a.isotropic, experiment: a.experiment, surface: SurfaceChoice::None },
+        options: MapOptions { match_earth: false, refine: false, isotropic: a.isotropic, experiment: a.experiment, surface: SurfaceChoice::None },
         compute,
         stem: stem.to_string(),
         out_dir: out.to_path_buf(),
@@ -226,6 +232,17 @@ pub fn run(a: GenArgs, project: &Project) -> Result<()> {
             cloud_map_generator_core::polar::polar_filter(&mut cov, 0, h, w, h);
         }
         meta.push("matched_to", J::s(crate::project::REFERENCE));
+    }
+    if a.refine {
+        cov = cloud_map_generator_core::refiner::Refiner::embedded().map_err(Fail::new)?.refine(&cov, h, w);
+        meta.push(
+            "refined_by",
+            J::obj([
+                ("model", J::s("cloud-refiner")),
+                ("version", J::Int(i64::from(cloud_map_generator_core::refiner::VERSION))),
+                ("weights", J::s(cloud_map_generator_core::refiner::weights_id())),
+            ]),
+        );
     }
     debug_assert_eq!(hadley_edge_deg(&body), gen.meta.hadley_edge_deg);
 

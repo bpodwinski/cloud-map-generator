@@ -92,7 +92,7 @@ pub fn parse_options(value: Option<&Value>) -> Result<MapOptions, ApiError> {
         None | Some(Value::Null) => &empty,
         Some(v) => v,
     };
-    let map = object(value, "options", &["match_earth", "isotropic", "experiment", "surface", "compute"])?;
+    let map = object(value, "options", &["match_earth", "refine", "isotropic", "experiment", "surface", "compute"])?;
     let mut options = MapOptions::default();
     for (key, v) in map {
         match key.as_str() {
@@ -110,6 +110,7 @@ pub fn parse_options(value: Option<&Value>) -> Result<MapOptions, ApiError> {
                 };
                 match flag {
                     "match_earth" => options.match_earth = *on,
+                    "refine" => options.refine = *on,
                     "isotropic" => options.isotropic = *on,
                     _ => options.experiment = *on,
                 }
