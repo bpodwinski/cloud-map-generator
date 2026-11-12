@@ -43,7 +43,6 @@
       <span id="version" class="text-xs text-base-content/60"></span>
     </div>
     <div class="navbar-end gap-2">
-      <span id="backend" class="badge badge-soft badge-sm hidden" title="Generator backend"></span>
       <label class="btn btn-ghost btn-sm btn-square swap swap-rotate" title="Light or dark theme">
         <input id="theme" type="checkbox" value="dark" class="theme-controller" aria-label="Dark theme" />
         <svg class="i swap-off size-4" aria-hidden="true"><use href="#i-sun" /></svg>
@@ -63,7 +62,7 @@
     </div>
   </header>
 
-  <main class="mx-auto grid w-full max-w-[1600px] gap-4 p-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-6 lg:p-4">
+  <main class="grid w-full gap-4 p-4 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-6 2xl:grid-cols-[24rem_minmax(0,1fr)]">
 
     <!-- Controls -->
     <form id="controls" class="flex min-w-0 flex-col gap-2.5 lg:sticky lg:top-12 lg:max-h-[calc(100dvh-4.5rem)] lg:self-start lg:overflow-y-auto" novalidate autocomplete="off">
@@ -111,6 +110,33 @@
           <span class="label w-10 justify-start">km</span>
         </label>
         <p class="text-xs text-error empty:hidden" data-hint-for="scale_height_km"></p>
+      </div>
+
+      <!-- What the body implies, next to the fields that drive it: it updates as they change, before any run. -->
+      <div id="stats" role="group" aria-labelledby="g-derived" class="fieldset rounded-box border border-base-300 bg-base-200 p-3 transition-opacity">
+        <h2 id="g-derived" class="fieldset-legend -mt-1">Derived</h2>
+        <dl class="grid grid-cols-2 gap-x-3 gap-y-3">
+          <div class="min-w-0">
+            <dt class="text-xs text-base-content/70">Hadley edge</dt>
+            <dd id="st-hadley" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd class="text-xs text-base-content/60">Edge of the tropical cell</dd>
+          </div>
+          <div class="min-w-0">
+            <dt class="text-xs text-base-content/70">Storm track</dt>
+            <dd id="st-storm" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd class="text-xs text-base-content/60">Mid-latitude storm belt</dd>
+          </div>
+          <div class="min-w-0">
+            <dt class="text-xs text-base-content/70">Cyclones per hemisphere</dt>
+            <dd id="st-cyclones" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-cyclones-desc" class="text-xs text-base-content/60">Baroclinic eddies</dd>
+          </div>
+          <div class="min-w-0">
+            <dt class="text-xs text-base-content/70">Texel size</dt>
+            <dd id="st-texel" class="text-lg leading-tight font-medium tabular-nums">&mdash;</dd>
+            <dd id="st-texel-desc" class="text-xs text-base-content/60">At the chosen width</dd>
+          </div>
+        </dl>
       </div>
 
       <div role="group" aria-labelledby="g-run" class="fieldset rounded-box border border-base-300 bg-base-200 p-3">
@@ -185,32 +211,7 @@
     <!-- Main area -->
     <section class="flex min-w-0 flex-col gap-4">
 
-      <div id="stats" class="stats grid grid-flow-row grid-cols-2 border border-base-300 bg-base-200 sm:grid-cols-4">
-        <div class="stat px-4 py-3">
-          <div class="stat-title text-xs">Hadley edge</div>
-          <div id="st-hadley" class="stat-value text-2xl font-medium">&mdash;</div>
-          <div class="stat-desc">Edge of the tropical cell</div>
-        </div>
-        <div class="stat px-4 py-3">
-          <div class="stat-title text-xs">Storm track</div>
-          <div id="st-storm" class="stat-value text-2xl font-medium">&mdash;</div>
-          <div class="stat-desc">Mid-latitude storm belt</div>
-        </div>
-        <div class="stat px-4 py-3">
-          <div class="stat-title text-xs">Cyclones per hemisphere</div>
-          <div id="st-cyclones" class="stat-value text-2xl font-medium">&mdash;</div>
-          <div id="st-cyclones-desc" class="stat-desc">Baroclinic eddies</div>
-        </div>
-        <div class="stat px-4 py-3">
-          <div class="stat-title text-xs">Texel size</div>
-          <div id="st-texel" class="stat-value text-2xl font-medium">&mdash;</div>
-          <div id="st-texel-desc" class="stat-desc">At the chosen width</div>
-        </div>
-      </div>
-
       <div id="warnings" class="flex flex-col gap-2 empty:hidden"></div>
-
-      <div id="status" role="status" aria-live="polite" class="-mb-2 flex scroll-mt-14 flex-col gap-1.5 text-xs text-base-content/70 empty:hidden"></div>
 
       <div id="viewBar" class="flex scroll-mt-14 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div id="tabs" role="tablist" aria-label="Map product" class="tabs tabs-border tabs-sm max-w-full flex-nowrap overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -240,8 +241,8 @@
       </div>
 
       <div id="panel" role="tabpanel" aria-labelledby="tab-coverage" class="flex flex-col gap-2">
-        <!-- Empty state, shown until a product exists for the tab -->
-        <div id="empty" class="flex flex-col items-center gap-3 rounded-box border border-base-300 bg-base-200 px-6 py-12 text-center">
+        <!-- Empty state, shown until a product exists for the tab. Same footprint as the stage, so the layout does not jump when the first map arrives. -->
+        <div id="empty" class="flex min-h-64 w-full flex-col items-center justify-center gap-3 rounded-box border border-dashed border-base-300 bg-base-200 px-6 py-12 text-center lg:mx-auto lg:aspect-[2/1] lg:w-[min(100%,calc((100dvh-10rem)*2))]">
           <svg class="i size-6 text-base-content/60" aria-hidden="true"><use href="#i-layers" /></svg>
           <h2 id="emptyTitle" class="text-base font-medium">No map yet</h2>
           <p id="emptyText" class="max-w-md text-sm text-base-content/70">Pick a body on the left and press Generate. The four products appear here: coverage, type, high clouds and wind.</p>
@@ -249,7 +250,8 @@
         </div>
 
         <!-- Map or globe -->
-        <div id="stage" class="relative hidden w-full aspect-[2/1] overflow-hidden rounded-box border border-base-300 bg-base-200">
+        <!-- The whole column wide; on a window too short for that (10rem: header, tabs, readout and paddings), as wide as keeps the map in view. -->
+        <div id="stage" class="relative hidden w-full aspect-[2/1] overflow-hidden rounded-box border border-base-300 bg-base-200 lg:mx-auto lg:w-[min(100%,calc((100dvh-10rem)*2))]">
           <img id="mapImg" alt="Map" class="absolute inset-0 size-full object-contain" draggable="false" />
           <canvas id="globe" class="absolute inset-0 hidden size-full cursor-grab touch-none" tabindex="0" role="img" aria-label="Globe view. Drag or use the arrow keys to rotate, double click to reset."></canvas>
           <div id="loadingBox" class="absolute inset-0 hidden">
@@ -266,6 +268,9 @@
           <output id="readout" class="tabular-nums">&nbsp;</output>
           <span id="caption"></span>
         </div>
+
+        <!-- What ran where: under the map, so the map keeps the top of the column. -->
+        <div id="status" role="status" aria-live="polite" class="flex flex-col gap-1.5 text-xs text-base-content/70 empty:hidden"></div>
       </div>
 
       <div id="details" class="hidden min-w-0 flex-col gap-4">

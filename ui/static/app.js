@@ -55,7 +55,7 @@ const els = {
   computeHint: $('#computeHint'), computeNote: $('#computeNote'),
   generate: $('#generate'), generateIcon: $('#generateIcon'), generateLabel: $('#generateLabel'),
   blockReason: $('#blockReason'), blockText: $('#blockText'), status: $('#status'),
-  version: $('#version'), backend: $('#backend'), theme: $('#theme'),
+  version: $('#version'), theme: $('#theme'),
   stats: $('#stats'), hadley: $('#st-hadley'), storm: $('#st-storm'), cyclones: $('#st-cyclones'),
   cyclonesDesc: $('#st-cyclones-desc'), texel: $('#st-texel'), texelDesc: $('#st-texel-desc'), warnings: $('#warnings'),
   tabs: $('#tabs'), downloadBox: $('#download'), downloadButton: $('#downloadButton'), downloadMenu: $('#downloadMenu'),
@@ -148,7 +148,7 @@ function toast(message, kind = 'error') {
   setTimeout(dismiss, 8000);
 }
 
-// The status block above the tabs: one sentence, then (after a run) a badge per device that worked
+// The status block under the map: one sentence, then (after a run) a badge per device that worked
 // and the engine's note. `compute` is the "compute" object of a generate result, absent on an
 // older backend.
 function setStatus(text, compute) {
@@ -515,9 +515,8 @@ function payload() {
 function revealResult() {
   if (!window.matchMedia('(max-width: 1023px)').matches) return;
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Start at the status block when it has something to say (what ran where), else at the tabs.
-  const anchor = els.status.childElementCount ? els.status : $('#viewBar');
-  anchor.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  // Start at the tabs: the map is right under them, the status block (what ran where) under the map.
+  $('#viewBar').scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
 }
 
 async function generate() {
@@ -1638,10 +1637,6 @@ async function start() {
   }
   const d = state.defaults;
   els.version.textContent = d.version ? `v${d.version}` : '';
-  if (d.backend) {
-    els.backend.textContent = d.backend;
-    els.backend.classList.remove('hidden');
-  }
   buildPresets();
   buildWidths();
   buildCompute();
