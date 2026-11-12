@@ -1,0 +1,27 @@
+# Automatic versioning with release-please (https://github.com/googleapis/release-please).
+#
+# Commits on main must follow Conventional Commits (feat:, fix:, perf:, feat!: / BREAKING CHANGE:, ...).
+# The action keeps a "release PR" up to date: it bumps the version (rust/Cargo.toml, rust/Cargo.lock,
+# .release-please-manifest.json) and writes CHANGELOG.md. Merging that PR creates the git tag vX.Y.Z and the GitHub Release.
+# Config: release-please-config.json and .release-please-manifest.json.
+#
+# Setup once, in the repository's settings: Actions > General > Workflow permissions >
+# tick "Allow GitHub Actions to create and approve pull requests".
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
