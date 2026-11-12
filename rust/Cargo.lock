@@ -318,7 +318,7 @@ checksum = "1c133bc6a41be0d194c306b5506d15e6feeea7b1d6604bd3f8310dfb2ca96486"
 
 [[package]]
 name = "cloud-map-generator-cli"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "clap",
  "cloud-map-generator-core",
@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "cloud-map-generator-core"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "cloud-map-generator-golden",
  "num-traits",
@@ -342,14 +342,14 @@ dependencies = [
 
 [[package]]
 name = "cloud-map-generator-golden"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "serde_json",
 ]
 
 [[package]]
 name = "cloud-map-generator-gpu"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "bytemuck",
  "cloud-map-generator-core",
@@ -363,7 +363,7 @@ dependencies = [
 
 [[package]]
 name = "cloud-map-generator-mcp"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "axum",
  "base64 0.22.1",
@@ -378,7 +378,7 @@ dependencies = [
 
 [[package]]
 name = "cloud-map-generator-service"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "clap",
  "cloud-map-generator-core",
@@ -391,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "cloud-map-generator-wasm"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "cloud-map-generator-core",
  "cloud-map-generator-gpu",
